@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    
+    <link rel="shortcut icon" href="../img/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <title>Customization - GameMaker's EzConsole</title>
+    <link href="../css/bootstrap-3.3.7.min.css" rel="stylesheet">
+    <link href="../css/font-awesome-4.7.0.css" rel="stylesheet">
+    <link href="../css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/highlight.css">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="../js/jquery-3.2.1.min.js"></script>
+    <script src="../js/bootstrap-3.3.7.min.js"></script>
+    <script src="../js/highlight.pack.js"></script>
+    
+    <base target="_top">
+    <script>
+      var base_url = '..';
+      var is_top_frame = false;
+        
+        var pageToc = [
+          {title: "Change styles", url: "#_top", children: [
+          ]},
+          {title: "Change key bindings", url: "#change-key-bindings", children: [
+          ]},
+          {title: "Change console\u0027s behavior", url: "#change-consoles-behavior", children: [
+          ]},
+        ];
+
+    </script>
+    <script src="../js/base.js"></script>
+      <script src="../search/main.js"></script> 
+</head>
+
+<body>
+<script>
+if (is_top_frame) { $('body').addClass('wm-top-page'); }
+</script>
+
+
+
+<div class="container-fluid wm-page-content">
+  <a name="_top"></a>
+    
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../commands/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../commands/" class="btn btn-xs btn-link">
+        Commands
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../started/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../started/" class="btn btn-xs btn-link">
+        Getting Started
+      </a>
+    </div>
+    
+  </div>
+
+    
+
+    <h2 id="change-styles">Change styles</h2>
+<p>This console is very customizable, you can change the style of the console by changing the values of the variables in the create event of the <code>__debug_console__</code> object.
+The following variables are responsible for the style of the console:</p>
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">console_width</td>
+<td align="left">The width in pixels of the console.</td>
+</tr>
+<tr>
+<td align="left">console_height</td>
+<td align="left">The height in pixels of the console.</td>
+</tr>
+<tr>
+<td align="left">console_bg_color</td>
+<td align="left">The background color of the console.</td>
+</tr>
+<tr>
+<td align="left">console_bg_alpha</td>
+<td align="left">The background alpha of the console.</td>
+</tr>
+<tr>
+<td align="left">console_text_font</td>
+<td align="left">The font of the text in the console.</td>
+</tr>
+<tr>
+<td align="left">console_text_alpha</td>
+<td align="left">The alpha of the text in the console.</td>
+</tr>
+<tr>
+<td align="left">console_text_blink_char</td>
+<td align="left">The character that will blink when the console is waiting for input.</td>
+</tr>
+<tr>
+<td align="left">console_bar_height</td>
+<td align="left">The height in pixels of the bar that shows the current command.</td>
+</tr>
+<tr>
+<td align="left">console_bar_color</td>
+<td align="left">The color of the bar that shows the current command.</td>
+</tr>
+<tr>
+<td align="left">console_bar_max_chars</td>
+<td align="left">The maximum number of characters that can be shown in the bar.</td>
+</tr>
+<tr>
+<td align="left">console_blur_amount</td>
+<td align="left">The amount of blur that will be applied to the game behind the console.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="change-key-bindings">Change key bindings</h2>
+<p>In the create event of the <code>__debug_console__</code> object you can change the key bindings of the console by changing the values of the variables:</p>
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+<th align="left">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">console_key_toggle</td>
+<td align="left">The key that will toggle the console visible.</td>
+<td align="left"><code>F1</code></td>
+</tr>
+<tr>
+<td align="left">console_key_nav_up</td>
+<td align="left">The key that will move the cursor up in the command history.</td>
+<td align="left"><code>vk_up</code></td>
+</tr>
+<tr>
+<td align="left">console_key_nav_down</td>
+<td align="left">The key that will move the cursor down in the command history.</td>
+<td align="left"><code>vk_down</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="change-consoles-behavior">Change console's behavior</h2>
+<p>In the create event of the <code>__debug_console__</code> object you can change the behavior of the console by changing the values of the variables:</p>
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">console_suggestions_flag</td>
+<td align="left">If this is set to true, the console will show suggestions when the user types a command.</td>
+</tr>
+<tr>
+<td align="left">console_blur_draw</td>
+<td align="left">If this is set to true, the console will draw the game blurred behind it.</td>
+</tr>
+<tr>
+<td align="left">console_callback_on_open</td>
+<td align="left">A function that will be called when the console is opened.</td>
+</tr>
+<tr>
+<td align="left">console_callback_on_close</td>
+<td align="left">A function that will be called when the console is closed.</td>
+</tr>
+<tr>
+<td align="left">console_callback_on_log</td>
+<td align="left">A function that will be called when a log is added to the console.</td>
+</tr>
+<tr>
+<td align="left">console_callback_on_destroy</td>
+<td align="left">A function that will be called when the console is destroyed.</td>
+</tr>
+<tr>
+<td align="left">console_callback_on_game_end</td>
+<td align="left">A function that will be called when the game ends.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+
+  <br>
+    
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../commands/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../commands/" class="btn btn-xs btn-link">
+        Commands
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../started/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../started/" class="btn btn-xs btn-link">
+        Getting Started
+      </a>
+    </div>
+    
+  </div>
+
+    <br>
+</div>
+
+<footer class="col-md-12 wm-page-content">
+  <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a> using <a href="None">Windmill Dark</a> theme by None (noraj).</p>
+</footer>
+
+</body>
+</html>
