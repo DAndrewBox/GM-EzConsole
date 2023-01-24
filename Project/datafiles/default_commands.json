@@ -1,0 +1,131 @@
+[
+  {
+    "name": "show",
+    "short": "-",
+    "desc": "Makes something visible on screen.",
+    "args": [
+      "fps/overlay"
+    ],
+    "req": [
+      true
+    ],
+    "values": [
+      "Can take values \"fps\" or \"overlay\"."
+    ],
+    "callback": "console_command_show"
+  },
+  {
+    "name": "hide",
+    "short": "-",
+    "desc": "Makes something invisible on screen.",
+    "args": [
+      "fps/overlay"
+    ],
+    "req": [
+      true
+    ],
+    "values": [
+      "Can take values \"fps\" or \"overlay\"."
+    ],
+    "callback": "console_command_hide"
+  },
+  {
+    "name": "message",
+    "short": "msg",
+    "desc": "Shows a message and pauses the game.",
+    "args": [
+      "text"
+    ],
+    "req": [
+      true
+    ],
+    "values": [
+      "\"Message to show.\""
+    ],
+    "callback": "console_command_message"
+  },
+  {
+    "name": "fullscreen",
+    "short": "fs",
+    "desc": "Toggle fullscreen.",
+    "args": [
+      "0/1"
+    ],
+    "req": [
+      true
+    ],
+    "values": [
+      "Can take values \"0\" or \"1\" (\"false\" or \"true\" are also valid)."
+    ],
+    "callback": "console_command_fullscreen"
+  },
+  {
+    "name": "game",
+    "short": "gm",
+    "desc": "Choose to end or restart the game.",
+    "args": [
+      "end/reset"
+    ],
+    "req": [
+      true
+    ],
+    "values": [
+      "Can take values \"end\", \"reset\" or \"restart\"."
+    ],
+    "callback": "console_command_game"
+  },
+  {
+    "name": "help",
+    "short": "-",
+    "desc": "Show help about commands",
+    "args": [
+      "command"
+    ],
+    "req": [
+      false
+    ],
+    "values": [
+      "Can take any command name to show specific help about it."
+    ],
+    "callback": "console_command_help"
+  },
+  {
+    "name": "create",
+    "short": "-",
+    "desc": "Creates an instance.",
+    "args": [
+      "name",
+      "x",
+      "y",
+      "depth"
+    ],
+    "req": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "values": [
+      "name of the asset.",
+      "x position (default: Mouse x)",
+      "y position (default: Mouse y)",
+      "instance depth (default: -100)"
+    ],
+    "callback": "console_command_create"
+  },
+  {
+    "name": "instances",
+    "short": "inst",
+    "desc": "Get all active instances.",
+    "args": [
+      "name"
+    ],
+    "req": [
+      false
+    ],
+    "values": [
+      "name of the object to get instances. (If no argument is given it will show all instances)"
+    ],
+    "callback": "console_command_instances"
+  }
+]
