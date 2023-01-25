@@ -1,4 +1,7 @@
 {
+  "resourceType": "GMFont",
+  "resourceVersion": "1.0",
+  "name": "fnt_Consolas",
   "hinting": 0,
   "glyphOperations": 0,
   "interpreter": 0,
@@ -21,6 +24,7 @@
     "path": "texturegroups/Default",
   },
   "ascenderOffset": 1,
+  "ascender": 10,
   "glyphs": {
     "32": {"x":2,"y":2,"w":7,"h":15,"character":32,"shift":7,"offset":0,},
     "33": {"x":220,"y":53,"w":3,"h":15,"character":33,"shift":7,"offset":2,},
@@ -225,10 +229,6 @@
   "maintainGms1Font": false,
   "parent": {
     "name": "Fonts",
-    "path": "folders/Fonts.yy",
+    "path": "folders/Libraries/GM-EzConsole/Fonts.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "fnt_Consolas",
-  "tags": [],
-  "resourceType": "GMFont",
 }

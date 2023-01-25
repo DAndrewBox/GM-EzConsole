@@ -1,19 +1,26 @@
-/// @function string_pad(text, spaces)
+/// @function __ezConsole_dep_string_pad(text, spaces, on_right)
 /// @param	{string}	text
 /// @param	{real}		spaces
-function string_pad(_text, _spaces) {
+/// @param	{bool}		on_right
+function __ezConsole_dep_string_pad(_text, _spaces, _on_right = true) {
 	var _pad = "";
-	for (var i = 0; i < _spaces - string_length(_text); i++) {
-		_pad += " ";
+	if (_on_right) {
+		for (var i = 0; i < _spaces - string_length(_text); i++) {
+			_pad += " ";
+		}
+		return _text + _pad;
 	}
 	
-	return _text + _pad;
+	for (var i = 0; i < _spaces; i++) {
+		_pad += " ";
+	}
+	return _pad + _text;
 }
 
-/// @func	file_text_read_whole(file)
+/// @func	__EzConsole_dep_file_text_read_whole(file)
 /// @param	{real}	file
 /// @desc	Read all lines of a file and returns it as a string
-function file_text_read_whole(_file) {
+function __EzConsole_dep_file_text_read_whole(_file) {
 	if (_file < 0) return "";
 	
 	var _file_str = ""
@@ -24,18 +31,18 @@ function file_text_read_whole(_file) {
 	return _file_str;
 }
 
-/// @func	file_to_json(file)
+/// @func	__ezConsole_dep_file_to_json(file)
 /// @param	{real}	file
 /// @desc	Read a file a transforms it into a json struct
-function file_to_json(_file) {
-	var _str = file_text_read_whole(_file);
+function __ezConsole_dep_file_to_json(_file) {
+	var _str = __EzConsole_dep_file_text_read_whole(_file);
 	return json_parse(_str);
 }
 
-///	@func	shader_set_ext(params)
+///	@func	__ezConsole_dep_shader_set_ext(params)
 /// @param	{any}	params
 /// @desc	Setup a shader with uniform params
-function shader_set_ext(_shader, _params) {	
+function __ezConsole_dep_shader_set_ext(_shader, _params) {	
 	var _keys = variable_struct_get_names(_params);
 	var _shd_callbacks = {
 		u_float:	[shader_set_uniform_f, shader_set_uniform_f_array],
@@ -65,7 +72,7 @@ function shader_set_ext(_shader, _params) {
 	delete _params;
 }
 
-/// @func	draw_surface_blur(surf, blur_amount, x, y, xscale, yscale, rot, col, alpha)
+/// @func	__ezConsole_dep_draw_surface_blur(surf, blur_amount, x, y, xscale, yscale, rot, col, alpha)
 /// @param	{real}	surf
 /// @param	{real}	blur_amount
 /// @param	{real}	x
@@ -75,17 +82,77 @@ function shader_set_ext(_shader, _params) {
 /// @param	{real}	rot
 /// @param	{real}	col
 /// @param	{real}	alpha
-function draw_surface_blur(_surf, _amount, _x, _y, _xscale = 1, _yscale = 1, _rot = 0, _col = -1, _alpha = 1) {
+function __ezConsole_dep_draw_surface_blur(_surf, _amount, _x, _y, _xscale = 1, _yscale = 1, _rot = 0, _col = -1, _alpha = 1) {
 	if !(surface_exists(_surf)) return;
 	
 	var _w, _h;
 	_w = surface_get_width(_surf);
 	_h = surface_get_height(_surf);
-	shader_set_ext(shd_gml_ext_blur_gauss, {
+	__ezConsole_dep_shader_set_ext(shd_gml_ext_blur_gauss, {
 		u_float: {
 			size: [_w, _h, 25 * _amount],
 		}
 	});
 	draw_surface_ext(_surf, _x, _y, _xscale, _yscale, _rot, _col, _alpha);
 	shader_reset();
+}
+
+/// @func	__ezConsole_dep_hex_to_dec(hex)
+/// @param	{str}	hex
+function __ezConsole_dep_hex_to_dec(hex) {
+	var hex_upper = string_delete(string_upper(hex), 1, 1);
+	var hex_fixed = string_copy(hex_upper, 5, 2) + string_copy(hex_upper, 3, 2) + string_copy(hex_upper, 1, 2);
+    var dec = 0;
+    var dig = "0123456789ABCDEF";
+    var len = string_length(hex_fixed);
+    for (var pos = 1; pos <= len; pos++) {
+        dec = dec << 4 | (string_pos(string_char_at(hex_fixed, pos), dig) - 1);
+    }
+ 
+    return dec;
+}
+
+/// @func	__ezConsole_dep_value_to_string(value)
+///	@param	{any}	value
+function __ezConsole_dep_value_to_string(_val, _recursive = 0) {
+	switch(typeof(_val)) {
+		case "string":		return "\"" + _val + "\"";
+		case "undefined":	return "undefined";
+		case "null":		return "null";
+		case "bool":		return ( _val ? "true" : "false" );
+		
+		case "number":
+		case "int32":
+		case "int64":		return string(_val);
+		
+		case "array":
+			var _len = array_length(_val);
+			var _out = string("Array[{0}]", _len);
+			for (var i = 0; i < _len; i++) {
+				_out +=
+					"\n" +
+					__ezConsole_dep_string_pad(
+						string("- [{0}] ", i) + __ezConsole_dep_value_to_string(_val[i], _recursive + 1),
+						32 + 2 * (_recursive - 1),
+						false
+					);
+			}
+			return _out;
+			
+		case "struct":
+			var _keys = variable_struct_get_names(_val);
+			var _len = array_length(_keys);
+			var _out = string("Struct[{0}]", _len);
+			var _spaces = 32 - 4 * _recursive;
+			
+			for (var i = 0; i < _len; i++) {
+				var _value = _val[$ _keys[i]];
+				_out +=
+					"\n" +
+					__ezConsole_dep_string_pad(string(".{0}", _keys[i]), _spaces) +
+					__ezConsole_dep_value_to_string(_value, _recursive + 1);
+			}
+			
+			return _out;
+	}
 }

@@ -1,7 +1,7 @@
 {
   "resourceType": "GMScript",
   "resourceVersion": "1.0",
-  "name": "ezConsole_base_commands",
+  "name": "ezConsole_themes",
   "isCompatibility": false,
   "isDnD": false,
   "parent": {

@@ -32,7 +32,11 @@
       var is_top_frame = false;
         
         var pageToc = [
-          {title: "Change styles", url: "#_top", children: [
+          {title: "Using a theme", url: "#_top", children: [
+          ]},
+          {title: "Create your own theme", url: "#create-your-own-theme", children: [
+          ]},
+          {title: "Change console styles (Without Themes)", url: "#change-console-styles-without-themes", children: [
           ]},
           {title: "Change key bindings", url: "#change-key-bindings", children: [
           ]},
@@ -63,21 +67,11 @@ if (is_top_frame) { $('body').addClass('wm-top-page'); }
 
   <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
     
-    <div class="wm-article-nav pull-right">
-      <a href="../commands/" class="btn btn-xs btn-default pull-right">
-        Next
-        <i class="fa fa-chevron-right" aria-hidden="true"></i>
-      </a>
-      <a href="../commands/" class="btn btn-xs btn-link">
-        Commands
-      </a>
-    </div>
-    
     <div class="wm-article-nav">
-      <a href="../started/" class="btn btn-xs btn-default pull-left">
+      <a href="../commands/" class="btn btn-xs btn-default pull-left">
         <i class="fa fa-chevron-left" aria-hidden="true"></i>
-        Previous</a><a href="../started/" class="btn btn-xs btn-link">
-        Getting Started
+        Previous</a><a href="../commands/" class="btn btn-xs btn-link">
+        Commands
       </a>
     </div>
     
@@ -85,8 +79,226 @@ if (is_top_frame) { $('body').addClass('wm-top-page'); }
 
     
 
-    <h2 id="change-styles">Change styles</h2>
-<p>This console is very customizable, you can change the style of the console by changing the values of the variables in the create event of the <code>__debug_console__</code> object.
+    <h2 id="using-a-theme">Using a theme</h2>
+<p>Since version 1.2.0, the console supports themes. You can use a theme by changing the value of the <code>global.__ezConsole_skins_selected</code>
+variable in the <code>ezConsole_init</code> script for the name of the theme you want to use. The theme should be in the <code>GM-EzConsole</code> folder on your <code>Included Files</code>.</p>
+<p>The following themes are available by default:</p>
+<ul>
+<li><code>default-dark</code></li>
+<li><code>default-light</code></li>
+</ul>
+<h2 id="create-your-own-theme">Create your own theme</h2>
+<p>Since version 1.2.0, you can create your own theme. To do so, you can create a new file in the <code>GM-EzConsole</code> folder with the <code>.skin</code> extension.
+The theme format is very simple, it is just a JSON file with the following structure:</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;&quot;,
+  &quot;author&quot;: &quot;&quot;,
+  &quot;width&quot;: 0,
+  &quot;height&quot;: 0,
+  &quot;anchor&quot;: 0,
+  &quot;bg_color&quot;: &quot;&quot;,
+  &quot;bg_alpha&quot;: 0,
+  &quot;text_font&quot;: &quot;&quot;,
+  &quot;text_font_xoff&quot;: 0,
+  &quot;text_font_yoff&quot;: 0,
+  &quot;text_color_common&quot;: &quot;&quot;,
+  &quot;text_color_error&quot;: &quot;&quot;,
+  &quot;text_color_warning&quot;: &quot;&quot;,
+  &quot;text_color_info&quot;: &quot;&quot;,
+  &quot;text_alpha&quot;: 0,
+  &quot;text_blink_char&quot;: &quot;&quot;,
+  &quot;text_blink_rate&quot;: 0,
+  &quot;text_start_char&quot;: &quot;&quot;,
+  &quot;bar_height&quot;: 0,
+  &quot;bar_color&quot;: &quot;&quot;,
+  &quot;bar_color_highlight&quot;: &quot;&quot;,
+  &quot;bar_xpad&quot;: 0,
+  &quot;bar_ypad&quot;: 0,
+  &quot;blur_flag&quot;: false,
+  &quot;blur_amount&quot;: 0,
+  &quot;screenfill_flag&quot;: false,
+  &quot;screenfill_color&quot;: &quot;&quot;,
+  &quot;screenfill_alpha&quot;: 0,
+  &quot;typeahead_flag&quot;: false,
+  &quot;typeahead_max_elements&quot;: 0,
+  &quot;suggestions_flag&quot;: false,
+  &quot;nav_scroll_speed&quot;: 0
+}
+</code></pre>
+<p>The following table describes the meaning of each field:</p>
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">name</td>
+<td align="left">string</td>
+<td align="left">The name of the theme.</td>
+</tr>
+<tr>
+<td align="left">author</td>
+<td align="left">string</td>
+<td align="left">The author of the theme.</td>
+</tr>
+<tr>
+<td align="left">width</td>
+<td align="left">number</td>
+<td align="left">The width of the console. (If you use a size from 0 to 1 it will use a x% of the window. Ex: 0.50 = 50% of window's width)</td>
+</tr>
+<tr>
+<td align="left">height</td>
+<td align="left">number</td>
+<td align="left">The height of the console. (If you use a size from 0 to 1 it will use a x% of the window. Ex: 0.50 = 50% of window's height)</td>
+</tr>
+<tr>
+<td align="left">anchor</td>
+<td align="left">number</td>
+<td align="left">The anchor of the console. (0: Top-Left, 1: Top-Right, 2: Bottom-Left, 3: Bottom-right )</td>
+</tr>
+<tr>
+<td align="left">bg_color</td>
+<td align="left">string</td>
+<td align="left">The hexadecimal background color of the console. (ex: "#FFFFFF")</td>
+</tr>
+<tr>
+<td align="left">bg_alpha</td>
+<td align="left">number</td>
+<td align="left">The alpha of the background color of the console.</td>
+</tr>
+<tr>
+<td align="left">text_font</td>
+<td align="left">string</td>
+<td align="left">The font of the text in the console. This font should exist on your project with the same name.</td>
+</tr>
+<tr>
+<td align="left">text_font_xoff</td>
+<td align="left">number</td>
+<td align="left">The horizontal offset of the text in the console.</td>
+</tr>
+<tr>
+<td align="left">text_font_yoff</td>
+<td align="left">number</td>
+<td align="left">The vertical offset of the text in the console.</td>
+</tr>
+<tr>
+<td align="left">text_color_common</td>
+<td align="left">string</td>
+<td align="left">The hexadecimal color of the text in the console. (ex: "#FFFFFF")</td>
+</tr>
+<tr>
+<td align="left">text_color_error</td>
+<td align="left">string</td>
+<td align="left">The hexadecimal color of the error text in the console. (ex: "#FF0000")</td>
+</tr>
+<tr>
+<td align="left">text_color_warning</td>
+<td align="left">string</td>
+<td align="left">The hexadecimal color of the warning text in the console. (ex: "#FFFF00")</td>
+</tr>
+<tr>
+<td align="left">text_color_info</td>
+<td align="left">string</td>
+<td align="left">The hexadecimal color of the info text in the console. (ex: "#00FF00")</td>
+</tr>
+<tr>
+<td align="left">text_alpha</td>
+<td align="left">number</td>
+<td align="left">The alpha of the text in the console.</td>
+</tr>
+<tr>
+<td align="left">text_blink_char</td>
+<td align="left">string</td>
+<td align="left">The character that will blink when the console is waiting for input.</td>
+</tr>
+<tr>
+<td align="left">text_blink_rate</td>
+<td align="left">number</td>
+<td align="left">The rate of the blinking character will appear every second.</td>
+</tr>
+<tr>
+<td align="left">text_start_char</td>
+<td align="left">string</td>
+<td align="left">The character that will be shown at the start of the console.</td>
+</tr>
+<tr>
+<td align="left">bar_height</td>
+<td align="left">number</td>
+<td align="left">The height of the bar that shows the current command.</td>
+</tr>
+<tr>
+<td align="left">bar_color</td>
+<td align="left">string</td>
+<td align="left">The hexadecimal color of the bar that shows the current command. (ex: "#FFFFFF")</td>
+</tr>
+<tr>
+<td align="left">bar_color_highlight</td>
+<td align="left">string</td>
+<td align="left">The hexadecimal color of the bar that shows the current command when the user selects a typeahead command. (ex: "#FFFFFF")</td>
+</tr>
+<tr>
+<td align="left">bar_xpad</td>
+<td align="left">number</td>
+<td align="left">The horizontal padding of the bar that shows the current command.</td>
+</tr>
+<tr>
+<td align="left">bar_ypad</td>
+<td align="left">number</td>
+<td align="left">The vertical padding of the bar that shows the current command.</td>
+</tr>
+<tr>
+<td align="left">blur_flag</td>
+<td align="left">bool</td>
+<td align="left">If true, the console will have a blur effect behind.</td>
+</tr>
+<tr>
+<td align="left">blur_amount</td>
+<td align="left">number</td>
+<td align="left">The amount of the blur effect. (From 0 to 1 recommended.)</td>
+</tr>
+<tr>
+<td align="left">screenfill_flag</td>
+<td align="left">bool</td>
+<td align="left">If true, the console will fill the screen with a color.</td>
+</tr>
+<tr>
+<td align="left">screenfill_color</td>
+<td align="left">string</td>
+<td align="left">The hexadecimal color of the screenfill. (ex: "#FFFFFF")</td>
+</tr>
+<tr>
+<td align="left">screenfill_alpha</td>
+<td align="left">number</td>
+<td align="left">The alpha of the screenfill.</td>
+</tr>
+<tr>
+<td align="left">typeahead_flag</td>
+<td align="left">bool</td>
+<td align="left">If true, the console will show a typeahead list of commands.</td>
+</tr>
+<tr>
+<td align="left">typeahead_max_elements</td>
+<td align="left">number</td>
+<td align="left">The maximum number of elements that will be shown in the typeahead list.</td>
+</tr>
+<tr>
+<td align="left">suggestions_flag</td>
+<td align="left">bool</td>
+<td align="left">If true, the console will show a list of suggestions when the user start typing a command.</td>
+</tr>
+<tr>
+<td align="left">nav_scroll_speed</td>
+<td align="left">number</td>
+<td align="left">The speed of the navigation in the console. (from 0.1 to 2 recommended)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="change-console-styles-without-themes">Change console styles (Without Themes)</h2>
+<p>This console is very customizable using themes, but if you don't want to use themes, you can change the style of the console by changing the values of the variables in the create event of the <code>__ezConsole__</code> object.
 The following variables are responsible for the style of the console:</p>
 <table>
 <thead>
@@ -117,6 +329,14 @@ The following variables are responsible for the style of the console:</p>
 <td align="left">The font of the text in the console.</td>
 </tr>
 <tr>
+<td align="left">console_text_font_xoff</td>
+<td align="left">The x offset of the text in the console.</td>
+</tr>
+<tr>
+<td align="left">console_text_font_yoff</td>
+<td align="left">The y offset of the text in the console.</td>
+</tr>
+<tr>
 <td align="left">console_text_alpha</td>
 <td align="left">The alpha of the text in the console.</td>
 </tr>
@@ -133,18 +353,59 @@ The following variables are responsible for the style of the console:</p>
 <td align="left">The color of the bar that shows the current command.</td>
 </tr>
 <tr>
+<td align="left">console_bar_color_highlight</td>
+<td align="left">The color of the bar that shows the current command when the user selects a typeahead command.</td>
+</tr>
+<tr>
 <td align="left">console_bar_max_chars</td>
 <td align="left">The maximum number of characters that can be shown in the bar.</td>
+</tr>
+<tr>
+<td align="left">console_log_xpad</td>
+<td align="left">The horizontal padding of the log.</td>
+</tr>
+<tr>
+<td align="left">console_log_ypad</td>
+<td align="left">The vertical padding of the log.</td>
+</tr>
+<tr>
+<td align="left">console_blur_flag</td>
+<td align="left">If true, the console will have a blur effect behind.</td>
 </tr>
 <tr>
 <td align="left">console_blur_amount</td>
 <td align="left">The amount of blur that will be applied to the game behind the console.</td>
 </tr>
+<tr>
+<td align="left">console_screenfill_flag</td>
+<td align="left">If true, the console will fill the screen with a color.</td>
+</tr>
+<tr>
+<td align="left">console_screenfill_color</td>
+<td align="left">The color of the screenfill.</td>
+</tr>
+<tr>
+<td align="left">console_screenfill_alpha</td>
+<td align="left">The alpha of the screenfill.</td>
+</tr>
+<tr>
+<td align="left">console_typeahead_flag</td>
+<td align="left">If true, the console will show a typeahead list of commands.</td>
+</tr>
+<tr>
+<td align="left">console_typeahead_elements_max</td>
+<td align="left">The maximum number of elements that will be shown in the typeahead list.</td>
+</tr>
+<tr>
+<td align="left">console_suggestions_flag</td>
+<td align="left">If true, the console will show a list of suggestions when the user start typing a command.</td>
+</tr>
 </tbody>
 </table>
+<p>I do not recommend changing style variables that are not listed here, because they are used by the console to work properly.</p>
 <hr />
 <h2 id="change-key-bindings">Change key bindings</h2>
-<p>In the create event of the <code>__debug_console__</code> object you can change the key bindings of the console by changing the values of the variables:</p>
+<p>In the create event of the <code>__ezConsole__</code> object you can change the key bindings of the console by changing the values of the variables:</p>
 <table>
 <thead>
 <tr>
@@ -157,23 +418,34 @@ The following variables are responsible for the style of the console:</p>
 <tr>
 <td align="left">console_key_toggle</td>
 <td align="left">The key that will toggle the console visible.</td>
-<td align="left"><code>F1</code></td>
+<td align="left"><code>vk_f1</code></td>
 </tr>
 <tr>
 <td align="left">console_key_nav_up</td>
-<td align="left">The key that will move the cursor up in the command history.</td>
+<td align="left">The key that will move the cursor up in the command history or the typeahead list of commands.</td>
 <td align="left"><code>vk_up</code></td>
 </tr>
 <tr>
 <td align="left">console_key_nav_down</td>
-<td align="left">The key that will move the cursor down in the command history.</td>
+<td align="left">The key that will move the cursor down in the command history or the typeahead list of commands.</td>
 <td align="left"><code>vk_down</code></td>
+</tr>
+<tr>
+<td align="left">console_key_nav_left</td>
+<td align="left">The key that will move the cursor left in the command.</td>
+<td align="left"><code>vk_left</code></td>
+</tr>
+<tr>
+<td align="left">console_key_nav_right</td>
+<td align="left">The key that will move the cursor right in the command.</td>
+<td align="left"><code>vk_right</code></td>
 </tr>
 </tbody>
 </table>
+<p>The default key binding to autocomplete suggestions or typeahead commands is <code>vk_tab</code> and cannot be changed easily. Sorry :(</p>
 <hr />
 <h2 id="change-consoles-behavior">Change console's behavior</h2>
-<p>In the create event of the <code>__debug_console__</code> object you can change the behavior of the console by changing the values of the variables:</p>
+<p>In the create event of the <code>__ezConsole__</code> object you can change the behavior of the console at almost any event by changing the values of the variables:</p>
 <table>
 <thead>
 <tr>
@@ -182,14 +454,6 @@ The following variables are responsible for the style of the console:</p>
 </tr>
 </thead>
 <tbody>
-<tr>
-<td align="left">console_suggestions_flag</td>
-<td align="left">If this is set to true, the console will show suggestions when the user types a command.</td>
-</tr>
-<tr>
-<td align="left">console_blur_draw</td>
-<td align="left">If this is set to true, the console will draw the game blurred behind it.</td>
-</tr>
 <tr>
 <td align="left">console_callback_on_open</td>
 <td align="left">A function that will be called when the console is opened.</td>
@@ -224,21 +488,11 @@ The following variables are responsible for the style of the console:</p>
 
   <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
     
-    <div class="wm-article-nav pull-right">
-      <a href="../commands/" class="btn btn-xs btn-default pull-right">
-        Next
-        <i class="fa fa-chevron-right" aria-hidden="true"></i>
-      </a>
-      <a href="../commands/" class="btn btn-xs btn-link">
-        Commands
-      </a>
-    </div>
-    
     <div class="wm-article-nav">
-      <a href="../started/" class="btn btn-xs btn-default pull-left">
+      <a href="../commands/" class="btn btn-xs btn-default pull-left">
         <i class="fa fa-chevron-left" aria-hidden="true"></i>
-        Previous</a><a href="../started/" class="btn btn-xs btn-link">
-        Getting Started
+        Previous</a><a href="../commands/" class="btn btn-xs btn-link">
+        Commands
       </a>
     </div>
     
