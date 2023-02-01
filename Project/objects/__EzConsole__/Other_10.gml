@@ -3,7 +3,7 @@ var _surf_h = console_height - console_bar_height - (2 * console_log_ypad);
 console_surf = surface_create(console_width - (2 * console_log_xpad), _surf_h);
 
 surface_set_target(console_surf);
-draw_clear_alpha(c_black, 0);
+draw_clear_alpha(console_bg_color, 0);
 gpu_set_blendenable(false);
 
 var _timestamp_width = 80;

@@ -2,8 +2,8 @@
 /// @function console_get_commands()
 function console_get_commands() {
 	var _commands = [];
-	for (var i = 1; i < array_length(global.__debug_console_commands); i++) {
-		array_push(_commands, global.__debug_console_commands[i])
+	for (var i = 1; i < array_length(ezConsole_commands); i++) {
+		array_push(_commands, ezConsole_commands[i])
 	}
 	
 	return _commands;
@@ -21,7 +21,7 @@ function console_get_message(_type, _command, _params_count=0, _min_params=0, _m
 			return ("\"" + _command + "\" must to recieve at least " +
 					string(_min_params) + " argument(s).\n(" + string(_params_count) + " were given)");
 		
-		case EZ_CONSOLE_MSG.TOO_MUCH_PARAMS:
+		case EZ_CONSOLE_MSG.TOO_MANY_PARAMS:
 			return ("\"" + _command + "\" must to recieve " +
 					string(_max_params) + " argument(s).\n(" + string(_params_count) + " were given)");
 			
@@ -38,7 +38,10 @@ function console_get_message(_type, _command, _params_count=0, _min_params=0, _m
 			return ("Command \"" + _command + "\" does not exists.");
 			
 		case EZ_CONSOLE_MSG.INTIALIZATION:
-			return ("=== GM Ez Console v1.1 ===\nType \"help\" to start.");
+			return ("=== GM Ez Console v1.2 ===\nType \"help\" to start.");
+			
+		case EZ_CONSOLE_MSG.CALLBACK_DOESNT_EXISTS:
+			return ("Callback for this command is not defined!");
 	}
 }
 
@@ -48,10 +51,10 @@ function console_get_message(_type, _command, _params_count=0, _min_params=0, _m
 function console_get_type_color(_type) {
 	switch (_type) {
 		default:
-		case EZ_CONSOLE_MSG_TYPE.COMMON:	return #EEEEEE;
-		case EZ_CONSOLE_MSG_TYPE.ERROR:		return #ff004d;
-		case EZ_CONSOLE_MSG_TYPE.WARNING:	return #ffec27;
-		case EZ_CONSOLE_MSG_TYPE.INFO:		return #8396Bc;
+		case EZ_CONSOLE_MSG_TYPE.COMMON:	return __ezConsole_dep_hex_to_dec(ezConsole_skin[$ "text_color_common"]);
+		case EZ_CONSOLE_MSG_TYPE.ERROR:		return __ezConsole_dep_hex_to_dec(ezConsole_skin[$ "text_color_error"]);
+		case EZ_CONSOLE_MSG_TYPE.WARNING:	return __ezConsole_dep_hex_to_dec(ezConsole_skin[$ "text_color_warning"]);
+		case EZ_CONSOLE_MSG_TYPE.INFO:		return __ezConsole_dep_hex_to_dec(ezConsole_skin[$ "text_color_info"]);
 	}
 }
 
@@ -97,7 +100,6 @@ function console_get_suggestion(_msg) {
 		}
 		
 		if (_prev_word_is_command) {
-			show_debug_message(_msg_trimmed);
 			var _msg_trimmed_len = array_length(_msg_trimmed) - 1;
 			var _command_args_len = array_length(_command.args) - 1;
 			
@@ -110,20 +112,43 @@ function console_get_suggestion(_msg) {
 	
 	return _suggestion;
 }
+
+/// @function console_get_typeahead(message)
+/// @param	{str}	message
+function console_get_typeahead(_msg) {
+	var _msg_trimmed	= string_split(_msg, " ");
+	var _is_command		= array_length(_msg_trimmed) == 1;
+	var _suggestions	= [];
+	var _commands		= console_get_commands();
+	var _commands_len	= array_length(_commands);
+	
+	if (_is_command) {
+		var _command  = "";
+		var _msg_len  = string_length(_msg_trimmed[0]);
+		for (var i = 0; i < _commands_len; i++) {
+			_command = _commands[i].name;
+			if (_msg_trimmed[0] == string_copy(_command, 1, _msg_len) && _msg_trimmed[0] != _command) {
+				array_push(_suggestions, _command);
+			}
+		}
+	}
+	
+	return _suggestions;
+}
 #endregion
 
 #region // ADD
 /// @function	console_add_command(command)
 /// @param	{any}	command
 function console_add_command(_cmd) {
-	array_push(global.__debug_console_commands, _cmd);
+	array_push(ezConsole_commands, _cmd);
 }
 
 /// @function	console_add_commands_from_file(filepath)
 /// @param	{str}	filepath
 function console_add_commands_from_file(_path) {
 	var _file = file_text_open_read(_path);
-	var _json = file_to_json(_file);
+	var _json = __ezConsole_dep_file_to_json(_file);
 	
 	for (var i = 0; i < array_length(_json); i++) {
 		var _cmd = _json[i];
@@ -151,14 +176,14 @@ function ConsoleLog(_msg, _type = EZ_CONSOLE_MSG_TYPE.COMMON) constructor {
 /// @param	{string}	message
 /// @param	{real}		[type]
 function console_write_log(_msg, _type = EZ_CONSOLE_MSG_TYPE.COMMON) {
-	with (__debug_console__) {
+	with (__EzConsole__) {
 		if (console_callback_on_log) console_callback_on_log();
 		var _new_msg = new ConsoleLog(_msg, _type);
 		ds_list_add(console_text_log, _new_msg);
 	
 		keyboard_string = "";
 		console_text_actual = "";
-		console_nav = ds_list_size(console_text_log);
+		console_nav_scroll = ds_list_size(console_text_log);
 		event_user(0);
 	}
 }
@@ -195,20 +220,47 @@ function console_check_command(_msg) {
 	var _commands = console_get_commands();
 	for (var i = 0; i < array_length(_commands); i++) {
 		if (_commands[i].name == _command || (_commands[i].short == _command && _commands[i].short != "-")) {
-			_commands[i].callback(_params);
-			return -1;
+			if (_commands[i].callback != -1) {
+				_commands[i].callback(_params);
+				return;
+			} else {
+				var _non_existing_callback = console_get_message(EZ_CONSOLE_MSG.CALLBACK_DOESNT_EXISTS, _command);
+				console_write_log(_non_existing_callback, EZ_CONSOLE_MSG_TYPE.ERROR);
+				return;
+			}
 		}
 	}
 	
 	var _not_found_text = console_get_message(EZ_CONSOLE_MSG.NOT_A_COMMAND, _command);
 	console_write_log(_not_found_text, EZ_CONSOLE_MSG_TYPE.INFO);
 }
+
+/// @function console_check_params_count(command, params_len, min_params, max_params)
+/// @param	{str}	command
+/// @param	{real}	params_len
+/// @param	{real}	min_params
+/// @param	{real}	max_params
+function console_check_params_count(_command, _params_len, _min_params, _max_params) {
+	if (_params_len < _min_params) {
+		// Not enough params
+		var _not_enough_text = console_get_message(EZ_CONSOLE_MSG.NOT_ENOUGH_PARAMS, _command, _params_len, _min_params, _max_params);
+		console_write_log(_not_enough_text, EZ_CONSOLE_MSG_TYPE.INFO);
+		return false;
+	} else if (_params_len > _max_params) {
+		// Too much params
+		var _too_much_text = console_get_message(EZ_CONSOLE_MSG.TOO_MANY_PARAMS, _command, _params_len, _min_params, _max_params);
+		console_write_log(_too_much_text, EZ_CONSOLE_MSG_TYPE.INFO);
+		return false;
+	}
+	
+	return true;
+}
 	
 /// @function console_save_log_to_file()
 function console_save_log_to_file() {
 	var _logs = console_text_log;
 	var _msg, _time, _file;	
-	_file = file_text_open_write("ezConsole_logs_{0}.txt");
+	_file = file_text_open_write(string("ezConsole_logs_{0}.txt", current_time));
 	
 	for (var i = 0; i < ds_list_size(_logs); i++) {
 		_time = _logs[| i].timestamp;
@@ -217,4 +269,41 @@ function console_save_log_to_file() {
 	}
 	
 	file_text_close(_file);
+}
+
+/// @function console_position_set_by_anchor(anchor)
+/// @param	{real}	anchor
+function console_position_set_by_anchor(_anchor) {
+	var _x, _y;
+	switch (_anchor) {
+		case EZ_CONSOLE_ANCHOR.TOP_LEFT:
+			_x = 0;
+			_y = 0;
+			break;
+		
+		case EZ_CONSOLE_ANCHOR.TOP_RIGHT:
+			_x = window_get_width() - console_width;
+			_y = 0;
+			break;
+		
+		case EZ_CONSOLE_ANCHOR.BOTTOM_LEFT:
+			_x = 0;
+			_y = window_get_height() - console_height;
+			break;
+			
+		case EZ_CONSOLE_ANCHOR.BOTTOM_RIGHT:
+			_x = window_get_width() - console_width;
+			_y = window_get_height() - console_height;
+			break;
+		
+		default:
+			if (is_array(_anchor)) {
+				_x = _anchor[0];
+				_y = _anchor[1];
+			}
+			break;
+	}
+	
+	console_x = _x;
+	console_y = _y;
 }

@@ -6,7 +6,7 @@
 
 ## A GameMaker Studio 2.3+ extension that adds a customizable debug console to your game.
 
-### Last updated: 2023-01-24
+### Last updated: 2023-02-01
 
 ### Author & Collaborators
 
@@ -61,7 +61,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ---
 
-### Versioning & Compatibility
+### Versioning and Compatibility
 
 Any of the releases of this extension are compatible with GameMaker Studio from versions 2.3 to 2022.11 (Including 2022.x LTS). But the table below shows the compatibility of each release.
 
@@ -71,11 +71,12 @@ Any of the releases of this extension are compatible with GameMaker Studio from 
 
 ❌: Not compatible.
 
-| GameMaker Version | GM-EzConsole v1.0 | GM-EzConsole v1.1 |
-| ----------------: | :---------------: | :---------------: |
-|      Studio 1.4.x |        ❌         |        ❌         |
-|    Studio 2 - 2.2 |        ❌         |        ❌         |
-|      Studio 2.3.x |       ✅\*        |        ✅         |
-|        2022.x LTS |       ✅\*        |        ✅         |
-|   2022.1 - 2022.9 |       ✅\*        |        ✅         |
-|           2022.11 |        ✅         |       ✅\*        |
+| GameMaker Version | GM-EzConsole v1.0 | GM-EzConsole v1.1 | GM-EzConsole v1.2 |
+| ----------------: | :---------------: | :---------------: | :---------------: |
+|      Studio 1.4.x |        ❌         |        ❌         |        ❌         |
+|    Studio 2 - 2.2 |        ❌         |        ❌         |        ❌         |
+|      Studio 2.3.x |       ✅\*        |        ❌         |        ❌         |
+|   2022.1 - 2022.9 |       ✅\*        |        ❌         |        ❌         |
+|        2022.x LTS |       ✅\*        |        ⚠️         |        ❌         |
+|           2022.11 |        ⚠️         |        ✅         |       ✅\*        |
+|            2023.1 |        ⚠️         |        ✅         |       ✅\*        |

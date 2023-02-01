@@ -2,10 +2,10 @@
   "resourceType": "GMScript",
   "resourceVersion": "1.0",
   "name": "ezConsole_init",
-  "isDnD": false,
   "isCompatibility": false,
+  "isDnD": false,
   "parent": {
-    "name": "LibDebugConsole",
-    "path": "folders/Libraries/LibDebugConsole.yy",
+    "name": "Scripts",
+    "path": "folders/Libraries/GM-EzConsole/Scripts.yy",
   },
 }

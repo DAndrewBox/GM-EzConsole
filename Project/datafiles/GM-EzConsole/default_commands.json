@@ -1,0 +1,197 @@
+[
+  {
+    "name": "message",
+    "short": "msg",
+    "desc": "Shows a message and pauses the game.",
+    "args": [
+      "text"
+    ],
+    "args_req": [
+      true
+    ],
+    "args_desc": [
+      "\"Message to show.\""
+    ],
+    "callback": "console_command_message"
+  },
+  {
+    "name": "fullscreen",
+    "short": "fs",
+    "desc": "Toggle fullscreen.",
+    "args": [
+      "0/1"
+    ],
+    "args_req": [
+      true
+    ],
+    "args_desc": [
+      "Can take values \"0\" or \"1\" (\"false\" or \"true\" are also valid)."
+    ],
+    "callback": "console_command_fullscreen"
+  },
+  {
+    "name": "game",
+    "short": "gm",
+    "desc": "Choose to end or restart the game.",
+    "args": [
+      "end/reset"
+    ],
+    "args_req": [
+      true
+    ],
+    "args_desc": [
+      "Can take values \"end\", \"reset\" or \"restart\"."
+    ],
+    "callback": "console_command_game"
+  },
+  {
+    "name": "help",
+    "short": "-",
+    "desc": "Show help about commands",
+    "args": [
+      "command"
+    ],
+    "args_req": [
+      false
+    ],
+    "args_desc": [
+      "Can take any command name to show specific help about it."
+    ],
+    "callback": "console_command_help"
+  },
+  {
+    "name": "create",
+    "short": "-",
+    "desc": "Creates an instance.",
+    "args": [
+      "name",
+      "x",
+      "y",
+      "depth"
+    ],
+    "args_req": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "args_desc": [
+      "name of the asset.",
+      "x position (default: Mouse x)",
+      "y position (default: Mouse y)",
+      "instance depth (default: -100)"
+    ],
+    "callback": "console_command_create"
+  },
+  {
+    "name": "instances",
+    "short": "inst",
+    "desc": "Get all active instances.",
+    "args": [
+      "name"
+    ],
+    "args_req": [
+      false
+    ],
+    "args_desc": [
+      "name of the object to get instances. (If no argument is given it will show all instances)"
+    ],
+    "callback": "console_command_instances"
+  },
+  {
+    "name": "set",
+    "short": "-",
+    "desc": "Set a variable on an instance",
+    "args": [
+      "id",
+      "variable",
+      "value"
+    ],
+    "args_req": [
+      true,
+      true,
+      true
+    ],
+    "args_desc": [
+      "Instance ID",
+      "Variable name",
+      "Value to set"
+    ],
+    "callback": "console_command_instance_set"
+  },
+  {
+    "name": "get",
+    "short": "-",
+    "desc": "Gets a variable in an instance",
+    "args": [
+      "id",
+      "variable"
+    ],
+    "args_req": [
+      true,
+      false
+    ],
+    "args_desc": [
+      "Instance ID",
+      "Variable name"
+    ],
+    "callback": "console_command_instance_get"
+  },
+  {
+    "name": "delete",
+    "short": "del",
+    "desc": "Delete an instance.",
+    "args": [
+      "id",
+      "0/1"
+    ],
+    "args_req": [
+      true,
+      false
+    ],
+    "args_desc": [
+      "Instance ID",
+      "Execute destroy event (default: 1/true)"
+    ],
+    "callback": "console_command_instance_delete"
+  },
+  {
+    "name": "clear",
+    "short": "cls",
+    "desc": "Clears the console.",
+    "args": [],
+    "args_req": [],
+    "args_desc": [],
+    "callback": "console_command_clear"
+  },
+  {
+    "name": "fps",
+    "short": "-",
+    "desc": "Toggle FPS counter.",
+    "args": [
+      "0/1"
+    ],
+    "args_req": [
+      false
+    ],
+    "args_desc": [
+      "Can take values \"0\" or \"1\" (\"false\" or \"true\" are also valid)."
+    ],
+    "callback": "console_command_fps"
+  },
+  {
+    "name": "overlay",
+    "short": "-",
+    "desc": "Toggle debug overlay counter.",
+    "args": [
+      "0/1"
+    ],
+    "args_req": [
+      false
+    ],
+    "args_desc": [
+      "Can take values \"0\" or \"1\" (\"false\" or \"true\" are also valid)."
+    ],
+    "callback": "console_command_debug_overlay"
+  }
+]

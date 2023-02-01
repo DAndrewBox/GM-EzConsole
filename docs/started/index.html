@@ -66,12 +66,12 @@ if (is_top_frame) { $('body').addClass('wm-top-page'); }
   <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
     
     <div class="wm-article-nav pull-right">
-      <a href="../customize/" class="btn btn-xs btn-default pull-right">
+      <a href="../commands/" class="btn btn-xs btn-default pull-right">
         Next
         <i class="fa fa-chevron-right" aria-hidden="true"></i>
       </a>
-      <a href="../customize/" class="btn btn-xs btn-link">
-        Customization
+      <a href="../commands/" class="btn btn-xs btn-link">
+        Commands
       </a>
     </div>
     
@@ -119,10 +119,11 @@ you should not import the <code>ezConsole_custom_commands</code> on step 1.</p>
 <p>If you want to set up the extension on an existing project, you can do so by following these steps:</p>
 <ol>
 <li>Import the extension into your project. (See <a href="#installation">Installation</a>)</li>
-<li>Make sure you have the <code>GML-EzConsole</code> folder in your project.</li>
-<li>Make sure you have the <code>__debug_console__</code> object in your <code>Objects</code> folder.</li>
-<li>Make sure you have the <code>default_commands.json</code> file in your <code>Included Files</code> folder (or try to find it on your <code>datafiles</code> project folder).</li>
-<li>Place the <code>__debug_console__</code> object in the first room of your project.</li>
+<li>Make sure you have the <code>GM-EzConsole</code> folder in your project.</li>
+<li>Make sure you have the <code>__EzConsole__</code> object in your <code>EzConsole\Objects</code> folder.</li>
+<li>Make sure you have the <code>GM-EzConsole</code> folder, and the following files: <code>default_commands.json</code>, <code>default-dark.skin</code> and <code>default-light.skin</code> files
+   in your <code>Included Files</code> folder (or try to find it on your <code>datafiles</code> project folder).</li>
+<li>Place the <code>__EzConsole__</code> object in the first room of your project.</li>
 <li>Run your project and press <code>F1</code> to open the console.</li>
 <li>If you can see a console window, you're good to go.</li>
 </ol>
@@ -130,83 +131,82 @@ you should not import the <code>ezConsole_custom_commands</code> on step 1.</p>
 <h2 id="create-your-first-command">Create your first command</h2>
 <p>On this section, you will learn how to create your first command. This command will be called <code>trace</code> and will print a message on the console.</p>
 <p>To create your first command, you can do so by following these steps:</p>
-<p>1) Open the <code>ezConsole_custom_commands</code> script file in your project.</p>
-<p>2) Create a new function inside this file with the following name <code>console_command_trace</code>.</p>
+<ol>
+<li>
+<p>Open the <code>ezConsole_custom_commands</code> script file in your project.</p>
+</li>
+<li>
+<p>Create a new function inside this file with the following name <code>console_command_trace</code>.</p>
+</li>
+</ol>
 <pre><code class="language-js">/// @func   console_command_trace(args)
 /// @param  {array} args
 function console_command_trace(_args) {
   // Your code here
 }
 </code></pre>
-<p>3) As you can see, the function name must start with <code>console_command_</code> followed by the command name. In this case, the command name is <code>trace</code>.
+<ol>
+<li>As you can see, the function name must start with <code>console_command_</code> followed by the command name. In this case, the command name is <code>trace</code>.
    Inside the function, you should start by creating 4 variables, <code>_command</code>, <code>_params_len</code>, <code>_min_params</code> and <code>_max_params</code>,
-   the first one will store the command name to be called and the second one will store the length of the <code>_args</code> array.</p>
+   the first one will store the command name to be called and the second one will store the length of the <code>_args</code> array.</li>
+</ol>
 <pre><code class="language-js">var _command = &quot;trace&quot;;
 var _params_len = array_length(_args);
 var _min_params = 1;
 var _max_params = 99; // You can set this to the maximum number of params you want
 </code></pre>
-<p>4) Now, you should check if the <code>_params_len</code> is less than <code>_min_params</code> and grater than <code>_max_params</code>, if it is, you should print a message on the console
-   telling the user that the command was called with the wrong number of params.</p>
-<pre><code class="language-js">if (_params_len &lt; _min_params) {
-  // Not enough params
-  var _not_enough_text = console_get_message(
-    EZ_CONSOLE_MSG.NOT_ENOUGH_PARAMS,
-    _command,
-    _params_len,
-    _min_params,
-    _max_params
-  );
-  console_write_log(_not_enough_text, EZ_CONSOLE_MSG_TYPE.INFO);
-} else if (_params_len &gt; _max_params) {
-  // Too many params
-  var _too_many_text = console_get_message(
-    EZ_CONSOLE_MSG.TOO_MUCH_PARAMS,
-    _command,
-    _params_len,
-    _min_params,
-    _max_params
-  );
-  console_write_log(_too_many_text, EZ_CONSOLE_MSG_TYPE.INFO);
+<ol>
+<li>Now, you should check if the <code>_params_len</code> is less than <code>_min_params</code> and grater than <code>_max_params</code>, if it is, you should print a message on the console
+   telling the user that the command was called with the wrong number of params. We can use the <code>console_check_params_count</code> function to do so.</li>
+</ol>
+<pre><code class="language-js">// Check for the correct number of params
+if (console_check_params_count(_command, _params_len, _min_params, _max_params)) {
+  // Your code here
 }
 </code></pre>
-<p>5) Now, we should check the "happy path", if the <code>_params_len</code> is between <code>_min_params</code> and <code>_max_params</code>, we should print the message on the console.
-   So we add a new <code>else</code> case.</p>
-<pre><code class="language-js">else {
-  var _message = &quot;&quot;;
-  for (var i = 0; i &lt; _params_len; i++) {
-    _message += _args[i];
-    if (i &lt; _params_len - 1) {
-      _message += &quot; &quot;;
-    }
+<ol>
+<li>Now, we should check the "happy path", if the value returned from <code>console_check_params_count</code> is <code>true</code>, we should print the message on the console.
+   Note that we do not need to convert <code>_args[i]</code> since params is an array of string, so we can sum them directly.</li>
+</ol>
+<pre><code class="language-js">var _message = &quot;&quot;;
+for (var i = 0; i &lt; _params_len; i++) {
+  _message += _args[i];
+  if (i &lt; _params_len - 1) {
+    _message += &quot; &quot;;
   }
-  console_write_log(_message, EZ_CONSOLE_MSG_TYPE.INFO);
-  show_debug_message(_message);
 }
+console_write_log(_message, EZ_CONSOLE_MSG_TYPE.INFO);
+show_debug_message(_message);
 </code></pre>
-<p>6) Now that the function is created, we should add it to the <code>console_commands</code> array. To do so, we should add a new element to the array with the following structure:</p>
+<ol>
+<li>Now that the function is created, we should add it to the <code>console_commands</code> array. To do so, we should add a new element to the array with the following structure:</li>
+</ol>
 <pre><code class="language-js">{
   name: &quot;trace&quot;,
   short: &quot;tr&quot;,
   desc: &quot;Prints a message on the console&quot;,
   args: [&quot;message&quot;],
-  req: [true],
-  values: [&quot;Message to be printed on the console&quot;],
+  args_req: [true],
+  args_desc: [&quot;Message to be printed on the console&quot;],
   callback: &quot;console_command_trace&quot;,
 }
 </code></pre>
-<p>7) Finally, we add it to the <code>console_commands</code> array by declaring it at the end of the <code>ezConsole_custom_commands</code> file (and outside of the function) like this:</p>
+<ol>
+<li>Finally, we add it to the <code>console_commands</code> array by declaring it at the end of the <code>ezConsole_custom_commands</code> file (and outside of the function) like this:</li>
+</ol>
 <pre><code class="language-js">console_add_command({
   name: &quot;trace&quot;,
   short: &quot;tr&quot;,
   desc: &quot;Prints a message on the console&quot;,
   args: [&quot;message&quot;],
-  req: [true],
-  values: [&quot;Message to be printed on the console&quot;],
+  args_req: [true],
+  args_desc: [&quot;Message to be printed on the console&quot;],
   callback: &quot;console_command_trace&quot;,
 });
 </code></pre>
-<p>8) Now, you can run your project and type <code>trace</code> on the console, followed by a message. If everything went well, you should see the message on the GameMaker's console and on the EzConsole.</p>
+<ol>
+<li>Now, you can run your project and type <code>trace</code> on the console, followed by a message. If everything went well, you should see the message on the GameMaker's console and on the EzConsole.</li>
+</ol>
 <p>The final code should look like this:</p>
 <pre><code class="language-js">/// @func   console_command_trace(args)
 /// @param  {array} args
@@ -216,27 +216,8 @@ function console_command_trace(_args) {
   var _min_params = 1;
   var _max_params = 99; // You can set this to the maximum number of params you want
 
-  if (_params_len &lt; _min_params) {
-    // Not enough params
-    var _not_enough_text = console_get_message(
-      EZ_CONSOLE_MSG.NOT_ENOUGH_PARAMS,
-      _command,
-      _params_len,
-      _min_params,
-      _max_params
-    );
-    console_write_log(_not_enough_text, EZ_CONSOLE_MSG_TYPE.INFO);
-  } else if (_params_len &gt; _max_params) {
-    // Too many params
-    var _too_many_text = console_get_message(
-      EZ_CONSOLE_MSG.TOO_MUCH_PARAMS,
-      _command,
-      _params_len,
-      _min_params,
-      _max_params
-    );
-    console_write_log(_too_many_text, EZ_CONSOLE_MSG_TYPE.INFO);
-  } else {
+  // Check for the correct number of params
+  if (console_check_params_count(_command, _params_len, _min_params, _max_params)) {
     var _message = &quot;&quot;;
     for (var i = 0; i &lt; _params_len; i++) {
       _message += _args[i];
@@ -254,8 +235,8 @@ console_add_command({
   short: &quot;tr&quot;,
   desc: &quot;Prints a message on the console&quot;,
   args: [&quot;message&quot;],
-  req: [true],
-  values: [&quot;Message to be printed on the console&quot;],
+  args_req: [true],
+  args_desc: [&quot;Message to be printed on the console&quot;],
   callback: &quot;console_command_trace&quot;,
 });
 </code></pre>
@@ -273,12 +254,12 @@ console_add_command({
   <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
     
     <div class="wm-article-nav pull-right">
-      <a href="../customize/" class="btn btn-xs btn-default pull-right">
+      <a href="../commands/" class="btn btn-xs btn-default pull-right">
         Next
         <i class="fa fa-chevron-right" aria-hidden="true"></i>
       </a>
-      <a href="../customize/" class="btn btn-xs btn-link">
-        Customization
+      <a href="../commands/" class="btn btn-xs btn-link">
+        Commands
       </a>
     </div>
     

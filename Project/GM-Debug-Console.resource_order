@@ -1,0 +1,28 @@
+{
+  "FolderOrderSettings": [
+    {"name":"Animation Curves","order":11,"path":"folders/Animation Curves.yy",},
+    {"name":"Extensions","order":13,"path":"folders/Extensions.yy",},
+    {"name":"Libraries","order":15,"path":"folders/Libraries.yy",},
+    {"name":"Fonts","order":3,"path":"folders/Libraries/GM-EzConsole/Fonts.yy",},
+    {"name":"Objects","order":2,"path":"folders/Libraries/GM-EzConsole/Objects.yy",},
+    {"name":"Shaders","order":1,"path":"folders/Libraries/GM-EzConsole/Shaders.yy",},
+    {"name":"Notes","order":12,"path":"folders/Notes.yy",},
+    {"name":"Objects","order":8,"path":"folders/Objects.yy",},
+    {"name":"Paths","order":3,"path":"folders/Paths.yy",},
+    {"name":"Rooms","order":9,"path":"folders/Rooms.yy",},
+    {"name":"Scripts","order":4,"path":"folders/Scripts.yy",},
+    {"name":"Sequences","order":10,"path":"folders/Sequences.yy",},
+    {"name":"Shaders","order":5,"path":"folders/Shaders.yy",},
+    {"name":"Sounds","order":2,"path":"folders/Sounds.yy",},
+    {"name":"Tile Sets","order":1,"path":"folders/Tile Sets.yy",},
+    {"name":"Timelines","order":7,"path":"folders/Timelines.yy",},
+  ],
+  "ResourceOrderSettings": [
+    {"name":"ezConsole_base_commands","order":2,"path":"scripts/ezConsole_base_commands/ezConsole_base_commands.yy",},
+    {"name":"ezConsole_themes","order":4,"path":"scripts/ezConsole_themes/ezConsole_themes.yy",},
+    {"name":"ezConsole_custom_commands","order":3,"path":"scripts/ezConsole_custom_commands/ezConsole_custom_commands.yy",},
+    {"name":"ezConsole_dependencies","order":5,"path":"scripts/ezConsole_dependencies/ezConsole_dependencies.yy",},
+    {"name":"fnt_ezConsole_Pixel","order":1,"path":"fonts/fnt_ezConsole_Pixel/fnt_ezConsole_Pixel.yy",},
+    {"name":"ezConsole_logic","order":1,"path":"scripts/ezConsole_logic/ezConsole_logic.yy",},
+  ],
+}

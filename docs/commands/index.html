@@ -67,11 +67,21 @@ if (is_top_frame) { $('body').addClass('wm-top-page'); }
 
   <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
     
-    <div class="wm-article-nav">
-      <a href="../customize/" class="btn btn-xs btn-default pull-left">
-        <i class="fa fa-chevron-left" aria-hidden="true"></i>
-        Previous</a><a href="../customize/" class="btn btn-xs btn-link">
+    <div class="wm-article-nav pull-right">
+      <a href="../customize/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../customize/" class="btn btn-xs btn-link">
         Customization
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../started/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../started/" class="btn btn-xs btn-link">
+        Getting Started
       </a>
     </div>
     
@@ -99,18 +109,6 @@ The commands are imported automatically when the extension is imported into your
 <td>Show the list of commands.</td>
 <td>[command]</td>
 <td>[false]</td>
-</tr>
-<tr>
-<td>show</td>
-<td>Makes something visible on screen.</td>
-<td>[fps/overlay]</td>
-<td>[true]</td>
-</tr>
-<tr>
-<td>hide</td>
-<td>Makes something invisible on screen.</td>
-<td>[fps/overlay]</td>
-<td>[true]</td>
 </tr>
 <tr>
 <td>message</td>
@@ -142,6 +140,42 @@ The commands are imported automatically when the extension is imported into your
 <td>[object_name]</td>
 <td>[true]</td>
 </tr>
+<tr>
+<td>clear</td>
+<td>Clear the console.</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>set</td>
+<td>Set a variable on an instance.</td>
+<td>[instance_id, variable_name, value]</td>
+<td>[true, true]</td>
+</tr>
+<tr>
+<td>get</td>
+<td>Gets a variable or all variables from an instance.</td>
+<td>[instance_ide, variable_name]</td>
+<td>[false]</td>
+</tr>
+<tr>
+<td>delete</td>
+<td>Delete an instance.</td>
+<td>[instance_id]</td>
+<td>[true]</td>
+</tr>
+<tr>
+<td>fps</td>
+<td>Shows or toggles the current FPS.</td>
+<td>[0/1]</td>
+<td>[false]</td>
+</tr>
+<tr>
+<td>overlay</td>
+<td>Shows or hides the debug overlay.</td>
+<td>[0/1]</td>
+<td>[false]</td>
+</tr>
 </tbody>
 </table>
 <hr />
@@ -152,8 +186,8 @@ The commands are imported automatically when the extension is imported into your
   &quot;short&quot;: &quot;command_short_name&quot;,
   &quot;desc&quot;: &quot;Short description of the command&quot;,
   &quot;args&quot;: [&quot;argument_name&quot;],
-  &quot;req&quot;: [&quot;true or false&quot;],
-  &quot;values&quot;: [&quot;Short description of the argument in the same index&quot;],
+  &quot;args_req&quot;: [&quot;true or false&quot;],
+  &quot;args_desc&quot;: [&quot;Short description of the argument in the same index&quot;],
   &quot;callback&quot;: &quot;Function to call when the command is executed&quot;
 }
 </code></pre>
@@ -188,12 +222,12 @@ The commands are imported automatically when the extension is imported into your
 <td>No</td>
 </tr>
 <tr>
-<td>req</td>
+<td>args_req</td>
 <td>False if the argument is optional, true otherwise.</td>
 <td>No (Yes if there's at least 1 argument)</td>
 </tr>
 <tr>
-<td>values</td>
+<td>args_desc</td>
 <td>The description of the arguments.</td>
 <td>No (Yes if there's at least 1 argument)</td>
 </tr>
@@ -233,8 +267,8 @@ The commands are imported automatically when the extension is imported into your
   short: &quot;-&quot;,
   desc: &quot;Show fps&quot;,
   args: [&quot;flag&quot;],
-  req: [true],
-  values: [&quot;Boolean flag to enable or disable the fps counter.&quot;],
+  args_req: [true],
+  args_desc: [&quot;Boolean flag to enable or disable the fps counter.&quot;],
   callback: &quot;show_fps&quot;,
 });
 </code></pre>
@@ -243,20 +277,20 @@ The commands are imported automatically when the extension is imported into your
 <p>As a last resort, you can try to add the commands directly to the global array. This is not recommended, but it's possible.</p>
 <ol>
 <li>Open the <code>ezConsole_custom_init</code> script.</li>
-<li>Add the commands you want to import to the <code>global.__debug_console_commands</code> array.</li>
+<li>Add the commands you want to import to the <code>global.__ezConsole_commands</code> array.</li>
 <li>Create a callback function for each command you want to import on the <code>ezConsole_custom_commands</code> script.</li>
 <li>Run your project and press <code>F1</code> to open the console.</li>
 <li>Type <code>help</code> to see the list of commands.</li>
 </ol>
 <p>This is an example of how to add a command to the global array:</p>
-<pre><code class="language-js">global.__debug_console_commands = [
+<pre><code class="language-js">global.__ezConsole_commands = [
   {
     name: &quot;COMMAND&quot;,
     short: &quot;short&quot;,
     desc: &quot;DESCRIPTION&quot;,
     args: [&quot;ARGUMENT&quot;],
-    req: [true],
-    values: [&quot;VALUE&quot;],
+    args_req: [true],
+    args_desc: [&quot;VALUE&quot;],
     callback: &quot;console_write_log&quot;,
   },
   {
@@ -264,8 +298,8 @@ The commands are imported automatically when the extension is imported into your
     short: &quot;-&quot;,
     desc: &quot;Show fps&quot;,
     args: [&quot;flag&quot;],
-    req: [true],
-    values: [&quot;Boolean flag to enable or disable the fps counter.&quot;],
+    args_req: [true],
+    args_desc: [&quot;Boolean flag to enable or disable the fps counter.&quot;],
     callback: &quot;show_fps&quot;,
   },
   ...
@@ -283,11 +317,21 @@ The commands are imported automatically when the extension is imported into your
 
   <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
     
-    <div class="wm-article-nav">
-      <a href="../customize/" class="btn btn-xs btn-default pull-left">
-        <i class="fa fa-chevron-left" aria-hidden="true"></i>
-        Previous</a><a href="../customize/" class="btn btn-xs btn-link">
+    <div class="wm-article-nav pull-right">
+      <a href="../customize/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../customize/" class="btn btn-xs btn-link">
         Customization
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../started/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../started/" class="btn btn-xs btn-link">
+        Getting Started
       </a>
     </div>
     
