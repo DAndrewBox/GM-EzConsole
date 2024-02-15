@@ -13,6 +13,7 @@ if (console_screenfill_flag) {
 
 // Draw blurred background
 if (console_blur_flag && surface_exists(application_surface)) {
+	var _is_fullscreen = window_get_fullscreen();
 	draw_set_alpha(1);
 	if (!surface_exists(console_blur_surf)) {
 		console_blur_surf = surface_create(console_width, console_height);
@@ -27,8 +28,8 @@ if (console_blur_flag && surface_exists(application_surface)) {
 		console_height - 1,
 		0,
 		0,
-		window_get_fullscreen() ? display_get_width() / __original_window_w : 1,
-		window_get_fullscreen() ? display_get_height() / __original_window_h : 1,
+		_is_fullscreen ? display_get_width() / __original_window_w : 1,
+		_is_fullscreen ? display_get_height() / __original_window_h : 1,
 		-1,
 		1
 	);
@@ -93,6 +94,7 @@ if (console_log_total_h > 0) {
 	var _sidebar_x = console_x + console_width - console_log_xpad - 1;
 	var _sidebar_y = console_y + console_log_ypad;
 	var _sidebar_max_h = ((console_height - console_bar_height - (2 * console_log_ypad)));
+	var _sidebar_cursor_h = max(1, (_sidebar_max_h / 3) * (_sidebar_max_h / console_log_total_h));
 	draw_set_alpha(console_bg_alpha);
 	draw_set_color(console_bg_color);
 	draw_rectangle(_sidebar_x - 1,
@@ -102,50 +104,97 @@ if (console_log_total_h > 0) {
 				   false);
 	draw_set_color(console_text_actual_color);
 	draw_rectangle(_sidebar_x - 2,
-				   _sidebar_y + console_surf_yoffset/console_log_total_h * _sidebar_max_h - 1,
+				   _sidebar_y + (console_surf_yoffset/console_log_total_h * (_sidebar_max_h - _sidebar_cursor_h)),
 				   _sidebar_x + 2,
-				   _sidebar_y + console_surf_yoffset/console_log_total_h * _sidebar_max_h + 1,
+				   _sidebar_y + (console_surf_yoffset/console_log_total_h * (_sidebar_max_h - _sidebar_cursor_h)) + _sidebar_cursor_h,
 				   false);
 }
 
 // Draw typeahed
-if (console_typeahead_flag && console_typeahead_show) {	
+var _typeahead_max_len = array_length(console_typeahead_elements);
+if (console_typeahead_flag && console_typeahead_show && _typeahead_max_len > 0) {
+	var _typeahead_xoff = string_width(" " + string_copy(console_text_actual, 1, string_last_pos(" ", console_text_actual)));
+	var _typeahead_icon_xoff = -16;
+	
 	var _bar_on_bottom = _bar_y > window_get_height() / 2;
-	for (var i = 0; i < array_length(console_typeahead_elements); i++) {
+	var _typeahead_len = min(_typeahead_max_len, console_typeahead_elements_max) + console_typeahead_selected_yoff;
+	var _typeahead_w = 0;
+	
+	for (var i = 0; i < _typeahead_max_len; i++) {
+		_typeahead_w = max(_typeahead_w, string_width(console_typeahead_elements[i]) + console_log_xpad * 2);
+	}
+	
+	// Draw scrollbar
+	if (_typeahead_max_len > console_typeahead_elements_max) {
+		var _sidebar_x = console_x + _typeahead_w + 1 + _typeahead_xoff - _typeahead_icon_xoff;
+		var _sidebar_y = _bar_y + console_bar_height;
+		var _sidebar_elements_len = min(_typeahead_max_len, console_typeahead_elements_max);
+		var _sidebar_max_h = (_sidebar_elements_len / _typeahead_max_len) * (console_bar_height * _typeahead_max_len);
+		var _sidebar_cursor_h = max(1, (_sidebar_max_h / console_bar_height));
+		draw_set_alpha(console_bg_alpha);
+		draw_set_color(console_bg_color);
+		draw_rectangle(_sidebar_x - 1,
+						_sidebar_y,
+						_sidebar_x + 1,
+						_sidebar_y + _sidebar_max_h,
+						false);
+		draw_set_color(console_text_actual_color);
+		draw_rectangle(_sidebar_x - 1,
+						_sidebar_y + (_sidebar_max_h - _sidebar_cursor_h) * (max(0, console_typeahead_selected)/(_typeahead_max_len - 1)),
+						_sidebar_x + 1,
+						_sidebar_y + (_sidebar_max_h - _sidebar_cursor_h) * (max(0, console_typeahead_selected)/(_typeahead_max_len - 1)) + _sidebar_cursor_h,
+						false);
+	}
+	
+	for (var i = console_typeahead_selected_yoff; i < _typeahead_len; i++) {
+		var _asset_index = asset_get_index(console_typeahead_elements[i]);
+		var _typeahead_icon_size = (console_bar_height - 4); // 2px border
+		_typeahead_icon_xoff = ezConsole_enable_typeahead_icons * console_get_typeahead_asset_valid(_asset_index) * (_typeahead_icon_size + 4);
+
+		var _text_height = string_height(console_typeahead_elements[i]);
+
 		draw_set_alpha(.90);
 		draw_set_color(console_typeahead_selected == i ? console_bar_color_highlight : console_bar_color);
 		if (_bar_on_bottom) {
 			draw_rectangle(
-				console_x,
-				_bar_y - console_bar_height * i,
-				console_x + console_width / 7,
-				_bar_y - console_bar_height - console_bar_height * i,
+				console_x + _typeahead_xoff,
+				_bar_y - console_bar_height * (i - console_typeahead_selected_yoff),
+				console_x + _typeahead_w + _typeahead_xoff + _typeahead_icon_xoff,
+				_bar_y - console_bar_height - console_bar_height * (i - console_typeahead_selected_yoff),
 				false
 			);
 		} else {
 			draw_rectangle(
-				console_x,
-				_bar_y + console_bar_height + console_bar_height * i,
-				console_x + console_width / 7,
-				_bar_y + console_bar_height * 2 + console_bar_height * i,
+				console_x + _typeahead_xoff,
+				_bar_y + console_bar_height + console_bar_height * (i - console_typeahead_selected_yoff),
+				console_x + _typeahead_w + _typeahead_xoff + _typeahead_icon_xoff,
+				_bar_y + console_bar_height * 2 + console_bar_height * (i - console_typeahead_selected_yoff),
 				false
 			);
 		}
 		
 		draw_set_alpha(console_text_alpha);
-		draw_set_color(console_text_actual_color);
+		draw_set_color(console_typeahead_selected == i ? console_typeahead_text_highlight : console_typeahead_text_color);
 		if (_bar_on_bottom) {
 			draw_text(
-				_console_text_x,
-				_bar_y - console_bar_height * i - string_height(console_typeahead_elements[i]) / 2 + 1 + console_text_font_yoff,
+				_console_text_x + _typeahead_xoff + _typeahead_icon_xoff,
+				_bar_y - console_bar_height * i - _text_height / 2 + 1 + console_text_font_yoff,
 				console_typeahead_elements[i]
 			);
 		} else {
 			draw_text(
-				_console_text_x,
-				_bar_y + console_bar_height * 2 + console_bar_height * i - string_height(console_typeahead_elements[i]) / 2 + 1 + console_text_font_yoff,
+				_console_text_x + _typeahead_xoff + _typeahead_icon_xoff,
+				_bar_y + console_bar_height * 2 + console_bar_height * (i - console_typeahead_selected_yoff) - _text_height / 2 + 1 + console_text_font_yoff,
 				console_typeahead_elements[i]
 			);
+			
+			if (ezConsole_enable_typeahead_icons) {
+				var _asset_type = asset_get_type(_asset_index);
+				var _icon = console_get_typeahead_icon(_asset_index, _asset_type);
+				if (_icon > -1) {
+					draw_sprite_stretched(_icon, 0, _console_text_x + _typeahead_xoff, _bar_y - .5 + console_bar_height * 2 + console_bar_height * (i - console_typeahead_selected_yoff) - _text_height / 2 + console_text_font_yoff - (_typeahead_icon_size / 2), _typeahead_icon_size, _typeahead_icon_size);
+				}
+			}
 		}
 	}
 }

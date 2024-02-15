@@ -1,4 +1,6 @@
 /// @description Free memory
+if (ezConsole_debug_only && debug_mode) exit;
+
 // Do destroy callback
 if (console_callback_on_destroy) console_callback_on_destroy();
 

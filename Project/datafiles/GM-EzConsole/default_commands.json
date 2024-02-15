@@ -4,13 +4,12 @@
     "short": "msg",
     "desc": "Shows a message and pauses the game.",
     "args": [
-      "text"
-    ],
-    "args_req": [
-      true
-    ],
-    "args_desc": [
-      "\"Message to show.\""
+      {
+        "name": "text",
+        "desc": "\"Message to show.\"",
+        "required": true,
+        "type": ""
+      }
     ],
     "callback": "console_command_message"
   },
@@ -19,13 +18,12 @@
     "short": "fs",
     "desc": "Toggle fullscreen.",
     "args": [
-      "0/1"
-    ],
-    "args_req": [
-      true
-    ],
-    "args_desc": [
-      "Can take values \"0\" or \"1\" (\"false\" or \"true\" are also valid)."
+      {
+        "name": "0/1",
+        "desc": "Can take values \"0\" or \"1\" (\"false\" or \"true\" are also valid).",
+        "required": true,
+        "type": ""
+      }
     ],
     "callback": "console_command_fullscreen"
   },
@@ -34,13 +32,12 @@
     "short": "gm",
     "desc": "Choose to end or restart the game.",
     "args": [
-      "end/reset"
-    ],
-    "args_req": [
-      true
-    ],
-    "args_desc": [
-      "Can take values \"end\", \"reset\" or \"restart\"."
+      {
+        "name": "end/reset",
+        "desc": "Can take values \"end\", \"reset\" or \"restart\".",
+        "required": true,
+        "type": ""
+      }
     ],
     "callback": "console_command_game"
   },
@@ -49,13 +46,12 @@
     "short": "-",
     "desc": "Show help about commands",
     "args": [
-      "command"
-    ],
-    "args_req": [
-      false
-    ],
-    "args_desc": [
-      "Can take any command name to show specific help about it."
+      {
+        "name": "command",
+        "desc": "Can take any command name to show specific help about it.",
+        "required": false,
+        "type": ""
+      }
     ],
     "callback": "console_command_help"
   },
@@ -64,22 +60,30 @@
     "short": "-",
     "desc": "Creates an instance.",
     "args": [
-      "name",
-      "x",
-      "y",
-      "depth"
-    ],
-    "args_req": [
-      true,
-      false,
-      false,
-      false
-    ],
-    "args_desc": [
-      "name of the asset.",
-      "x position (default: Mouse x)",
-      "y position (default: Mouse y)",
-      "instance depth (default: -100)"
+      {
+        "name": "name",
+        "desc": "name of the asset.",
+        "required": true,
+        "type": ""
+      },
+      {
+        "name": "x",
+        "desc": "x position (default: Mouse x)",
+        "required": false,
+        "type": ""
+      },
+      {
+        "name": "y",
+        "desc": "y position (default: Mouse y)",
+        "required": false,
+        "type": ""
+      },
+      {
+        "name": "depth",
+        "desc": "instance depth (default: -100)",
+        "required": false,
+        "type": ""
+      }
     ],
     "callback": "console_command_create"
   },
@@ -88,13 +92,12 @@
     "short": "inst",
     "desc": "Get all active instances.",
     "args": [
-      "name"
-    ],
-    "args_req": [
-      false
-    ],
-    "args_desc": [
-      "name of the object to get instances. (If no argument is given it will show all instances)"
+      {
+        "name": "name",
+        "desc": "name of the object to get instances. (If no argument is given it will show all instances)",
+        "required": false,
+        "type": ""
+      }
     ],
     "callback": "console_command_instances"
   },
@@ -103,19 +106,14 @@
     "short": "-",
     "desc": "Set a variable on an instance",
     "args": [
-      "id",
-      "variable",
-      "value"
-    ],
-    "args_req": [
-      true,
-      true,
-      true
-    ],
-    "args_desc": [
-      "Instance ID",
-      "Variable name",
-      "Value to set"
+      { "name": "id", "desc": "Instance ID", "required": true, "type": "" },
+      {
+        "name": "variable",
+        "desc": "Variable name",
+        "required": true,
+        "type": ""
+      },
+      { "name": "value", "desc": "Value to set", "required": true, "type": "" }
     ],
     "callback": "console_command_instance_set"
   },
@@ -124,16 +122,13 @@
     "short": "-",
     "desc": "Gets a variable in an instance",
     "args": [
-      "id",
-      "variable"
-    ],
-    "args_req": [
-      true,
-      false
-    ],
-    "args_desc": [
-      "Instance ID",
-      "Variable name"
+      { "name": "id", "desc": "Instance ID", "required": true, "type": "" },
+      {
+        "name": "variable",
+        "desc": "Variable name",
+        "required": false,
+        "type": ""
+      }
     ],
     "callback": "console_command_instance_get"
   },
@@ -142,16 +137,13 @@
     "short": "del",
     "desc": "Delete an instance.",
     "args": [
-      "id",
-      "0/1"
-    ],
-    "args_req": [
-      true,
-      false
-    ],
-    "args_desc": [
-      "Instance ID",
-      "Execute destroy event (default: 1/true)"
+      { "name": "id", "desc": "Instance ID", "required": true, "type": "" },
+      {
+        "name": "0/1",
+        "desc": "Execute destroy event (default: 1/true)",
+        "required": false,
+        "type": ""
+      }
     ],
     "callback": "console_command_instance_delete"
   },
@@ -160,8 +152,6 @@
     "short": "cls",
     "desc": "Clears the console.",
     "args": [],
-    "args_req": [],
-    "args_desc": [],
     "callback": "console_command_clear"
   },
   {
@@ -169,13 +159,12 @@
     "short": "-",
     "desc": "Toggle FPS counter.",
     "args": [
-      "0/1"
-    ],
-    "args_req": [
-      false
-    ],
-    "args_desc": [
-      "Can take values \"0\" or \"1\" (\"false\" or \"true\" are also valid)."
+      {
+        "name": "0/1",
+        "desc": "Can take values \"0\" or \"1\" (\"false\" or \"true\" are also valid).",
+        "required": false,
+        "type": ""
+      }
     ],
     "callback": "console_command_fps"
   },
@@ -184,13 +173,12 @@
     "short": "-",
     "desc": "Toggle debug overlay counter.",
     "args": [
-      "0/1"
-    ],
-    "args_req": [
-      false
-    ],
-    "args_desc": [
-      "Can take values \"0\" or \"1\" (\"false\" or \"true\" are also valid)."
+      {
+        "name": "0/1",
+        "desc": "Can take values \"0\" or \"1\" (\"false\" or \"true\" are also valid).",
+        "required": false,
+        "type": ""
+      }
     ],
     "callback": "console_command_debug_overlay"
   }

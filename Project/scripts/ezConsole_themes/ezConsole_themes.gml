@@ -18,6 +18,12 @@ function console_skin_load_all() {
 	return _skins;
 }
 
+/// @func	console_add_skin(skin_struct)
+/// @param	{struct}	skin_struct
+function console_add_skin(_skin) {
+	ezConsole_skin_list[$ _skin.name] = _skin;
+}
+
 /// @func	console_skin_get_width(width)
 /// @param	{real}	width
 function console_skin_get_width(_w) {

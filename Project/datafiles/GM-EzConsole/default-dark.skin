@@ -1,6 +1,7 @@
 {
   "name": "default-dark",
   "author": "DAndrëwBox",
+  "version": "1.3",
   "width":  1,
   "height": 0.33,
   "anchor": 0,
@@ -22,13 +23,9 @@
   "bar_color_highlight": "#ffa040",
   "bar_xpad": 4,
   "bar_ypad": 4,
-  "blur_flag": true,
   "blur_amount": 0.20,
-  "screenfill_flag": true,
   "screenfill_color": "#07071e",
   "screenfill_alpha": 0.33,
-  "typeahead_flag": true,
-  "typeahead_max_elements": 3,
-  "suggestions_flag": true,
-  "nav_scroll_speed": 1,
+  "typeahead_text_color": "#eeeeee",
+  "typeahead_text_color_highlight": "#0f0f3c",
 }

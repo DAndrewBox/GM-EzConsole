@@ -15,6 +15,7 @@ var _delete_is_pressed		= false;
 
 // Blink thing after text in bar
 console_text_blink_t = ( console_text_blink_t > room_speed * console_text_blink_rate ? 0 : ++console_text_blink_t );
+console_surf_yoffset = lerp(console_surf_yoffset, console_surf_yoffset_to, .16);
 
 // Do actions
 if (keyboard_check_pressed(vk_anykey)) {
@@ -24,11 +25,18 @@ if (keyboard_check_pressed(vk_anykey)) {
 			if (console_text_actual != "") {
 				console_check_command(console_text_actual);
 				if (console_log_total_h > 0) {
-					console_surf_yoffset = console_log_total_h;
+					console_surf_yoffset_to = console_log_total_h;
 					event_user(0);
 				}
 			}
 			console_nav_hor = 0;
+			
+			console_suggestion_text = "";
+			
+			console_typeahead_show			= false;
+			console_typeahead_selected		= -1;
+			console_typeahead_selected_yoff	= 0;
+			console_typeahead_elements		= [];
 			#endregion
 			break;
 		
@@ -38,11 +46,15 @@ if (keyboard_check_pressed(vk_anykey)) {
 			var _use_typeahead	= (console_typeahead_flag && console_typeahead_selected > -1);
 			
 			if (_use_suggestion || _use_typeahead) {
-				keyboard_string = 
-					( _use_suggestion
+				keyboard_string = (
+					_use_suggestion
 					? keyboard_string + console_suggestion_text					// Autocompletes using suggestion
 					: console_typeahead_elements[console_typeahead_selected]	// Autocomplete using typeahead
-					);
+				);
+				
+				if (ezConsole_enable_typeahead_inst_ref) {
+					keyboard_string = string_split(keyboard_string, " (ref ")[0]
+				}
 					
 				console_typeahead_selected = -1;
 				console_suggestion_text = "";
@@ -60,7 +72,7 @@ if (keyboard_check_pressed(vk_anykey)) {
 
 			if (console_nav_hor != 0) {
 				keyboard_string = console_text_actual;
-			}
+			}		
 			break;
 			
 		
@@ -68,11 +80,16 @@ if (keyboard_check_pressed(vk_anykey)) {
 		case console_key_nav_down:
 		case console_key_nav_left:
 		case console_key_nav_right:
+		case vk_shift:
+		case vk_lshift:
+		case vk_rshift:
 			// Do nothing
 			break;
 			
 		default:
-			if (console_nav_hor != 0 && string_pos(keyboard_lastchar, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_ ") > 0) {
+			var _key_is_valid = string_pos(keyboard_lastchar, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_\" ") > 0;
+		
+			if (console_nav_hor != 0 && _key_is_valid) {
 				keyboard_string = console_text_actual;
 				keyboard_string =
 					string_insert(
@@ -126,6 +143,24 @@ if (keyboard_check(vk_anykey)) {
 	draw_set_font(console_text_font);
 	if (string_width(console_text_start_char + keyboard_string) < (console_width - console_log_xpad - console_text_font_xoff)) {
 		console_text_actual = string_copy(keyboard_string, 1, string_length(keyboard_string));
+		
+		var _console_text_actual_split = string_split(console_text_actual, " "); 
+		var _console_text_actual_split_len = array_length(_console_text_actual_split);
+		
+		console_typeahead_selected = min(array_length(console_typeahead_elements) - 1, console_typeahead_selected);
+		
+		if (_console_text_actual_split_len > 0 && array_length(console_typeahead_elements) > 0 && console_typeahead_selected > -1) {
+			var _console_text_last_arg_len = string_length(_console_text_actual_split[_console_text_actual_split_len - 1]);
+			console_suggestion_text = string_copy(
+				console_typeahead_elements[console_typeahead_selected],
+				_console_text_last_arg_len + 1,
+				string_length(console_typeahead_elements[console_typeahead_selected]) - _console_text_last_arg_len
+			);
+			
+			if (ezConsole_enable_typeahead_inst_ref) {
+				console_suggestion_text = string_split(console_suggestion_text, " (ref ")[0];
+			}
+		}
 	}
 	
 	if (!_control_is_pressed && console_nav_hor != 0 && (_backspace_is_pressed || _delete_is_pressed)) {
@@ -147,19 +182,24 @@ if (keyboard_check(vk_anykey)) {
 	
 	if (console_suggestions_flag) {
 		if (console_typeahead_selected < 0) {
-			console_suggestion_text = ( string_length(console_text_actual) > 0
-									  ? console_get_suggestion(console_text_actual)
-									  : ""
-									  );
+			console_suggestion_text = (
+				string_length(console_text_actual) > 0
+				? console_get_suggestion(console_text_actual)
+				: ""
+			);
+			
+			if (ezConsole_enable_typeahead_inst_ref) {
+				console_suggestion_text = string_split(console_suggestion_text, " (ref ")[0];
+			}
 		}
 	}
 	
 	if (console_typeahead_flag) {
-		console_typeahead_elements =  (	string_length(console_text_actual) > 0
-									  ? console_get_typeahead(console_text_actual)
-									  : []
-									  );
-		array_resize(console_typeahead_elements, console_typeahead_elements_max);
+		console_typeahead_elements =  (
+			string_length(console_text_actual) > 0
+			? console_get_typeahead(console_text_actual)
+			: []
+		);
 		console_typeahead_elements = array_filter(
 			console_typeahead_elements,
 			function (e) {
@@ -168,10 +208,20 @@ if (keyboard_check(vk_anykey)) {
 		);
 		var _typeahead_len = array_length(console_typeahead_elements);
 		console_typeahead_show = (
-			_typeahead_len > 1 && console_suggestions_flag ||
+			_typeahead_len >= 1 && console_suggestions_flag ||
 			_typeahead_len > 0 && !console_suggestions_flag
 		);
 		console_typeahead_selected = console_typeahead_show ? console_typeahead_selected : -1;
+		console_typeahead_selected_yoff =
+			_typeahead_len <= console_typeahead_selected_yoff
+			? 0
+			: console_typeahead_selected_yoff;
+			
+		if (keyboard_check(vk_escape)) {
+			console_typeahead_show = false;
+			console_typeahead_selected_yoff = 0;
+			console_typeahead_selected = -1;
+		}
 	}
 }
 
@@ -183,20 +233,20 @@ if (_mouse_x >= console_x && _mouse_x <= console_x + console_width) && (_mouse_y
 	var _mouse_wheel_up = mouse_wheel_up();
 	var _mouse_wheel_down = mouse_wheel_down();
 	
-	if (_mouse_wheel_up || _mouse_wheel_down) {
-		console_surf_yoffset = ( ( console_surf_yoffset/console_log_total_h < 1 && _mouse_wheel_down) || (console_surf_yoffset > 0 && _mouse_wheel_up)
-								? console_surf_yoffset + (console_nav_scroll_speed * 24 * (_mouse_wheel_down - _mouse_wheel_up))
-								: console_surf_yoffset );
+	if (_mouse_wheel_up || _mouse_wheel_down || console_surf_yoffset != console_surf_yoffset_to) {
+		console_surf_yoffset_to = ( ( console_surf_yoffset_to/console_log_total_h < 1 && _mouse_wheel_down) || (console_surf_yoffset_to > 0 && _mouse_wheel_up)
+								? console_surf_yoffset_to + (console_nav_scroll_speed * 24 * (_mouse_wheel_down - _mouse_wheel_up))
+								: console_surf_yoffset_to );
 		
-		console_surf_yoffset = ( console_surf_yoffset/console_log_total_h > 1 ? console_log_total_h : console_surf_yoffset );
-		console_surf_yoffset = ( console_surf_yoffset/console_log_total_h < 0 ? 0 : console_surf_yoffset );
+		console_surf_yoffset_to = ( console_surf_yoffset_to/console_log_total_h > 1 ? console_log_total_h : console_surf_yoffset_to );
+		console_surf_yoffset_to = ( console_surf_yoffset_to/console_log_total_h < 0 ? 0 : console_surf_yoffset_to );
 		event_user(0);
 	}
 }
 
 // Navigation with keys
 var _log_len = ds_list_size(console_text_log);
-if (_log_len > 0) {	
+if (_log_len > 0) {		
 	if (_nav_up || _nav_down) {
 		if (console_typeahead_flag && console_typeahead_show) {
 			var _typeahead_len = array_length(console_typeahead_elements);
@@ -210,24 +260,61 @@ if (_log_len > 0) {
 					clamp(
 						console_typeahead_selected + (_console_on_bottom ? -_nav_down + _nav_up : _nav_down - _nav_up ),
 						-1,
-						_typeahead_len - 1
+						_typeahead_len 
 					);
 			}
+			
+			
+			if (_nav_up && console_typeahead_selected <= -1) {
+				console_typeahead_selected_yoff = _typeahead_len - console_typeahead_elements_max;
+				console_typeahead_selected = (_typeahead_len - 1);
+			} else if (_nav_down && console_typeahead_selected == _typeahead_len) {
+				console_typeahead_selected_yoff = 0;
+				console_typeahead_selected = 0;
+			} else if (console_typeahead_selected >= console_typeahead_elements_max) {
+				console_typeahead_selected_yoff += _nav_down - _nav_up;
+				if (console_typeahead_selected_yoff >= 0) {
+					console_typeahead_selected = clamp(console_typeahead_selected, -1, _typeahead_len - 1);
+				} else {
+					console_typeahead_selected_yoff = _typeahead_len - console_typeahead_elements_max;
+				}
+			} else if (_nav_up && console_typeahead_selected < console_typeahead_elements_max) {
+				console_typeahead_selected_yoff--;
+				console_typeahead_selected = clamp(console_typeahead_selected, -1, _typeahead_len - 1);
+			}
+
+			console_typeahead_selected_yoff = clamp(console_typeahead_selected_yoff, 0, max(0, _typeahead_len - console_typeahead_elements_max));
 				
 			if (console_typeahead_selected > -1) {
 				if (console_suggestions_flag) {
 					var _console_text_len = string_length(console_text_actual);
-					console_suggestion_text = string_copy(
-						console_typeahead_elements[console_typeahead_selected],
-						_console_text_len + 1,
-						string_length(console_typeahead_elements[console_typeahead_selected]) - _console_text_len
-					);
+					var _console_text_actual_split = string_split(console_text_actual, " "); 
+					var _console_text_actual_split_len = array_length(_console_text_actual_split);
+					
+					if (_console_text_actual_split_len == 0) {
+						console_suggestion_text = string_copy(
+							console_typeahead_elements[console_typeahead_selected],
+							_console_text_len + 1,
+							string_length(console_typeahead_elements[console_typeahead_selected]) - _console_text_len
+						);
+					} else {
+						var _console_text_last_arg_len = string_length(_console_text_actual_split[_console_text_actual_split_len - 1]);
+						console_suggestion_text = string_copy(
+							console_typeahead_elements[console_typeahead_selected],
+							_console_text_last_arg_len + 1,
+							string_length(console_typeahead_elements[console_typeahead_selected]) - _console_text_last_arg_len
+						);
+						
+						if (ezConsole_enable_typeahead_inst_ref) {
+							console_suggestion_text = string_split(console_suggestion_text, " (ref ")[0];
+						}
+					}
 				}
 			}
 		} else {
 			var _iterations = 0;
 			do {
-				console_nav_scroll = clamp(console_nav_scroll + _nav_down - _nav_up, 0, _log_len - 1);
+				console_nav_scroll = clamp(console_nav_scroll + (_nav_down - _nav_up), 0, _log_len - 1);
 				if (console_text_log[| console_nav_scroll].type == EZ_CONSOLE_MSG_TYPE.COMMON) {
 					console_text_actual = console_text_log[| console_nav_scroll].message;
 					keyboard_string = console_text_actual;
