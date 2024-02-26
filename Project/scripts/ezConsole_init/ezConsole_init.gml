@@ -18,6 +18,7 @@ enum EZ_CONSOLE_MSG {
 	HELP_MENU,
 	COMMAND_DOESNT_EXISTS,
 	CALLBACK_DOESNT_EXISTS,
+	UNDEFINED_COMMANDS_FOUND,
 }
 
 enum EZ_CONSOLE_MSG_TYPE {
@@ -61,5 +62,5 @@ enum EZ_CONSOLE_ANCHOR {
 #macro	ezConsole_callback_onDestroy	global.__EzConsole_callbacks.onDestroy
 #macro	ezConsole_callback_onGameEnd	global.__EzConsole_callbacks.onGameEnd
 
-#macro	ezConsole_version			"1.3"
+#macro	ezConsole_version			"1.3.beta-2"
 #endregion

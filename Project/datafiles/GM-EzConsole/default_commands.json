@@ -11,7 +11,7 @@
         "type": ""
       }
     ],
-    "callback": "console_command_message"
+    "callback": "console_command_base_message"
   },
   {
     "name": "fullscreen",
@@ -19,13 +19,14 @@
     "desc": "Toggle fullscreen.",
     "args": [
       {
-        "name": "0/1",
-        "desc": "Can take values \"0\" or \"1\" (\"false\" or \"true\" are also valid).",
+        "name": "active",
+        "desc": "Can take values \"false\" or \"true\" (\"0\" or \"1\" are also valid).",
         "required": true,
-        "type": ""
+        "type": "option",
+        "options": ["false", "true"]
       }
     ],
-    "callback": "console_command_fullscreen"
+    "callback": "console_command_base_fullscreen"
   },
   {
     "name": "game",
@@ -33,17 +34,18 @@
     "desc": "Choose to end or restart the game.",
     "args": [
       {
-        "name": "end/reset",
+        "name": "option",
         "desc": "Can take values \"end\", \"reset\" or \"restart\".",
         "required": true,
-        "type": ""
+        "type": "option",
+        "options": ["end", "reset", "restart"]
       }
     ],
-    "callback": "console_command_game"
+    "callback": "console_command_base_game"
   },
   {
     "name": "help",
-    "short": "-",
+    "short": "",
     "desc": "Show help about commands",
     "args": [
       {
@@ -53,18 +55,18 @@
         "type": ""
       }
     ],
-    "callback": "console_command_help"
+    "callback": "console_command_base_help"
   },
   {
     "name": "create",
-    "short": "-",
+    "short": "",
     "desc": "Creates an instance.",
     "args": [
       {
-        "name": "name",
-        "desc": "name of the asset.",
+        "name": "object_name",
+        "desc": "name of the object.",
         "required": true,
-        "type": ""
+        "type": "object"
       },
       {
         "name": "x",
@@ -85,7 +87,7 @@
         "type": ""
       }
     ],
-    "callback": "console_command_create"
+    "callback": "console_command_base_create"
   },
   {
     "name": "instances",
@@ -93,20 +95,25 @@
     "desc": "Get all active instances.",
     "args": [
       {
-        "name": "name",
+        "name": "object_name",
         "desc": "name of the object to get instances. (If no argument is given it will show all instances)",
         "required": false,
-        "type": ""
+        "type": "object"
       }
     ],
-    "callback": "console_command_instances"
+    "callback": "console_command_base_instances"
   },
   {
     "name": "set",
-    "short": "-",
+    "short": "",
     "desc": "Set a variable on an instance",
     "args": [
-      { "name": "id", "desc": "Instance ID", "required": true, "type": "" },
+      {
+        "name": "id",
+        "desc": "Instance ID",
+        "required": true,
+        "type": "instance"
+      },
       {
         "name": "variable",
         "desc": "Variable name",
@@ -115,11 +122,11 @@
       },
       { "name": "value", "desc": "Value to set", "required": true, "type": "" }
     ],
-    "callback": "console_command_instance_set"
+    "callback": "console_command_base_instance_set"
   },
   {
     "name": "get",
-    "short": "-",
+    "short": "",
     "desc": "Gets a variable in an instance",
     "args": [
       { "name": "id", "desc": "Instance ID", "required": true, "type": "" },
@@ -127,59 +134,62 @@
         "name": "variable",
         "desc": "Variable name",
         "required": false,
-        "type": ""
+        "type": "instance"
       }
     ],
-    "callback": "console_command_instance_get"
+    "callback": "console_command_base_instance_get"
   },
   {
     "name": "delete",
     "short": "del",
     "desc": "Delete an instance.",
     "args": [
-      { "name": "id", "desc": "Instance ID", "required": true, "type": "" },
+      { "name": "id", "desc": "Instance ID", "required": true, "type": "instance" },
       {
-        "name": "0/1",
-        "desc": "Execute destroy event (default: 1/true)",
+        "name": "execute_event",
+        "desc": "Execute destroy event (default: true)",
         "required": false,
-        "type": ""
+        "type": "option",
+        "options": ["false", "true"]
       }
     ],
-    "callback": "console_command_instance_delete"
+    "callback": "console_command_base_instance_delete"
   },
   {
     "name": "clear",
     "short": "cls",
     "desc": "Clears the console.",
     "args": [],
-    "callback": "console_command_clear"
+    "callback": "console_command_base_clear"
   },
   {
     "name": "fps",
-    "short": "-",
+    "short": "",
     "desc": "Toggle FPS counter.",
     "args": [
       {
-        "name": "0/1",
+        "name": "active",
         "desc": "Can take values \"0\" or \"1\" (\"false\" or \"true\" are also valid).",
         "required": false,
-        "type": ""
+        "type": "option",
+        "options": ["false", "true"]
       }
     ],
-    "callback": "console_command_fps"
+    "callback": "console_command_base_fps"
   },
   {
     "name": "overlay",
-    "short": "-",
+    "short": "",
     "desc": "Toggle debug overlay counter.",
     "args": [
       {
-        "name": "0/1",
-        "desc": "Can take values \"0\" or \"1\" (\"false\" or \"true\" are also valid).",
+        "name": "active",
+        "desc": "Can take values \"false\" or \"true\" (\"0\" or \"1\" are also valid).",
         "required": false,
-        "type": ""
+        "type": "option",
+        "options": ["false", "true"]
       }
     ],
-    "callback": "console_command_debug_overlay"
+    "callback": "console_command_base_debug_overlay"
   }
 ]

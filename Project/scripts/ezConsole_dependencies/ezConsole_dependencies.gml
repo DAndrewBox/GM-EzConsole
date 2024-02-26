@@ -5,7 +5,8 @@
 function __ezConsole_dep_string_pad(_text, _spaces, _on_right = true) {
 	var _pad = "";
 	if (_on_right) {
-		for (var i = 0; i < _spaces - string_length(_text); i++) {
+		var _pad_max = _spaces - string_length(_text);
+		for (var i = 0; i < _pad_max; i++) {
 			_pad += " ";
 		}
 		return _text + _pad;
@@ -51,37 +52,39 @@ function __ezConsole_dep_file_to_json(_file) {
 /// @param	{real}	alpha
 function __ezConsole_dep_draw_surface_blur(_surf, _amount, _x, _y, _xscale = 1, _yscale = 1, _rot = 0, _col = -1, _alpha = 1) {
 	if !(surface_exists(_surf)) return;
+	var _w, _h;
+	_w = surface_get_width(_surf);
+	_h = surface_get_height(_surf);
 	
-	static _shader		= shd_gml_ext_blur_gauss;
-	static _u_texel		= shader_get_uniform(_shader, "texel");
-	
-	var _tex			= surface_get_texture(_surf);
-	var _texel_w		= texture_get_texel_width(_tex);
-	var _texel_h		= texture_get_texel_height(_tex);
-	
-	shader_set_uniform_f(_u_texel, _texel_w, _texel_h);
+	static _shader = shd_gml_ext_blur_gauss;
+	static _blur_size = shader_get_uniform(_shader, "u_size");
+	static _blur_quality = shader_get_uniform(_shader, "u_quality");
 
 	shader_set(_shader);
+	shader_set_uniform_f(_blur_size, _w, _h, 25 * _amount);
+	shader_set_uniform_f(_blur_quality, ezConsole_prop_blur_quality);
+
 	draw_surface_ext(_surf, _x, _y, _xscale, _yscale, _rot, _col, _alpha);
 	shader_reset();
 }
 
 /// @func	__ezConsole_dep_hex_to_dec(hex)
 /// @param	{str}	hex
-function __ezConsole_dep_hex_to_dec(hex) {
-	if (is_undefined(hex))	return 0;
-	if (is_real(hex)) return hex;
+function __ezConsole_dep_hex_to_dec(_hex) {
+	if (is_undefined(_hex))	return 0;
+	if (is_real(_hex)) return _hex;
 	
-	var hex_upper = string_delete(string_upper(hex), 1, 1);
-	var hex_fixed = string_copy(hex_upper, 5, 2) + string_copy(hex_upper, 3, 2) + string_copy(hex_upper, 1, 2);
-    var dec = 0;
-    var dig = "0123456789ABCDEF";
-    var len = string_length(hex_fixed);
-    for (var pos = 1; pos <= len; pos++) {
-        dec = dec << 4 | (string_pos(string_char_at(hex_fixed, pos), dig) - 1);
+	var _hex_upper	= string_delete(string_upper(_hex), 1, 1);
+	var _hex_fixed	= string_copy(_hex_upper, 5, 2) + string_copy(_hex_upper, 3, 2) + string_copy(_hex_upper, 1, 2);
+    var _dec		= 0;
+    static _digits	= "0123456789ABCDEF";
+    var _len		= string_length(_hex_fixed);
+    
+	for (var _pos = 1; _pos <= _len; _pos++) {
+        _dec = _dec << 4 | (string_pos(string_char_at(_hex_fixed, _pos), _digits) - 1);
     }
  
-    return dec;
+    return _dec;
 }
 
 /// @func	__ezConsole_dep_value_to_string(value)
@@ -152,8 +155,8 @@ function __ezConsole_dep_get_asset_names(_asset_type) {
 	for (var i = 0; i < _ids_len; i++) {
 		var _name = _cb(_ids[@ i]);
 		if (string_pos("@", _name) || string_pos("___struct___", _name)) continue;
-		if (_asset_type == asset_script && (string_pos("ezConsole_", _name) || string_pos("console_", _name))) continue;
-		if (_asset_type == asset_script && __ezConsole_dep_is_constructor(_ids[@ i])) continue;
+		// if (_asset_type == asset_script && (string_pos("ezConsole_", _name) || string_pos("console_", _name))) continue;
+		// if (_asset_type == asset_script && __ezConsole_dep_is_constructor(_ids[@ i])) continue;
 		
 		array_push(_names, _name);
 	}

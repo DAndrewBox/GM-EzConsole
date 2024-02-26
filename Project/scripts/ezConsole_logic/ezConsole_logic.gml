@@ -43,6 +43,9 @@ function console_get_message(_type, _command, _params_count=0, _min_params=0, _m
             
         case EZ_CONSOLE_MSG.CALLBACK_DOESNT_EXISTS:
             return ("Callback for this command is not defined!");
+		
+		case EZ_CONSOLE_MSG.UNDEFINED_COMMANDS_FOUND:
+			return ($"Undefined commands found after executing \"{_command}\".\nPlease verify the integrity of your commands.");
     }
 }
 
@@ -109,7 +112,10 @@ function console_get_suggestion(_msg) {
 			
 			for (var i = _msg_trimmed_len - 1; i <= _command_args_len; i++) {
 				if (_msg_trimmed_len >= i + 1 && string_length(_msg_trimmed[i + 1]) >= 1) continue;
-				_suggestion += (i == _msg_trimmed_len - 1 ? "" : " ") + _command.args[i];
+				var _arg_is_required = _command.args_req[i];
+				_suggestion +=
+					(i == _msg_trimmed_len - 1 ? "" : " ") +
+					(!_arg_is_required ? $"[{_command.args[i]}]" : _command.args[i]);
 			}
 		}
 	}
@@ -132,7 +138,7 @@ function console_get_typeahead(_msg) {
 		var _msg_len  = string_length(_msg_trimmed[0]);
 		for (var i = 0; i < _commands_len; i++) {
 			_command = _commands[i].name;
-			if (_msg_trimmed[0] == string_copy(_command, 1, _msg_len) && _msg_trimmed[0] != _command) {
+			if (string_lower(_msg_trimmed[0]) == string_lower(string_copy(_command, 1, _msg_len)) && _msg_trimmed[0] != _command) {
 				array_push(_suggestions, _command);
 			}
 		}
@@ -159,7 +165,17 @@ function console_get_typeahead(_msg) {
 			
 			if (_arg_type == ezConsole_type_options) {
 				_names = _commands[_command_index].args_options[_msg_trimmed_len - 2];
-				return _names;
+				
+				var _len = array_length(_names);
+				var _option;
+				for (var i = 0; i < _len; i++) {
+					_option = _names[i];
+					if (_arg == string_copy(_option, 1, _arg_len) && _arg != _option) {
+						array_push(_suggestions, _option);
+					}
+				}
+				
+				return (array_length(_suggestions) == 0 && _arg_len < 1 ? _names : _suggestions);
 			} else if (_arg_type == ezConsole_type_instance) {
 				_names = array_create(128, undefined);
 				var _count = 0;
@@ -222,12 +238,22 @@ function console_add_commands_from_file(_path) {
 		var _args_len = array_length(_cmd.args);
 		
 		for (var j = 0; j < _args_len; j++) {
-			var _new_arg = new EzConsoleCommandArgument(
-				_cmd.args[j].name,
-				_cmd.args[j].desc,
-				_cmd.args[j].required,
-				console_get_type_from_string(_cmd.args[j].type),
-			);
+			var _new_arg;
+			if (_cmd.args[j].type != "option") {
+				_new_arg = new EzConsoleCommandArgument(
+					_cmd.args[j].name,
+					_cmd.args[j].desc,
+					_cmd.args[j].required,
+					console_get_type_from_string(_cmd.args[j].type),
+				);
+			} else {
+				_new_arg = new EzConsoleCommandArgumentWithOptions(
+					_cmd.args[j].name,
+					_cmd.args[j].desc,
+					_cmd.args[j].required,
+					_cmd.args[j].options,
+				);
+			}
 			
 			array_push(_args, _new_arg);
 		}
@@ -240,18 +266,6 @@ function console_add_commands_from_file(_path) {
 #endregion
 
 #region // Write on console log logic
-/// @func 	ConsoleLog(message, [type])
-/// @param	{str}	message
-/// @param	{real}		[type]
-/// @desc	Logs messages to the console with specified types.
-function ConsoleLog(_msg, _type = EZ_CONSOLE_MSG_TYPE.COMMON) constructor {
-	message		= _msg;
-	type		= _type;
-	color		= console_get_type_color(type);
-	time		= date_current_datetime();
-	timestamp	= console_get_timestamp(time);
-}
-
 /// @func 	console_write_log(message, type)
 /// @param	{str}	message
 /// @param	{real}		[type]
@@ -340,7 +354,7 @@ function console_check_command(_msg) {
 	for (var i = 0; i < _commands_len; i++) {
 		if (_commands[i].name == _command || (_commands[i].short == _command && _commands[i].short != "-")) {
 			if (_commands[i].callback != -1) {
-				console_command_execute(_commands[i], _params);
+				console_command_base_execute(_commands[i], _params);
 				return;
 			} else {
 				var _non_existing_callback = console_get_message(EZ_CONSOLE_MSG.CALLBACK_DOESNT_EXISTS, _command);
@@ -382,8 +396,8 @@ function console_save_log_to_file() {
 	var _logs = console_text_log;
 	var _msg, _time, _file;	
 	_file = file_text_open_write(string("ezConsole_logs_{0}.txt", current_time));
-	
-	for (var i = 0; i < ds_list_size(_logs); i++) {
+	var _logs_len = ds_list_size(_logs);
+	for (var i = 0; i < _logs_len; i++) {
 		_time = _logs[| i].timestamp;
 		_msg = _logs[| i].message;
 		file_text_write_string(_file, _time + " " + _msg + "\n");
@@ -436,10 +450,10 @@ function console_is_open() {
 	return ezConsole && ezConsole.visible;
 }
 
-/// @func	console_command_execute(command, args_given)
+/// @func	console_command_base_execute(command, args_given)
 /// @param	{any}	command
 /// @param	{array}	args_given
-function console_command_execute(_cmd, _args_given) {
+function console_command_base_execute(_cmd, _args_given) {
 	if (console_check_params_count(_cmd.name, array_length(_args_given), _cmd.args_min, _cmd.args_max)) {
 		script_execute(_cmd.callback, _args_given);
 	}

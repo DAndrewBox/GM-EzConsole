@@ -1,15 +1,15 @@
 #region // Base commands
-/// @function console_command_message(args)
+/// @func	console_command_base_message(args)
 /// @param	{array}	args
 /// @desc	Hide debug overlay
-function console_command_message(_args) {		
-	show_message(_args);
+function console_command_base_message(_args) {		
+	show_message_async(_args[0]);
 }
 
-/// @function console_command_game(args)
+/// @func	console_command_base_game(args)
 /// @param	{array}	args
 /// @desc	Execute game actions
-function console_command_game(_args) {
+function console_command_base_game(_args) {
 	switch (_args[0]) {
 		case "restart":
 		case "reset":
@@ -21,16 +21,16 @@ function console_command_game(_args) {
 			break;
 				
 		default:
-			var _invalid_param = console_get_message(EZ_CONSOLE_MSG.INVALID_PARAM, _command, _params_len, 1, 1) + _args[0] + "\".";
+			var _invalid_param = console_get_message(EZ_CONSOLE_MSG.INVALID_PARAM, "game", array_length(_args), 1, 1) + _args[0] + "\".";
 			console_write_log(_invalid_param, EZ_CONSOLE_MSG_TYPE.ERROR);
 			break;
 	}	
 }
 
-/// @function console_command_fullscreen(args)
+/// @func	console_command_base_fullscreen(args)
 /// @param	{array}	args
 /// @desc	Hide debug overlay
-function console_command_fullscreen(_args) {
+function console_command_base_fullscreen(_args) {
 	switch (string_lower(_args[0])) {
 		case "0":
 		case "false":
@@ -53,16 +53,18 @@ function console_command_fullscreen(_args) {
 			break;
 				
 		default:
+			static _command = "fullscreen";
+			var _params_len = array_length(_args);
 			var _invalid_param = console_get_message(EZ_CONSOLE_MSG.INVALID_PARAM, _command, _params_len, 1, 1) + _args[0] + "\".";
 			console_write_log(_invalid_param, EZ_CONSOLE_MSG_TYPE.ERROR);
 			break;
 	}
 }
 
-/// @function console_command_help(args)
+/// @func	console_command_base_help(args)
 /// @param	{array}	args
 /// @desc	Show help about commands
-function console_command_help(_args) {
+function console_command_base_help(_args) {
 	var _command	= "help";
 	var _params_len = array_length(_args);
 	
@@ -86,22 +88,38 @@ function console_command_help(_args) {
 		console_write_log(string_repeat("-", 80), EZ_CONSOLE_MSG_TYPE.INFO);
 	
 		// General help
+		var _undefined_commands_detected = false;
 		var _console_commands_len = array_length(_console_comands);
 		for (var i = 0; i < _console_commands_len; i++) {
 			var _com_name = _console_comands[i].name;
 			var _com_shrt = _console_comands[i].short;
 			var _com_desc = _console_comands[i].desc;
 			
+			if (is_undefined(_com_name) || is_undefined(_com_shrt) || is_undefined(_com_desc)) {
+				_undefined_commands_detected = true;
+				continue;
+			}
+			
 			console_write_log(__ezConsole_dep_string_pad(_com_name, 20) + __ezConsole_dep_string_pad(_com_shrt, 10) + _com_desc, EZ_CONSOLE_MSG_TYPE.INFO);
+		}
+		
+		if (_undefined_commands_detected) {
+			var _undefined_message = console_get_message(EZ_CONSOLE_MSG.UNDEFINED_COMMANDS_FOUND, _command);
+			console_write_log(_undefined_message, EZ_CONSOLE_MSG_TYPE.ERROR);
 		}
 	} else if (_params_len == 1) {
 		// First Checks if command exists
 		var _command_exists = false;
+		var _commands_len = array_length(_console_comands);
 		
-		for (var i = 0; i < array_length(_console_comands); i++) {
-			_command_exists = ( _console_comands[i].name == _args[0] || _console_comands[i].short == _args[0]
-								? true
-								: _command_exists );
+		for (var i = 0; i < _commands_len; i++) {
+			if (_command_exists) break;
+
+			_command_exists = (
+				_console_comands[i].name == _args[0] || _console_comands[i].short == _args[0]
+				? true
+				: _command_exists
+			);
 		}
 		
 		if !(_command_exists) {
@@ -114,11 +132,11 @@ function console_command_help(_args) {
 		// Command help
 		var _com_name, _com_shrt, _com_desc, _com_args;
 		
-		for (var i = 0; i < array_length(_console_comands); i++) {
+		for (var i = 0; i < _commands_len; i++) {
 			_com_name = _console_comands[i].name;
 			_com_shrt = _console_comands[i].short;
 			
-			if (_com_name != _args[0] && _com_shrt != _args[0]) { continue; }
+			if (_com_name != _args[0] && _com_shrt != _args[0]) continue;
 			
 			_com_name = _com_name;
 			_com_desc = _console_comands[i].desc;
@@ -131,33 +149,38 @@ function console_command_help(_args) {
 				_com_args_str += _com_args[j] + "  ";
 			}
 			
-			console_write_log(__ezConsole_dep_string_pad(_com_name, 12) + _com_args_str, EZ_CONSOLE_MSG_TYPE.WARNING);
-			if (_com_shrt != "-") {
-				console_write_log(__ezConsole_dep_string_pad(_com_shrt, 12) + _com_args_str, EZ_CONSOLE_MSG_TYPE.WARNING);
+			console_write_log("> USAGE", EZ_CONSOLE_MSG_TYPE.WARNING);
+			console_write_log(_com_name + "  " + _com_args_str, EZ_CONSOLE_MSG_TYPE.INFO);
+			
+			if (_com_shrt != "") {
+				console_write_log(_com_shrt + "  " + _com_args_str, EZ_CONSOLE_MSG_TYPE.INFO);
 			}
 			
 			// Description
-			console_write_log(_com_desc + "\n\n", EZ_CONSOLE_MSG_TYPE.INFO);
+			console_write_log("\n> DESCRIPTION", EZ_CONSOLE_MSG_TYPE.WARNING);
+			console_write_log(_com_desc, EZ_CONSOLE_MSG_TYPE.INFO);
 			
 			// Arguments description
-			if (array_length(_com_args) > 0) {
+			var _command_args_len = array_length(_com_args);
+			if (_command_args_len > 0) {
+				console_write_log(__ezConsole_dep_string_pad("\n> ARGUMENTS", 22) + "   " + "DESCRIPTION", EZ_CONSOLE_MSG_TYPE.WARNING);
 				var _com_args_val = _console_comands[i].args_desc;
-				console_write_log(_console_comands[0].args[0] + "   " + _console_comands[0].args_desc[0], EZ_CONSOLE_MSG_TYPE.INFO);
+				console_write_log(__ezConsole_dep_string_pad(_console_comands[0].args[0], 24) + _console_comands[0].args_desc[0], EZ_CONSOLE_MSG_TYPE.INFO);
 			
-				for (var j = 0; j < array_length(_com_args); j++) {
-					console_write_log(__ezConsole_dep_string_pad(_com_args[j], 12) + _com_args_val[j], EZ_CONSOLE_MSG_TYPE.INFO);
+				for (var j = 0; j < _command_args_len; j++) {
+					console_write_log(__ezConsole_dep_string_pad(_com_args[j], 24) + _com_args_val[j], EZ_CONSOLE_MSG_TYPE.INFO);
 				}
 			}
 			
-			return -1;
+			break;
 		}		
 	}
 }
 
-/// @function console_command_create(args)
+/// @func	console_command_base_create(args)
 /// @param	{array}	args
 /// @desc	Create an instance
-function console_command_create(_args) {
+function console_command_base_create(_args) {
 	var _asset = asset_get_index(_args[0]);
 	var _params_len = array_length(_args);
 		
@@ -178,10 +201,10 @@ function console_command_create(_args) {
 	}
 }
 
-/// @function console_command_instances(args)
+/// @func	console_command_base_instances(args)
 /// @param	{array}	args
 /// @desc	Get all instances
-function console_command_instances(_args) {
+function console_command_base_instances(_args) {
 	var _command	= "instances";
 	var _params_len = array_length(_args);
 	
@@ -234,10 +257,10 @@ function console_command_instances(_args) {
 	}
 }
 
-/// @function console_command_instance_set(args)
+/// @func	console_command_base_instance_set(args)
 /// @param	{array}	args
 /// @desc	Set a variable in an instance
-function console_command_instance_set(_args) {
+function console_command_base_instance_set(_args) {
 	var _instance_id	= _args[0];
 	var _variable_name	= _args[1];
 	var _variable_value	= _args[2];
@@ -272,10 +295,10 @@ function console_command_instance_set(_args) {
 	console_write_log(string("Variable {0} set as {1} on instance {2}.", _variable_name, _variable_value, _instance_id), EZ_CONSOLE_MSG_TYPE.INFO);
 }
 
-/// @function console_command_instance_get(args)
+/// @func	console_command_base_instance_get(args)
 /// @param	{array}	args
 /// @desc	Gets a variable in an instance
-function console_command_instance_get(_args) {
+function console_command_base_instance_get(_args) {
 	var _instance_id	= _args[0];
 	var _variable_name	= array_length(_args) > 1 ? _args[1] : "";
 		
@@ -329,18 +352,23 @@ function console_command_instance_get(_args) {
 	}
 }
 
-/// @function console_command_instance_delete(args)
+/// @func	console_command_base_instance_delete(args)
 /// @param	{array}	args
 /// @desc	Delete an instance
-function console_command_instance_delete(_args) {
+function console_command_base_instance_delete(_args) {
 	var _instance_id	= _args[0];
-	var _exec_ev		= ( _params_len > 1 ? _args[1] : "1" );
+	var _exec_ev		= ( array_length(_args) > 1 ? _args[1] : "1" );
 		
 	var _inst_to_check = (
 		string_digits(_instance_id) == _instance_id
 		? _instance_id
 		: asset_get_index(_instance_id)
 	);
+
+	if (_inst_to_check.object_index == __EzConsole__) {
+		console_write_log("The ezConsole instance cannot be deleted!", EZ_CONSOLE_MSG_TYPE.ERROR);
+		return;
+	}
 
 	if (!instance_exists(_inst_to_check) || _inst_to_check == -1) {
 		console_write_log("Instance " + _instance_id + " doesn't exists", EZ_CONSOLE_MSG_TYPE.ERROR);
@@ -351,10 +379,10 @@ function console_command_instance_delete(_args) {
 	console_write_log(string("Instance \"{0}\" destroyed.", _instance_id), EZ_CONSOLE_MSG_TYPE.INFO);
 }
 
-/// @function console_command_clear(args)
+/// @func	console_command_base_clear(args)
 /// @param	{array}	args
 /// @desc	Clears console log
-function console_command_clear(_args) {
+function console_command_base_clear(_args) {
 	with (ezConsole) {
 		ds_list_clear(console_text_log);
 		console_log_total_h = 0;
@@ -367,10 +395,10 @@ function console_command_clear(_args) {
 	console_write_log(_init_message, EZ_CONSOLE_MSG_TYPE.WARNING);
 }
 
-/// @function console_command_fps(args)
+/// @func	console_command_base_fps(args)
 /// @param	{array}	args
 /// @desc	Toggle or set and set FPS on screen
-function console_command_fps(_args) {
+function console_command_base_fps(_args) {
 	if (array_length(_args) == 0) {
 		ezConsole.console_fps_show = !ezConsole.console_fps_show;
 		console_write_log(string("FPS are now {0}!", ( ezConsole.console_fps_show ? "visible" : "invisible" )), EZ_CONSOLE_MSG_TYPE.WARNING);
@@ -389,16 +417,16 @@ function console_command_fps(_args) {
 				break;
 					
 			default:
-				var _invalid_param = console_get_message(EZ_CONSOLE_MSG.INVALID_PARAM, _command, array_length(_args), 1, 1) + _args[1] + "\".";
+				var _invalid_param = console_get_message(EZ_CONSOLE_MSG.INVALID_PARAM, "fps", array_length(_args), 1, 1) + _args[1] + "\".";
 				console_write_log(_invalid_param, EZ_CONSOLE_MSG_TYPE.ERROR);
 		}
 	}
 }
 
-/// @function console_command_debug_overlay(args)
+/// @func	console_command_base_debug_overlay(args)
 /// @param	{array}	args
 /// @desc	Toggle or set and set debug overlay on screen
-function console_command_debug_overlay(_args) {
+function console_command_base_debug_overlay(_args) {
 	if (array_length(_args) == 0) {
 		ezConsole.console_debug_overlay_show = !ezConsole.console_debug_overlay_show;
 		show_debug_overlay(ezConsole.console_debug_overlay_show);
@@ -418,7 +446,7 @@ function console_command_debug_overlay(_args) {
 				break;
 					
 			default:
-				var _invalid_param = console_get_message(EZ_CONSOLE_MSG.INVALID_PARAM, _command, array_length(_args), 1, 1) + _args[1] + "\".";
+				var _invalid_param = console_get_message(EZ_CONSOLE_MSG.INVALID_PARAM, "overlay", array_length(_args), 1, 1) + _args[1] + "\".";
 				console_write_log(_invalid_param, EZ_CONSOLE_MSG_TYPE.ERROR);
 		}
 	}

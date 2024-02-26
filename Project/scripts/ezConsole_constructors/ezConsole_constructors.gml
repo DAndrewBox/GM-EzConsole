@@ -1,3 +1,15 @@
+/// @func 	ConsoleLog(message, [type])
+/// @param	{str}	message
+/// @param	{real}		[type]
+/// @desc	Logs messages to the console with specified types.
+function ConsoleLog(_msg, _type = EZ_CONSOLE_MSG_TYPE.COMMON) constructor {
+	message		= _msg;
+	type		= _type;
+	color		= console_get_type_color(type);
+	time		= date_current_datetime();
+	timestamp	= console_get_timestamp(time);
+}
+
 /// @func	EzConsoleCommand(name, short_name, description, callback, arguments)
 /// @param	{str}	name
 /// @param	{str}	short_name

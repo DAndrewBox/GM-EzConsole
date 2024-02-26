@@ -46,9 +46,10 @@ if (keyboard_check_pressed(vk_anykey)) {
 			var _use_typeahead	= (console_typeahead_flag && console_typeahead_selected > -1);
 			
 			if (_use_suggestion || _use_typeahead) {
+				var _is_command = array_length(string_split(keyboard_string, " ")) == 1;
 				keyboard_string = (
 					_use_suggestion
-					? keyboard_string + console_suggestion_text					// Autocompletes using suggestion
+					? (_is_command ? string_lower(keyboard_string) : keyboard_string) + console_suggestion_text					// Autocompletes using suggestion
 					: console_typeahead_elements[console_typeahead_selected]	// Autocomplete using typeahead
 				);
 				
@@ -263,28 +264,48 @@ if (_log_len > 0) {
 						_typeahead_len 
 					);
 			}
-			
-			
-			if (_nav_up && console_typeahead_selected <= -1) {
-				console_typeahead_selected_yoff = _typeahead_len - console_typeahead_elements_max;
-				console_typeahead_selected = (_typeahead_len - 1);
-			} else if (_nav_down && console_typeahead_selected == _typeahead_len) {
-				console_typeahead_selected_yoff = 0;
-				console_typeahead_selected = 0;
-			} else if (console_typeahead_selected >= console_typeahead_elements_max) {
-				console_typeahead_selected_yoff += _nav_down - _nav_up;
-				if (console_typeahead_selected_yoff >= 0) {
-					console_typeahead_selected = clamp(console_typeahead_selected, -1, _typeahead_len - 1);
-				} else {
+			#region // Console typeadeah navigation 
+			if (_console_on_bottom) {
+				if (_nav_down && console_typeahead_selected <= -1) {
 					console_typeahead_selected_yoff = _typeahead_len - console_typeahead_elements_max;
+					console_typeahead_selected = (_typeahead_len - 1);
+				} else if (_nav_up && console_typeahead_selected == _typeahead_len) {
+					console_typeahead_selected_yoff = 0;
+					console_typeahead_selected = 0;
+				} else if (console_typeahead_selected >= console_typeahead_elements_max) {
+					console_typeahead_selected_yoff += _nav_up - _nav_down;
+					if (console_typeahead_selected_yoff >= 0) {
+						console_typeahead_selected = clamp(console_typeahead_selected, -1, _typeahead_len - 1);
+					} else {
+						console_typeahead_selected_yoff = _typeahead_len - console_typeahead_elements_max;
+					}
+				} else if (_nav_down && console_typeahead_selected < console_typeahead_elements_max) {
+					console_typeahead_selected_yoff--;
+					console_typeahead_selected = clamp(console_typeahead_selected, -1, _typeahead_len - 1);
 				}
-			} else if (_nav_up && console_typeahead_selected < console_typeahead_elements_max) {
-				console_typeahead_selected_yoff--;
-				console_typeahead_selected = clamp(console_typeahead_selected, -1, _typeahead_len - 1);
+			} else {
+				if (_nav_up && console_typeahead_selected <= -1) {
+					console_typeahead_selected_yoff = _typeahead_len - console_typeahead_elements_max;
+					console_typeahead_selected = (_typeahead_len - 1);
+				} else if (_nav_down && console_typeahead_selected == _typeahead_len) {
+					console_typeahead_selected_yoff = 0;
+					console_typeahead_selected = 0;
+				} else if (console_typeahead_selected >= console_typeahead_elements_max) {
+					console_typeahead_selected_yoff += _nav_down - _nav_up;
+					if (console_typeahead_selected_yoff >= 0) {
+						console_typeahead_selected = clamp(console_typeahead_selected, -1, _typeahead_len - 1);
+					} else {
+						console_typeahead_selected_yoff = _typeahead_len - console_typeahead_elements_max;
+					}
+				} else if (_nav_up && console_typeahead_selected < console_typeahead_elements_max) {
+					console_typeahead_selected_yoff--;
+					console_typeahead_selected = clamp(console_typeahead_selected, -1, _typeahead_len - 1);
+				}
 			}
 
 			console_typeahead_selected_yoff = clamp(console_typeahead_selected_yoff, 0, max(0, _typeahead_len - console_typeahead_elements_max));
-				
+			#endregion
+			
 			if (console_typeahead_selected > -1) {
 				if (console_suggestions_flag) {
 					var _console_text_len = string_length(console_text_actual);

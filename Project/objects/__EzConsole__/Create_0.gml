@@ -3,6 +3,8 @@ if (ezConsole_debug_only && debug_mode) {
 	instance_destroy(id, false);
 	exit;
 }
+x = 200;
+y = 200;
 
 visible = ezConsole_prop_start_open;
 

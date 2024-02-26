@@ -6,7 +6,7 @@ ezConsole_files = [
 ];
 
 // Custom skin name
-ezConsole_skin_selected	= "default-dark";
+ezConsole_skin_selected	= "default-dark-example";
 
 // Use console **only** on debug mode
 ezConsole_debug_only	= false;
@@ -25,11 +25,12 @@ ezConsole_callback_onGameEnd	= console_save_log_to_file;
 	
 #macro	ezConsole_enable_typeahead_icons	true	// Console show type-ahead icons for elements
 #macro	ezConsole_enable_typeahead_inst_ref	true	// Console show type-ahead ref index on instances elements
-	
+
 #macro	ezConsole_prop_depth				-10000
 #macro	ezConsole_prop_start_open			true
 #macro	ezConsole_prop_typeahead_elements	20
 #macro	ezConsole_prop_nav_scroll_speed		1
+#macro	ezConsole_prop_blur_quality			4		// Quality of the Blur shader. (1: Lowest quality (Low GPU usage) | 4: Best quality (More GPU usage))
 
 #macro	ezConsole_autocreate				true
 	
