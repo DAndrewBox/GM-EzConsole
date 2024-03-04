@@ -3,8 +3,11 @@ if (
 	!console_typeahead_flag
 	|| !ezConsole_enable_typeahead_inst_ref
 	|| console_typeahead_selected == -1
+	|| !console_window_open
 ) exit;
 
+console_instance_highlight_index += .1;
+console_instance_highlight_index = console_instance_highlight_index mod 2;
 var _selected = console_typeahead_elements[console_typeahead_selected];
 var _is_instance = string_pos("(ref ", _selected);
 if (_is_instance) {
@@ -22,7 +25,8 @@ if (_is_instance) {
 		draw_set_font(console_text_font);
 			
 		draw_sprite_stretched_ext(
-			s_ezConsole_border_highlight, 0,
+			s_ezConsole_border_highlight,
+			console_instance_highlight_index,
 			_inst.bbox_left - _offset + 1,
 			_inst.bbox_top - _offset + 1,
 			_inst.bbox_right - _inst.bbox_left + _offset * 2,

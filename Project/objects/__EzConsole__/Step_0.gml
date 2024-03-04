@@ -5,6 +5,9 @@ if (!visible) {
 	exit;
 }
 
+// Don't do anything if window close
+if (!console_window_open) exit;
+
 var _nav_up		= keyboard_check_pressed(console_key_nav_up);
 var _nav_down	= keyboard_check_pressed(console_key_nav_down);
 var _nav_left	= keyboard_check_pressed(console_key_nav_left);
@@ -13,6 +16,8 @@ var _nav_right	= keyboard_check_pressed(console_key_nav_right);
 var _backspace_is_pressed	= false;
 var _delete_is_pressed		= false;
 
+var _inst_ref_split_delim	= "(ref";
+
 // Blink thing after text in bar
 console_text_blink_t = ( console_text_blink_t > room_speed * console_text_blink_rate ? 0 : ++console_text_blink_t );
 console_surf_yoffset = lerp(console_surf_yoffset, console_surf_yoffset_to, .16);
@@ -20,7 +25,7 @@ console_surf_yoffset = lerp(console_surf_yoffset, console_surf_yoffset_to, .16);
 // Do actions
 if (keyboard_check_pressed(vk_anykey)) {
 	switch (keyboard_lastkey) {
-		case vk_enter:
+		case ezConsole_key_send_line:
 			#region // Send command
 			if (console_text_actual != "") {
 				console_check_command(console_text_actual);
@@ -40,7 +45,7 @@ if (keyboard_check_pressed(vk_anykey)) {
 			#endregion
 			break;
 		
-		case vk_tab:
+		case ezConsole_key_auto_complete:
 			// Autocomplete commands
 			var _use_suggestion	= (console_suggestions_flag && console_suggestion_text != "");
 			var _use_typeahead	= (console_typeahead_flag && console_typeahead_selected > -1);
@@ -53,16 +58,24 @@ if (keyboard_check_pressed(vk_anykey)) {
 					: console_typeahead_elements[console_typeahead_selected]	// Autocomplete using typeahead
 				);
 				
-				if (ezConsole_enable_typeahead_inst_ref) {
-					keyboard_string = string_split(keyboard_string, " (ref ")[0]
+				var _last_arg = array_last(string_split(keyboard_string, " "));
+				if (_use_suggestion && !_is_command && ezConsole_enable_typeahead_inst_ref && string_char_at(_last_arg, 1) == ":") {
+					var _kb_last_space = string_last_pos(" ", keyboard_string);
+					var _kb_str_without_last_arg = string_copy(keyboard_string, 1, _kb_last_space - 1);
+					var _splitted_str = string_split(console_typeahead_elements[console_typeahead_selected], _inst_ref_split_delim);
+					var _inst_name = string_trim(_splitted_str[0]);
+					var _ref_number = string_digits(_splitted_str[1]);
+
+					keyboard_string = $"{_kb_str_without_last_arg} {_inst_name}:{_ref_number}";
 				}
 					
 				console_typeahead_selected = -1;
 				console_suggestion_text = "";
+				keyboard_lastchar = "";
 			}
 			break;
 			
-		case vk_f1: // toggle console on/off
+		case console_key_toggle: // toggle console on/off
 			console_set_invisible();
 			break;
 			
@@ -73,7 +86,9 @@ if (keyboard_check_pressed(vk_anykey)) {
 
 			if (console_nav_hor != 0) {
 				keyboard_string = console_text_actual;
-			}		
+			}
+			
+			keyboard_lastchar = "";
 			break;
 			
 		
@@ -84,11 +99,12 @@ if (keyboard_check_pressed(vk_anykey)) {
 		case vk_shift:
 		case vk_lshift:
 		case vk_rshift:
+		case vk_control:
 			// Do nothing
 			break;
 			
 		default:
-			var _key_is_valid = string_pos(keyboard_lastchar, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_\" ") > 0;
+			var _key_is_valid = string_pos(keyboard_lastchar, ezConsole_valid_charset) > 0;
 		
 			if (console_nav_hor != 0 && _key_is_valid) {
 				keyboard_string = console_text_actual;
@@ -98,8 +114,13 @@ if (keyboard_check_pressed(vk_anykey)) {
 						console_text_actual,
 						string_length(console_text_actual) + console_nav_hor + 1
 					);
-				keyboard_lastchar = "";
 			}
+			
+			if (console_nav_hor == 0 && !_key_is_valid && !keyboard_check_pressed(vk_escape)) {
+				keyboard_string = string_copy(keyboard_string, 1, string_length(keyboard_string) - 1);
+			}
+			
+			keyboard_lastchar = "";
 			break;
 	}
 }
@@ -112,29 +133,30 @@ if (keyboard_check(vk_anykey)) {
 		// Paste a text
 		if (clipboard_has_text() && keyboard_check_pressed(ord("V"))) {
 			keyboard_string += clipboard_get_text();
-			var _first_enter = string_pos("\n", keyboard_string);
-			if (_first_enter > 0) {
-				keyboard_string = string_copy(keyboard_string, 1, _first_enter - 2);
-				keyboard_string = string_replace_all(keyboard_string, "\t", "");
+			if (string_pos("\n", keyboard_string)) {
+				keyboard_string = string_split(keyboard_string, "\n")[0];
+				keyboard_string = string_replace_all(keyboard_string, "\t", " ");
 			}
 		}
 		
 		// Copy a command
-		if (keyboard_check_pressed(ord("C"))) {
-			clipboard_set_text(keyboard_string);
+		if (keyboard_check_pressed(ord("C")) && string_length(console_text_actual) > 0) {
+			clipboard_set_text(console_text_actual);
+			console_write_log($"Line \"{console_text_actual}\" copied to clipboard!", EZ_CONSOLE_MSG_TYPE.INFO);
 		}
 		
 		// Erase a whole word
 		if (_backspace_is_pressed) {
 			var _end_next = false;
-			for (var i = string_length(keyboard_string); i > 0; i--) {
+			var _kb_str_len = string_length(keyboard_string);
+			for (var i = _kb_str_len; i > 0; i--) {
 				// Remove chars while check for space
 				if (_end_next) break;
 				
 				var _char = string_char_at(keyboard_string, i);
 				keyboard_string = string_delete(keyboard_string, i, 1);
 
-				if (_char == " " || _char == ".") {
+				if (_char == " " || _char == "." || _char == ":") {
 					_end_next = true;
 				}
 			}
@@ -158,8 +180,15 @@ if (keyboard_check(vk_anykey)) {
 				string_length(console_typeahead_elements[console_typeahead_selected]) - _console_text_last_arg_len
 			);
 			
-			if (ezConsole_enable_typeahead_inst_ref) {
-				console_suggestion_text = string_split(console_suggestion_text, " (ref ")[0];
+			if (ezConsole_enable_typeahead_inst_ref && string_pos(_inst_ref_split_delim, console_suggestion_text)) {
+				var _splitted_str = string_split(console_suggestion_text, _inst_ref_split_delim);
+				var _ref_number = string_digits(_splitted_str[1]);
+				var _trimmed_arg = string_trim(_splitted_str[0]);
+				var _last_kb_str_arg = array_last(string_split(keyboard_string, " "));
+				_last_kb_str_arg = string_copy(_last_kb_str_arg, 2, string_length(_last_kb_str_arg) - 2);
+							
+				_trimmed_arg += ( string_pos(":", _last_kb_str_arg) ? "" : ":" );
+				console_suggestion_text = $"{_trimmed_arg}{_ref_number}";
 			}
 		}
 	}
@@ -188,10 +217,6 @@ if (keyboard_check(vk_anykey)) {
 				? console_get_suggestion(console_text_actual)
 				: ""
 			);
-			
-			if (ezConsole_enable_typeahead_inst_ref) {
-				console_suggestion_text = string_split(console_suggestion_text, " (ref ")[0];
-			}
 		}
 	}
 	
@@ -222,6 +247,10 @@ if (keyboard_check(vk_anykey)) {
 			console_typeahead_show = false;
 			console_typeahead_selected_yoff = 0;
 			console_typeahead_selected = -1;
+		}
+		
+		if (console_typeahead_selected > _typeahead_len) {
+			console_typeahead_selected = _typeahead_len - 1;
 		}
 	}
 }
@@ -326,8 +355,15 @@ if (_log_len > 0) {
 							string_length(console_typeahead_elements[console_typeahead_selected]) - _console_text_last_arg_len
 						);
 						
-						if (ezConsole_enable_typeahead_inst_ref) {
-							console_suggestion_text = string_split(console_suggestion_text, " (ref ")[0];
+						if (ezConsole_enable_typeahead_inst_ref && string_pos(_inst_ref_split_delim, console_suggestion_text)) {
+							var _splitted_str = string_split(console_suggestion_text, _inst_ref_split_delim);
+							var _ref_number = string_digits(_splitted_str[1]);
+							var _trimmed_arg = string_trim(_splitted_str[0]);
+							var _last_kb_str_arg = array_last(string_split(keyboard_string, " "));
+							_last_kb_str_arg = string_copy(_last_kb_str_arg, 2, string_length(_last_kb_str_arg) - 2);
+							
+							_trimmed_arg += ( string_pos(":", _last_kb_str_arg) ? "" : ":" );
+							console_suggestion_text = $"{_trimmed_arg}{_ref_number}";
 						}
 					}
 				}

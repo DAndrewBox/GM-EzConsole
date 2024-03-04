@@ -1,8 +1,8 @@
-/// @func 	ConsoleLog(message, [type])
+/// @func 	EzConsoleLog(message, [type])
 /// @param	{str}	message
 /// @param	{real}		[type]
 /// @desc	Logs messages to the console with specified types.
-function ConsoleLog(_msg, _type = EZ_CONSOLE_MSG_TYPE.COMMON) constructor {
+function EzConsoleLog(_msg, _type = EZ_CONSOLE_MSG_TYPE.COMMON) constructor {
 	message		= _msg;
 	type		= _type;
 	color		= console_get_type_color(type);
@@ -10,16 +10,16 @@ function ConsoleLog(_msg, _type = EZ_CONSOLE_MSG_TYPE.COMMON) constructor {
 	timestamp	= console_get_timestamp(time);
 }
 
-/// @func	EzConsoleCommand(name, short_name, description, callback, arguments)
+/// @func	EzConsoleCommand(name, alias, description, callback, arguments)
 /// @param	{str}	name
-/// @param	{str}	short_name
+/// @param	{str}	alias
 /// @param	{str}	description
 /// @param	{ref}	callback
 /// @param	{Array}	arguments
 /// @desc	Used to create a new ezConsole command
-function EzConsoleCommand(_name, _short = "", _desc = "", _cb = -1, _args = []) constructor {
+function EzConsoleCommand(_name, _alias = "", _desc = "", _cb = -1, _args = []) constructor {
 	name		= _name;
-	short		= _short;
+	alias		= _alias;
 	desc		= _desc;
 	callback	= _cb;
 	
@@ -96,7 +96,10 @@ function EzConsoleSkin(_owner, _size, _bg, _text, _bar, _misc) constructor {
 	
 	bg_color	= _bg.bg_color;
 	bg_alpha	= _bg.bg_alpha;
-	blur_amount = _bg.blur_amount
+	blur_amount = _bg.blur_amount;
+	
+	border_color	= _bg.border_color;
+	border_alpha	= _bg.border_alpha;
 	
 	text_font			= _text.text_font;
 	text_font_xoff		= _text.text_font_xoff;
@@ -112,6 +115,7 @@ function EzConsoleSkin(_owner, _size, _bg, _text, _bar, _misc) constructor {
 	bar_color_highlight = _bar.bar_color_highlight;
 	bar_xpad			= _bar.bar_xpad;
 	bar_ypad			= _bar.bar_ypad;
+	bar_inset			= _bar.bar_inset;
 	
 	screenfill_color = _misc.screenfill_color;
 	screenfill_alpha = _misc.screenfill_alpha;
@@ -124,6 +128,22 @@ function EzConsoleSkin(_owner, _size, _bg, _text, _bar, _misc) constructor {
 	typeahead_text_color_highlight	= _misc.typeahead_text_color_highlight;
 	
 	console_add_skin(self);
+	
+	/// @func	toJSON()
+	function toJSON() {
+		var _json = variable_clone(self);
+		var _json_key_names = struct_get_names(_json);
+		var _json_key_names_len = array_length(_json_key_names);
+		
+		for (var i = 0; i < _json_key_names_len; i++) {
+			var _key = _json_key_names[i];
+			if (string_pos("color", _key)) {
+				_json[$ _key] = __ezConsole_dep_dec_to_hex(_json[$ _key]);
+			}
+		}
+
+		return json_stringify(_json, true);
+	}
 }
 
 /// @func	EzConsoleSkinOwnership(theme_name, author, version)
@@ -146,13 +166,19 @@ function EzConsoleSkinSize(_w, _h, _anchor = 0) constructor {
 	anchor = _anchor;
 }
 
-/// @func	EzConsoleSkinBackground(bg_color, bg_alpha, blur_amount)
+/// @func	EzConsoleSkinBackground(bg_color, border_color, bg_alpha, border_alpha, blur_amount)
 /// @param	{color}	bg_color
+/// @param	{color}	border_color
 /// @param	{real}	alpha
+/// @param	{real}	border_alpha
 /// @param	{real}	blur_amount
-function EzConsoleSkinBackground(_col, _alpha = 1., _blur_amount = .20) constructor {
+function EzConsoleSkinBackground(_col, _border_col, _alpha = 1., _border_alpha = .0, _blur_amount = .20) constructor {
 	bg_color = _col;
 	bg_alpha = _alpha;
+	
+	border_color = _border_col;
+	border_alpha = _border_alpha;
+	
 	blur_amount = _blur_amount;
 }
 
@@ -176,18 +202,20 @@ function EzConsoleSkinText(_fnt, _fnt_xoff, _fnt_yoff, _col_default, _col_error,
 	text_alpha =			_alpha;
 }
 
-/// @func	EzConsoleSkinBar(height, color_default, color_highlight, xpad, ypad)
+/// @func	EzConsoleSkinBar(height, color_default, color_highlight, xpad, ypad, inset)
 /// @param	{real}	height
 /// @param	{color}	color_default
 /// @param	{color}	color_highlight
 /// @param	{real}	xpad
 /// @param	{real}	ypad
-function EzConsoleSkinBar(_h, _col_default, _col_highlight, _xpad = 4, _ypad = 4) constructor {
+/// @param	{real}	inset
+function EzConsoleSkinBar(_h, _col_default, _col_highlight, _xpad = 4, _ypad = 4, _inset = 0) constructor {
 	bar_height =			_h;
 	bar_color =				_col_default;
 	bar_color_highlight =	_col_highlight;
 	bar_xpad =				_xpad;
 	bar_ypad =				_ypad;
+	bar_inset =				abs(_inset);
 }
 
 /// @func	EzConsoleSkinMisc(blink_char, blink_rate, start_char, screenfill_color, screenfill_alpha, typeahead_text_color, typeahead_text_highlight)

@@ -1,7 +1,7 @@
 [
   {
     "name": "message",
-    "short": "msg",
+    "alias": "msg",
     "desc": "Shows a message and pauses the game.",
     "args": [
       {
@@ -15,7 +15,7 @@
   },
   {
     "name": "fullscreen",
-    "short": "fs",
+    "alias": "fs",
     "desc": "Toggle fullscreen.",
     "args": [
       {
@@ -30,7 +30,7 @@
   },
   {
     "name": "game",
-    "short": "gm",
+    "alias": "gm",
     "desc": "Choose to end or restart the game.",
     "args": [
       {
@@ -38,14 +38,14 @@
         "desc": "Can take values \"end\", \"reset\" or \"restart\".",
         "required": true,
         "type": "option",
-        "options": ["end", "reset", "restart"]
+        "options": ["end", "reset"]
       }
     ],
     "callback": "console_command_base_game"
   },
   {
     "name": "help",
-    "short": "",
+    "alias": "",
     "desc": "Show help about commands",
     "args": [
       {
@@ -59,7 +59,7 @@
   },
   {
     "name": "create",
-    "short": "",
+    "alias": "",
     "desc": "Creates an instance.",
     "args": [
       {
@@ -91,7 +91,7 @@
   },
   {
     "name": "instances",
-    "short": "inst",
+    "alias": "inst",
     "desc": "Get all active instances.",
     "args": [
       {
@@ -105,7 +105,7 @@
   },
   {
     "name": "set",
-    "short": "",
+    "alias": "",
     "desc": "Set a variable on an instance",
     "args": [
       {
@@ -126,25 +126,35 @@
   },
   {
     "name": "get",
-    "short": "",
+    "alias": "",
     "desc": "Gets a variable in an instance",
     "args": [
-      { "name": "id", "desc": "Instance ID", "required": true, "type": "" },
+      {
+        "name": "id",
+        "desc": "Instance ID",
+        "required": true,
+        "type": "instance"
+      },
       {
         "name": "variable",
         "desc": "Variable name",
         "required": false,
-        "type": "instance"
+        "type": ""
       }
     ],
     "callback": "console_command_base_instance_get"
   },
   {
     "name": "delete",
-    "short": "del",
+    "alias": "del",
     "desc": "Delete an instance.",
     "args": [
-      { "name": "id", "desc": "Instance ID", "required": true, "type": "instance" },
+      {
+        "name": "id",
+        "desc": "Instance ID",
+        "required": true,
+        "type": "instance"
+      },
       {
         "name": "execute_event",
         "desc": "Execute destroy event (default: true)",
@@ -157,19 +167,19 @@
   },
   {
     "name": "clear",
-    "short": "cls",
+    "alias": "cls",
     "desc": "Clears the console.",
     "args": [],
     "callback": "console_command_base_clear"
   },
   {
     "name": "fps",
-    "short": "",
+    "alias": "",
     "desc": "Toggle FPS counter.",
     "args": [
       {
         "name": "active",
-        "desc": "Can take values \"0\" or \"1\" (\"false\" or \"true\" are also valid).",
+        "desc": "Can take values \"false\" or \"true\" (\"0\" or \"1\" are also valid).",
         "required": false,
         "type": "option",
         "options": ["false", "true"]
@@ -178,8 +188,8 @@
     "callback": "console_command_base_fps"
   },
   {
-    "name": "overlay",
-    "short": "",
+    "name": "debug_view",
+    "alias": "",
     "desc": "Toggle debug overlay counter.",
     "args": [
       {
@@ -191,5 +201,20 @@
       }
     ],
     "callback": "console_command_base_debug_overlay"
+  },
+  {
+    "name": "goto",
+    "alias": "",
+    "desc": "Go to a new room.",
+    "args": [
+      {
+        "name": "room_name",
+        "desc": "Name of the room to go to.",
+        "required": true,
+        "type": "room",
+        "options": []
+      }
+    ],
+    "callback": "console_command_base_goto"
   }
 ]

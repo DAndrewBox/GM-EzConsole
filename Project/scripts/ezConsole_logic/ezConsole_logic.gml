@@ -23,11 +23,8 @@ function console_get_message(_type, _command, _params_count=0, _min_params=0, _m
                     string(_min_params) + " argument(s).\n(" + string(_params_count) + " were given)");
         
         case EZ_CONSOLE_MSG.TOO_MANY_PARAMS:
-            return ("\"" + _command + "\" must receive " +
+            return ("\"" + _command + "\" must receive at most " +
                     string(_max_params) + " argument(s).\n(" + string(_params_count) + " were given)");
-            
-        case EZ_CONSOLE_MSG.NOT_A_COMMAND:
-            return ("\"" + _command + "\" is not a command.");
             
         case EZ_CONSOLE_MSG.INVALID_PARAM:
             return ("Command \"" + _command + "\" has no param \"");
@@ -190,6 +187,26 @@ function console_get_typeahead(_msg) {
 							? $"{_inst} ({string_replace(string(id), "instance ", "")})"
 							: _inst;
 						_count++;
+					} else {
+						var _inst_ref = string_split(string(id), " ");
+						if (is_array(_inst_ref)) {
+							_inst_ref = array_last(_inst_ref);
+						}
+						
+						var _arg_ref = string_split(_arg, ":");
+						if (is_array(_arg_ref)) {
+							_arg_ref = array_last(_arg_ref);
+						}
+						
+						var _arg_ref_len = string_length(_arg_ref);
+						var _multiple_colons = string_count(":", _arg) > 1;
+						if (!_multiple_colons && _arg_ref == string_copy(_inst_ref, 1, _arg_ref_len) && _arg_ref != _inst_ref) {
+							_names[_count] = 
+								ezConsole_enable_typeahead_inst_ref
+								? $" {_inst} ({string_replace(string(id), "instance ", "")})"
+								: $" _inst";
+							_count++;
+						}
 					}
 				}
 				
@@ -228,6 +245,11 @@ function console_add_command(_cmd) {
 /// @param	{str}    filepath
 /// @desc	Adds commands from a file to the console.
 function console_add_commands_from_file(_path) {
+	if (!file_exists(_path)) {
+		show_debug_message($"(EzConsole) ERROR! - File \"{_path}\" not found!");
+		return;
+	}
+	
 	var _file = file_text_open_read(_path);
 	var _json = __ezConsole_dep_file_to_json(_file);
 	var _json_len = array_length(_json);
@@ -258,7 +280,7 @@ function console_add_commands_from_file(_path) {
 			array_push(_args, _new_arg);
 		}
 		
-		new EzConsoleCommand(_cmd.name, _cmd.short, _cmd.desc, asset_get_index(_cmd.callback), _args);
+		new EzConsoleCommand(_cmd.name, _cmd.alias, _cmd.desc, asset_get_index(_cmd.callback), _args);
 	}
 	
 	file_text_close(_file);
@@ -268,12 +290,12 @@ function console_add_commands_from_file(_path) {
 #region // Write on console log logic
 /// @func 	console_write_log(message, type)
 /// @param	{str}	message
-/// @param	{real}		[type]
+/// @param	{real}	type
 /// @desc	Writes messages to the console log.
 function console_write_log(_msg, _type = EZ_CONSOLE_MSG_TYPE.COMMON) {
 	with (ezConsole) {
 		if (console_callback_on_log) console_callback_on_log();
-		var _new_msg = new ConsoleLog(_msg, _type);
+		var _new_msg = new EzConsoleLog(_msg, _type);
 		ds_list_add(console_text_log, _new_msg);
 	
 		keyboard_string = "";
@@ -287,21 +309,23 @@ function console_write_log(_msg, _type = EZ_CONSOLE_MSG_TYPE.COMMON) {
 /// @func 	console_set_visible()
 /// @desc	Sets the console to be visible based on user interaction.
 function console_set_visible() {
-	if (keyboard_check_pressed(console_key_toggle)) {
+	if (!ezConsole) return;
+	if (keyboard_check_pressed(ezConsole.console_key_toggle)) {
 		// Reset console text bar when visible again
 		keyboard_lastkey = noone;
 		keyboard_string = "";
-		console_text_actual = "";
+		ezConsole.console_text_actual = "";
 		visible = true;
-		if (console_callback_on_open) console_callback_on_open();
+		if (ezConsole.console_callback_on_open) ezConsole.console_callback_on_open();
 	}
 }
 
 /// @func 	console_set_invisible()
 /// @desc	Sets the console to be invisible based on user interaction.
 function console_set_invisible() {
-	visible = false;
-	if (console_callback_on_close) console_callback_on_close();
+	if (!ezConsole) return;
+	ezConsole.visible = false;
+	if (ezConsole.console_callback_on_close) ezConsole.console_callback_on_close();
 }
 
 /// @func 	console_check_command(message)
@@ -352,8 +376,29 @@ function console_check_command(_msg) {
 	static _commands = console_get_commands();
 	static _commands_len = array_length(_commands);
 	for (var i = 0; i < _commands_len; i++) {
-		if (_commands[i].name == _command || (_commands[i].short == _command && _commands[i].short != "-")) {
+		if (_commands[i].name == _command || (_commands[i].alias == _command && _commands[i].alias != "-")) {
 			if (_commands[i].callback != -1) {
+				var _args_len = array_length(_params);
+				for (var j = 0; j < _args_len; j++) {
+					if (j > array_length(_commands[i].args_type) - 1) break;
+					if (_commands[i].args_type[j] == ezConsole_type_instance) {
+						var _inst_ref = string_split(_params[j], ":");
+						if (!is_array(_inst_ref) || array_length(_inst_ref) < 2) continue;
+						
+						_inst_ref = _inst_ref[1];
+						if (_inst_ref == "") continue;
+						
+						var _inst_id = string_digits(_inst_ref);
+						var _instance = instance_find(_inst_id, 0);
+						
+						if (_instance) {
+							_params[j] = _instance;
+							continue;
+						}
+						
+						_params[j] = "<undefined>";
+					}
+				}
 				console_command_base_execute(_commands[i], _params);
 				return;
 			} else {
@@ -364,7 +409,7 @@ function console_check_command(_msg) {
 		}
 	}
 	
-	var _not_found_text = console_get_message(EZ_CONSOLE_MSG.NOT_A_COMMAND, _command);
+	var _not_found_text = console_get_message(EZ_CONSOLE_MSG.COMMAND_DOESNT_EXISTS, _command);
 	console_write_log(_not_found_text, EZ_CONSOLE_MSG_TYPE.INFO);
 }
 
@@ -410,6 +455,7 @@ function console_save_log_to_file() {
 /// @param	{real}	anchor
 /// @desc	Sets the console position based on the anchor point.
 function console_position_set_by_anchor(_anchor) {
+	if (!ezConsole) return;
 	var _x, _y;
 	switch (_anchor) {
 		case EZ_CONSOLE_ANCHOR.TOP_LEFT:
@@ -418,18 +464,23 @@ function console_position_set_by_anchor(_anchor) {
 			break;
 		
 		case EZ_CONSOLE_ANCHOR.TOP_RIGHT:
-			_x = window_get_width() - console_width;
+			_x = window_get_width() - ezConsole.console_width;
 			_y = 0;
 			break;
 		
 		case EZ_CONSOLE_ANCHOR.BOTTOM_LEFT:
 			_x = 0;
-			_y = window_get_height() - console_height;
+			_y = window_get_height() - ezConsole.console_height;
 			break;
 			
 		case EZ_CONSOLE_ANCHOR.BOTTOM_RIGHT:
-			_x = window_get_width() - console_width;
-			_y = window_get_height() - console_height;
+			_x = window_get_width() - ezConsole.console_width;
+			_y = window_get_height() - ezConsole.console_height;
+			break;
+		
+		case EZ_CONSOLE_ANCHOR.NONE:
+			_x = window_get_width() / 2 - ezConsole.console_width / 2;
+			_y = window_get_height() / 2 - ezConsole.console_height / 2;
 			break;
 		
 		default:
@@ -440,8 +491,8 @@ function console_position_set_by_anchor(_anchor) {
 			break;
 	}
 	
-	console_x = _x;
-	console_y = _y;
+	ezConsole.console_x = _x;
+	ezConsole.console_y = _y;
 }
 
 /// @func	console_is_open()
@@ -494,6 +545,7 @@ function console_get_type_from_string(_name) {
 		case "font":		return ezConsole_type_font;
 		case "room":		return ezConsole_type_room;
 		case "script":		return ezConsole_type_script;
+		case "inst":
 		case "instance":	return ezConsole_type_instance;
 		default:	return noone;
 	}
@@ -525,6 +577,6 @@ function console_get_typeahead_asset_valid(_index) {
 		case asset_font:	
 		case asset_script:	
 		case asset_room:	return true;
-		default:		return false;
+		default:			return false;
 	}
 }

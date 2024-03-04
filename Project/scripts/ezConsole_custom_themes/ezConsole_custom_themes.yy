@@ -1,11 +1,13 @@
 {
-  "resourceType": "GMScript",
-  "resourceVersion": "1.0",
-  "name": "ezConsole_custom_themes",
-  "isCompatibility": false,
-  "isDnD": false,
-  "parent": {
-    "name": "Scripts",
-    "path": "folders/Libraries/GM-EzConsole/Scripts.yy",
+  "$GMScript":"",
+  "%Name":"ezConsole_custom_themes",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"ezConsole_custom_themes",
+  "parent":{
+    "name":"Skins",
+    "path":"folders/Libraries/GM-EzConsole/Scripts/Skins.yy",
   },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
 }

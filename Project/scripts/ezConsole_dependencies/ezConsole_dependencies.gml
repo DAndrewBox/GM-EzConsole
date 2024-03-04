@@ -74,6 +74,7 @@ function __ezConsole_dep_hex_to_dec(_hex) {
 	if (is_undefined(_hex))	return 0;
 	if (is_real(_hex)) return _hex;
 	
+	_hex = _hex;
 	var _hex_upper	= string_delete(string_upper(_hex), 1, 1);
 	var _hex_fixed	= string_copy(_hex_upper, 5, 2) + string_copy(_hex_upper, 3, 2) + string_copy(_hex_upper, 1, 2);
     var _dec		= 0;
@@ -87,6 +88,25 @@ function __ezConsole_dep_hex_to_dec(_hex) {
     return _dec;
 }
 
+/// @func	__ezConsole_dep_dec_to_hex(dec)
+/// @param	{real}	dec
+function __ezConsole_dep_dec_to_hex(dec) {
+    if (is_undefined(dec)) return "#000000";
+    if (!is_real(dec)) return "#000000";
+
+    static _digits	= "0123456789ABCDEF";
+    var _hex	= "";
+
+    for (var _i = 0; _i < 6; _i++) {
+        var _digit	= (dec >> (_i * 4)) & 0xF;
+        _hex = string_char_at(_digits, _digit + 1) + _hex;
+    }
+
+    // Adjusting the format to #RRGGBB
+    _hex = string_copy(_hex, 5, 2) + string_copy(_hex, 3, 2) + string_copy(_hex, 1, 2);
+
+    return "#" + _hex;
+}
 /// @func	__ezConsole_dep_value_to_string(value)
 ///	@param	{any}	value
 function __ezConsole_dep_value_to_string(_val, _recursive = 0) {
@@ -155,8 +175,8 @@ function __ezConsole_dep_get_asset_names(_asset_type) {
 	for (var i = 0; i < _ids_len; i++) {
 		var _name = _cb(_ids[@ i]);
 		if (string_pos("@", _name) || string_pos("___struct___", _name)) continue;
-		// if (_asset_type == asset_script && (string_pos("ezConsole_", _name) || string_pos("console_", _name))) continue;
-		// if (_asset_type == asset_script && __ezConsole_dep_is_constructor(_ids[@ i])) continue;
+		if (_asset_type == asset_script && (string_pos("ezConsole_", _name) || string_pos("console_", _name))) continue;
+		if (_asset_type == asset_script && __ezConsole_dep_is_constructor(_ids[@ i]) && (string_pos("EzConsole", _name))) continue;
 		
 		array_push(_names, _name);
 	}

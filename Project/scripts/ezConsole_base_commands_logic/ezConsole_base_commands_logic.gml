@@ -65,7 +65,7 @@ function console_command_base_fullscreen(_args) {
 /// @param	{array}	args
 /// @desc	Show help about commands
 function console_command_base_help(_args) {
-	var _command	= "help";
+	static _command	= "help";
 	var _params_len = array_length(_args);
 	
 	if (_params_len > 1) {
@@ -82,17 +82,20 @@ function console_command_base_help(_args) {
 	
 	if (_params_len == 0) {
 		// Show help text
-		var _help_text = console_get_message(EZ_CONSOLE_MSG.HELP_MENU, _command);
-		console_write_log(_help_text, EZ_CONSOLE_MSG_TYPE.INFO);
-		console_write_log(__ezConsole_dep_string_pad("COMMAND", 20) + __ezConsole_dep_string_pad("SHORT", 12) + "DESCRIPTION", EZ_CONSOLE_MSG_TYPE.INFO);
-		console_write_log(string_repeat("-", 80), EZ_CONSOLE_MSG_TYPE.INFO);
+		static _help_header = __ezConsole_dep_string_pad("COMMAND", 20) + __ezConsole_dep_string_pad("ALIAS", 12) + "DESCRIPTION";
+		static _help_divider = string_repeat("-", 80);
+		static _help_text = console_get_message(EZ_CONSOLE_MSG.HELP_MENU, "help");
+		
+		console_write_log(_help_text, EZ_CONSOLE_MSG_TYPE.WARNING);
+		console_write_log(_help_header, EZ_CONSOLE_MSG_TYPE.INFO);
+		console_write_log(_help_divider, EZ_CONSOLE_MSG_TYPE.INFO);
 	
 		// General help
 		var _undefined_commands_detected = false;
 		var _console_commands_len = array_length(_console_comands);
 		for (var i = 0; i < _console_commands_len; i++) {
 			var _com_name = _console_comands[i].name;
-			var _com_shrt = _console_comands[i].short;
+			var _com_shrt = _console_comands[i].alias;
 			var _com_desc = _console_comands[i].desc;
 			
 			if (is_undefined(_com_name) || is_undefined(_com_shrt) || is_undefined(_com_desc)) {
@@ -100,7 +103,7 @@ function console_command_base_help(_args) {
 				continue;
 			}
 			
-			console_write_log(__ezConsole_dep_string_pad(_com_name, 20) + __ezConsole_dep_string_pad(_com_shrt, 10) + _com_desc, EZ_CONSOLE_MSG_TYPE.INFO);
+			console_write_log(__ezConsole_dep_string_pad(_com_name, 20) + __ezConsole_dep_string_pad(_com_shrt, 12) + _com_desc, EZ_CONSOLE_MSG_TYPE.INFO);
 		}
 		
 		if (_undefined_commands_detected) {
@@ -116,7 +119,7 @@ function console_command_base_help(_args) {
 			if (_command_exists) break;
 
 			_command_exists = (
-				_console_comands[i].name == _args[0] || _console_comands[i].short == _args[0]
+				_console_comands[i].name == _args[0] || _console_comands[i].alias == _args[0]
 				? true
 				: _command_exists
 			);
@@ -134,7 +137,7 @@ function console_command_base_help(_args) {
 		
 		for (var i = 0; i < _commands_len; i++) {
 			_com_name = _console_comands[i].name;
-			_com_shrt = _console_comands[i].short;
+			_com_shrt = _console_comands[i].alias;
 			
 			if (_com_name != _args[0] && _com_shrt != _args[0]) continue;
 			
@@ -309,13 +312,13 @@ function console_command_base_instance_get(_args) {
 	);
 
 	if (!instance_exists(_inst_to_check) || _inst_to_check == -1) {
-		console_write_log("Instance " + _instance_id + " doesn't exists", EZ_CONSOLE_MSG_TYPE.ERROR);
+		console_write_log($"Instance {_instance_id} doesn't exists", EZ_CONSOLE_MSG_TYPE.ERROR);
 		return;
 	}
 		
 	if (_variable_name != "") {
 		if !(variable_instance_exists(_inst_to_check, _variable_name)) {
-			console_write_log("Variable " + _variable_name + " doesn't exists on instance " + _instance_id, EZ_CONSOLE_MSG_TYPE.ERROR);
+			console_write_log($"Variable {_variable_name} doesn't exists on instance {_instance_id}", EZ_CONSOLE_MSG_TYPE.ERROR);
 			return;
 		}
 			
@@ -399,27 +402,32 @@ function console_command_base_clear(_args) {
 /// @param	{array}	args
 /// @desc	Toggle or set and set FPS on screen
 function console_command_base_fps(_args) {
-	if (array_length(_args) == 0) {
+	var _args_len = array_length(_args);
+	if (_args_len == 0) {
 		ezConsole.console_fps_show = !ezConsole.console_fps_show;
-		console_write_log(string("FPS are now {0}!", ( ezConsole.console_fps_show ? "visible" : "invisible" )), EZ_CONSOLE_MSG_TYPE.WARNING);
-	} else {
-		switch (_args[1]) {					
-			case "0":
-			case "false":
-				ezConsole.console_fps_show = false;
-				console_write_log("FPS are now invisible!", EZ_CONSOLE_MSG_TYPE.WARNING);
-				break;
+		console_write_log(
+			$"FPS are now {( ezConsole.console_fps_show ? "visible" : "invisible" )}!",
+			EZ_CONSOLE_MSG_TYPE.WARNING
+		);
+		return;
+	}
+	
+	switch (_args[0]) {
+		case "0":
+		case "false":
+			ezConsole.console_fps_show = false;
+			console_write_log("FPS are now invisible!", EZ_CONSOLE_MSG_TYPE.WARNING);
+			break;
 					
-			case "1":
-			case "true":
-				ezConsole.console_fps_show = true;
-				console_write_log("FPS are now visible!", EZ_CONSOLE_MSG_TYPE.WARNING);
-				break;
+		case "1":
+		case "true":
+			ezConsole.console_fps_show = true;
+			console_write_log("FPS are now visible!", EZ_CONSOLE_MSG_TYPE.WARNING);
+			break;
 					
-			default:
-				var _invalid_param = console_get_message(EZ_CONSOLE_MSG.INVALID_PARAM, "fps", array_length(_args), 1, 1) + _args[1] + "\".";
-				console_write_log(_invalid_param, EZ_CONSOLE_MSG_TYPE.ERROR);
-		}
+		default:
+			var _invalid_param = console_get_message(EZ_CONSOLE_MSG.INVALID_PARAM, "fps", _args_len, 1, 1) + _args[1] + "\".";
+			console_write_log(_invalid_param, EZ_CONSOLE_MSG_TYPE.ERROR);
 	}
 }
 
@@ -449,6 +457,68 @@ function console_command_base_debug_overlay(_args) {
 				var _invalid_param = console_get_message(EZ_CONSOLE_MSG.INVALID_PARAM, "overlay", array_length(_args), 1, 1) + _args[1] + "\".";
 				console_write_log(_invalid_param, EZ_CONSOLE_MSG_TYPE.ERROR);
 		}
+	}
+}
+
+/// @func	console_command_base_goto(args)
+/// @param	{array}	args
+/// @desc	Toggle or set and set debug overlay on screen
+function console_command_base_goto(_args) {
+	room_goto(asset_get_index(_args[0]));
+}
+
+/// @func	console_command_base_skin(args)
+/// @param	{array}	args
+/// @desc	Toggle or set and set debug overlay on screen
+function console_command_base_skin(_args) {
+	var _args_len = array_length(_args);
+	
+	switch (_args[0]) {
+		case "set":
+			var _current_skin = struct_get(ezConsole_skin_list, ezConsole_skin_selected);
+			
+			if (_args_len < 3) {
+				var _msg = console_get_message(EZ_CONSOLE_MSG.NOT_ENOUGH_PARAMS, "skin set", _args_len, 3, 3);
+				console_write_log(_msg, EZ_CONSOLE_MSG_TYPE.ERROR);
+				return;
+			}
+			
+			if (!array_contains(console_get_skin_prop_names(), _args[1])) {
+				console_write_log($"Prop \"{_args[1]}\" doesn't exists!", EZ_CONSOLE_MSG_TYPE.ERROR);
+				return;
+			}
+			
+			console_skin_set_prop(_args[1], _args[2]);
+			console_write_log($"New value for prop \"{_args[1]}\": {_args[2]}", EZ_CONSOLE_MSG_TYPE.INFO);
+			with (ezConsole) {
+				event_user(1);
+			}
+			break;
+					
+		case "get":
+			var _current_skin = struct_get(ezConsole_skin_list, ezConsole_skin_selected);
+			
+			if (_args_len == 1) {
+				var _json_str = _current_skin.toJSON();
+				clipboard_set_text(_json_str);
+				console_write_log("Console skin JSON copied to clipboard!", EZ_CONSOLE_MSG_TYPE.INFO);
+			} else if (_args_len == 2) {
+				var _current_param = struct_get(_current_skin, _args[1]);
+				if (!is_undefined(_current_param)) {
+					var _param_is_color = string_pos("color", _args[1]);
+					console_write_log($"{_args[1]}: {_param_is_color ? __ezConsole_dep_dec_to_hex(_current_param) : _current_param}", EZ_CONSOLE_MSG_TYPE.INFO);
+					return;
+				}
+				console_write_log($"Prop \"{_args[1]}\" doesn't exists!", EZ_CONSOLE_MSG_TYPE.ERROR);
+			} else {
+				var _msg = console_get_message(EZ_CONSOLE_MSG.TOO_MANY_PARAMS, "skin get", _args_len, 1, 2);
+				console_write_log(_msg, EZ_CONSOLE_MSG_TYPE.ERROR);
+			}
+			break;
+					
+		default:
+			var _invalid_param = console_get_message(EZ_CONSOLE_MSG.INVALID_PARAM, "skin", _args_len, 1, 1) + _args[0] + "\".";
+			console_write_log(_invalid_param, EZ_CONSOLE_MSG_TYPE.ERROR);
 	}
 }
 #endregion

@@ -23,6 +23,7 @@
   "bar_color_highlight": "#ffa040",
   "bar_xpad": 4,
   "bar_ypad": 4,
+  "bar_inset": 0,
   "blur_amount": 0.20,
   "screenfill_color": "#07071e",
   "screenfill_alpha": 0.33,
