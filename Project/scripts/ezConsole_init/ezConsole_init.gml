@@ -56,5 +56,5 @@ enum EZ_CONSOLE_ANCHOR {
 
 #macro	ezConsole					instance_find(__EzConsole__, 0)
 
-#macro	ezConsole_version			"1.3.beta-3"
+#macro	ezConsole_version			"1.3.0"
 #endregion

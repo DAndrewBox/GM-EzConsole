@@ -306,28 +306,6 @@ function console_write_log(_msg, _type = EZ_CONSOLE_MSG_TYPE.COMMON) {
 }
 #endregion
 
-/// @func 	console_set_visible()
-/// @desc	Sets the console to be visible based on user interaction.
-function console_set_visible() {
-	if (!ezConsole) return;
-	if (keyboard_check_pressed(ezConsole.console_key_toggle)) {
-		// Reset console text bar when visible again
-		keyboard_lastkey = noone;
-		keyboard_string = "";
-		ezConsole.console_text_actual = "";
-		visible = true;
-		if (ezConsole.console_callback_on_open) ezConsole.console_callback_on_open();
-	}
-}
-
-/// @func 	console_set_invisible()
-/// @desc	Sets the console to be invisible based on user interaction.
-function console_set_invisible() {
-	if (!ezConsole) return;
-	ezConsole.visible = false;
-	if (ezConsole.console_callback_on_close) ezConsole.console_callback_on_close();
-}
-
 /// @func 	console_check_command(message)
 /// @param	{str}	message
 /// @desc	Checks if the provided message is a valid console command.
@@ -493,12 +471,6 @@ function console_position_set_by_anchor(_anchor) {
 	
 	ezConsole.console_x = _x;
 	ezConsole.console_y = _y;
-}
-
-/// @func	console_is_open()
-/// @desc	Checks if the console is currently open.
-function console_is_open() {
-	return ezConsole && ezConsole.visible;
 }
 
 /// @func	console_command_base_execute(command, args_given)

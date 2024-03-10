@@ -25,7 +25,7 @@ if (!console_drag_mouse_active && _mouse_press && _mouse_in_area) {
 		console_drag_mouse_active = false;
 		console_drag_mouse_xoff = 0;
 		console_drag_mouse_yoff = 0;
-		console_set_invisible();
+		ezConsole_set_invisible();
 	}
 }
 

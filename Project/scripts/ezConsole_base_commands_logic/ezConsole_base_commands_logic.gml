@@ -11,7 +11,6 @@ function console_command_base_message(_args) {
 /// @desc	Execute game actions
 function console_command_base_game(_args) {
 	switch (_args[0]) {
-		case "restart":
 		case "reset":
 			game_restart();
 			break;
@@ -31,6 +30,14 @@ function console_command_base_game(_args) {
 /// @param	{array}	args
 /// @desc	Hide debug overlay
 function console_command_base_fullscreen(_args) {
+	var _params_len = array_length(_args);
+	if (_params_len == 0) {
+		var _is_fullscreen = window_get_fullscreen();
+		window_set_fullscreen(!_is_fullscreen);
+		ezConsole_warn($"Fullscreen toggled {_is_fullscreen ? "OFF" : "ON"}");
+		return;
+	}
+	
 	switch (string_lower(_args[0])) {
 		case "0":
 		case "false":
@@ -54,7 +61,6 @@ function console_command_base_fullscreen(_args) {
 				
 		default:
 			static _command = "fullscreen";
-			var _params_len = array_length(_args);
 			var _invalid_param = console_get_message(EZ_CONSOLE_MSG.INVALID_PARAM, _command, _params_len, 1, 1) + _args[0] + "\".";
 			console_write_log(_invalid_param, EZ_CONSOLE_MSG_TYPE.ERROR);
 			break;
@@ -182,7 +188,7 @@ function console_command_base_help(_args) {
 
 /// @func	console_command_base_create(args)
 /// @param	{array}	args
-/// @desc	Create an instance
+/// @desc	Creates an instance
 function console_command_base_create(_args) {
 	var _asset = asset_get_index(_args[0]);
 	var _params_len = array_length(_args);
