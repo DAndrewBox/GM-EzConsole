@@ -24,8 +24,8 @@ Originally created by [**@DAndrewBox**](https://twitter.com/DAndrewBox_).
 
 - [Contributing](#contributing)
 - [License](#license)
-- [Versioning & Compatibility](#versioning--compatibility)
-- [Documentation & Installation](./wiki)
+- [Versioning & Compatibility](https://github.com/DAndrewBox/GM-EzConsole/wiki#versioning-and-compatibility)
+- [Documentation & Installation](https://github.com/DAndrewBox/GM-EzConsole/wiki)
 
 ---
 
