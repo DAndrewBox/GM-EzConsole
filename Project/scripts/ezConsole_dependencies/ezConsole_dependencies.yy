@@ -1,11 +1,13 @@
 {
-  "resourceType": "GMScript",
-  "resourceVersion": "1.0",
-  "name": "ezConsole_dependencies",
-  "isCompatibility": false,
-  "isDnD": false,
-  "parent": {
-    "name": "Scripts",
-    "path": "folders/Libraries/GM-EzConsole/Scripts.yy",
+  "$GMScript":"",
+  "%Name":"ezConsole_dependencies",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"ezConsole_dependencies",
+  "parent":{
+    "name":"Main Logic",
+    "path":"folders/Libraries/GM-EzConsole/Scripts/Main Logic.yy",
   },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
 }

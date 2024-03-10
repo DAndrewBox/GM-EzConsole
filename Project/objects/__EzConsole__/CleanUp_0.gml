@@ -1,9 +1,12 @@
 /// @description Free memory
+if (ezConsole_debug_only && debug_mode) exit;
+
 // Do destroy callback
 if (console_callback_on_destroy) console_callback_on_destroy();
 
 // Destroy log structs
-for (var i = 0; i < ds_list_size(console_text_log); i++) {
+var _log_len = ds_list_size(console_text_log);
+for (var i = 0; i < _log_len; i++) {
 	delete console_text_log[| i]; 
 }
 
