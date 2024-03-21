@@ -4,17 +4,18 @@ if (ezConsole_debug_only && debug_mode) {
 	exit;
 }
 
-x = 200;
-y = 200;
+display_set_gui_maximize();
 
 visible = ezConsole_prop_start_open;
+depth = ezConsole_prop_depth;
+
 
 try {	
 	/* [Bugfix EZC-2]
 		Going fullscreen doesn't resize console nor blur surface.
 	*/
-	__original_window_w = window_get_width();
-	__original_window_h = window_get_height();
+	__original_window_w = display_get_gui_width();
+	__original_window_h = display_get_gui_height();
 } catch(e) {
 	/* [Bugfix EZC-1]
 		Console crash games when starting before main window is initialized.
@@ -61,30 +62,20 @@ console_fps_hist	= [];
 
 console_debug_overlay_show		= false;
 
-console_callback_on_open		= ezConsole_callback_onOpen;
-console_callback_on_close		= ezConsole_callback_onClose;
-console_callback_on_log			= ezConsole_callback_onLog;
-console_callback_on_destroy		= ezConsole_callback_onDestroy;
-console_callback_on_game_end	= ezConsole_callback_onGameEnd;
-
-console_blur_flag				= ezConsole_enable_blur;
 console_blur_surf				= -1;
 
-console_screenfill_flag			= ezConsole_enable_screenfill;
-console_suggestions_flag		= ezConsole_enable_suggestions;
 console_suggestion_text			= "";
 
-console_typeahead_flag			= ezConsole_enable_typeahead;
 console_typeahead_show			= false;
 console_typeahead_elements		= [];
 console_typeahead_selected		= -1;
 console_typeahead_elements_max	= ezConsole_prop_typeahead_elements;
 console_typeahead_selected_yoff	= 0;
+console_typeahead_nav_t			= 0;
+console_typeahead_filter		= function (e) {return is_string(e);};
 
 console_instance_highlight_index = 0;
 
-depth = ezConsole_prop_depth;
-display_set_gui_maximize();
 surface_depth_disable(true);
 
 /* Initial message */

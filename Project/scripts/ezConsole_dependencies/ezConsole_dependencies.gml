@@ -61,7 +61,7 @@ function __ezConsole_dep_draw_surface_blur(_surf, _amount, _x, _y, _xscale = 1, 
 	static _blur_quality = shader_get_uniform(_shader, "u_quality");
 
 	shader_set(_shader);
-	shader_set_uniform_f(_blur_size, _w, _h, 25 * _amount);
+	shader_set_uniform_f(_blur_size, _w, _h, 25 * _amount * ezConsole_prop_blur_multiplier);
 	shader_set_uniform_f(_blur_quality, ezConsole_prop_blur_quality);
 
 	draw_surface_ext(_surf, _x, _y, _xscale, _yscale, _rot, _col, _alpha);

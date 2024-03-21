@@ -1,4 +1,4 @@
 /// @description On Game End
-if (console_callback_on_game_end) {
-	console_callback_on_game_end();
+if (script_exists(ezConsole_callback_onGameEnd)) {
+	ezConsole_callback_onGameEnd();
 }

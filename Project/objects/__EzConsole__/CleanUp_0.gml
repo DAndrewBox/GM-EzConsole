@@ -2,7 +2,9 @@
 if (ezConsole_debug_only && debug_mode) exit;
 
 // Do destroy callback
-if (console_callback_on_destroy) console_callback_on_destroy();
+if (script_exists(ezConsole_callback_onDestroy)) {
+	script_execute(ezConsole_callback_onDestroy);
+}
 
 // Destroy log structs
 var _log_len = ds_list_size(console_text_log);

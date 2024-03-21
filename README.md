@@ -7,7 +7,7 @@
 > ## A GameMaker extension that adds a customizable debug console to your game.
 
 > [!NOTE]
-> ### Last updated: 2024-03-10
+> ### Last updated: 2024-03-20
 
 ---
 

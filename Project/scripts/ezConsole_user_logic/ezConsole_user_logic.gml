@@ -5,28 +5,37 @@ function ezConsole_log(_msg) {
 	console_write_log(_msg, EZ_CONSOLE_MSG_TYPE.COMMON);
 }
 
-/// @func	ezConsole_warn(message)
+/// @func	ezConsole_warn(message, no_output)
 /// @param	{str}	message
+/// @param	{bool}	no_output
 /// @desc	Logs a warning message on the console.
-function ezConsole_warn(_msg) {
+function ezConsole_warn(_msg, _no_output = false) {
 	console_write_log(_msg, EZ_CONSOLE_MSG_TYPE.WARNING);
-	show_debug_message($"(EzConsole) WARNING! - {_msg}");
+	if (!_no_output) {
+		show_debug_message($"(EzConsole) WARNING! - {_msg}");
+	}
 }
 
-/// @func	ezConsole_error(message)
+/// @func	ezConsole_error(message, no_output)
 /// @param	{str}	message
+/// @param	{bool}	no_output
 /// @desc	Logs a error message on the console.
-function ezConsole_error(_msg) {
+function ezConsole_error(_msg, _no_output = false) {
 	console_write_log(_msg, EZ_CONSOLE_MSG_TYPE.ERROR);
-	show_debug_message($"(EzConsole) ERROR! - {_msg}");
+	if (!_no_output) {
+		show_debug_message($"(EzConsole) ERROR! - {_msg}");
+	}
 }
 
-/// @func	ezConsole_info(message)
+/// @func	ezConsole_info(message, no_output)
 /// @param	{str}	message
+/// @param	{bool}	no_output
 /// @desc	Logs a info message on the console.
-function ezConsole_info(_msg) {
+function ezConsole_info(_msg, _no_output = false) {
 	console_write_log(_msg, EZ_CONSOLE_MSG_TYPE.INFO);
-	show_debug_message($"(EzConsole) INFO - {_msg}");
+	if (!_no_output) {
+		show_debug_message($"(EzConsole) INFO - {_msg}");
+	}
 }
 
 /// @func	ezConsole_is_open()
@@ -51,7 +60,10 @@ function ezConsole_set_visible() {
 		keyboard_string = "";
 		ezConsole.console_text_actual = "";
 		visible = true;
-		if (ezConsole.console_callback_on_open) ezConsole.console_callback_on_open();
+		
+		if (script_exists(ezConsole_callback_onOpen)) {
+			script_execute(ezConsole_callback_onOpen);
+		}
 	}
 }
 
@@ -60,5 +72,7 @@ function ezConsole_set_visible() {
 function ezConsole_set_invisible() {
 	if (!ezConsole) return;
 	ezConsole.visible = false;
-	if (ezConsole.console_callback_on_close) ezConsole.console_callback_on_close();
+	if (script_exists(ezConsole_callback_onClose)) {
+		script_execute(ezConsole_callback_onClose);
+	}
 }

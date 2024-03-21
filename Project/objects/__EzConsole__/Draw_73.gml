@@ -1,6 +1,6 @@
 /// @desc Draw instance selected in typeahead (if active)
 if (
-	!console_typeahead_flag
+	!ezConsole_enable_typeahead
 	|| !ezConsole_enable_typeahead_inst_ref
 	|| console_typeahead_selected == -1
 	|| !console_window_open
@@ -16,8 +16,8 @@ if (_is_instance) {
 		
 	if (_inst) {
 		var _gamespd = game_get_speed(gamespeed_fps) / 6;
-		var _offset = 6 + (2 * dsin(current_time / _gamespd));
-			
+		var _offset = 3 + (2 * dsin(current_time / _gamespd));
+
 		draw_set_alpha(1);
 		draw_set_color(c_white);
 		draw_set_valign(fa_top);
@@ -30,7 +30,7 @@ if (_is_instance) {
 			_inst.bbox_left - _offset + 1,
 			_inst.bbox_top - _offset + 1,
 			_inst.bbox_right - _inst.bbox_left + _offset * 2,
-			_inst.bbox_bottom - _inst.bbox_left + _offset * 2,
+			_inst.bbox_bottom - _inst.bbox_top + _offset * 2,
 			console_bar_color_highlight,
 			1.
 		);

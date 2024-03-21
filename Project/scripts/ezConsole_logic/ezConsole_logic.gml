@@ -174,11 +174,11 @@ function console_get_typeahead(_msg) {
 				
 				return (array_length(_suggestions) == 0 && _arg_len < 1 ? _names : _suggestions);
 			} else if (_arg_type == ezConsole_type_instance) {
-				_names = array_create(128, undefined);
+				_names = array_create(256, undefined);
 				var _count = 0;
 				
 				with (all) {
-					if (_count >= 128) break;
+					if (_count >= 256) break;
 					
 					var _inst = object_get_name(object_index);
 					if (_arg == string_copy(_inst, 1, _arg_len) && _arg != _inst) {
@@ -209,10 +209,8 @@ function console_get_typeahead(_msg) {
 						}
 					}
 				}
-				
-				_names = array_filter(_names, function (_elem) {
-					return _elem != undefined;
-				});
+				static _names_filter = function (_elem) {return _elem != undefined;};
+				_names = array_filter(_names, _names_filter);
 				array_sort(_names, true);
 				return _names;
 			}
@@ -294,7 +292,10 @@ function console_add_commands_from_file(_path) {
 /// @desc	Writes messages to the console log.
 function console_write_log(_msg, _type = EZ_CONSOLE_MSG_TYPE.COMMON) {
 	with (ezConsole) {
-		if (console_callback_on_log) console_callback_on_log();
+		if (script_exists(ezConsole_callback_onLog)) {
+			script_execute(ezConsole_callback_onLog);
+		}
+		
 		var _new_msg = new EzConsoleLog(_msg, _type);
 		ds_list_add(console_text_log, _new_msg);
 	
@@ -349,6 +350,13 @@ function console_check_command(_msg) {
 	#endregion
 	
 	_params = _new_params;
+	
+	// Remove multiple spaces
+	while (string_pos("  ", console_text_actual)) {
+		console_text_actual = string_replace_all(console_text_actual, "  ", " ");
+	}
+	console_text_actual = string_trim_end(console_text_actual);
+	
 	console_write_log(console_text_actual);
 	
 	static _commands = console_get_commands();
@@ -363,10 +371,15 @@ function console_check_command(_msg) {
 						var _inst_ref = string_split(_params[j], ":");
 						if (!is_array(_inst_ref) || array_length(_inst_ref) < 2) continue;
 						
-						_inst_ref = _inst_ref[1];
+						_inst_ref = array_last(_inst_ref);
 						if (_inst_ref == "") continue;
 						
 						var _inst_id = string_digits(_inst_ref);
+						if (_inst_id == "") {
+							ezConsole_error("Malformed instance_id or not found!");
+							return;
+						}
+						
 						var _instance = instance_find(_inst_id, 0);
 						
 						if (_instance) {
@@ -377,7 +390,7 @@ function console_check_command(_msg) {
 						_params[j] = "<undefined>";
 					}
 				}
-				console_command_base_execute(_commands[i], _params);
+				console_command_execute(_commands[i], _params);
 				return;
 			} else {
 				var _non_existing_callback = console_get_message(EZ_CONSOLE_MSG.CALLBACK_DOESNT_EXISTS, _command);
@@ -442,23 +455,23 @@ function console_position_set_by_anchor(_anchor) {
 			break;
 		
 		case EZ_CONSOLE_ANCHOR.TOP_RIGHT:
-			_x = window_get_width() - ezConsole.console_width;
+			_x = ezConsole.__original_window_w - ezConsole.console_width;
 			_y = 0;
 			break;
 		
 		case EZ_CONSOLE_ANCHOR.BOTTOM_LEFT:
 			_x = 0;
-			_y = window_get_height() - ezConsole.console_height;
+			_y = ezConsole.__original_window_h - ezConsole.console_height;
 			break;
 			
 		case EZ_CONSOLE_ANCHOR.BOTTOM_RIGHT:
-			_x = window_get_width() - ezConsole.console_width;
-			_y = window_get_height() - ezConsole.console_height;
+			_x = ezConsole.__original_window_w - ezConsole.console_width;
+			_y = ezConsole.__original_window_h - ezConsole.console_height;
 			break;
 		
 		case EZ_CONSOLE_ANCHOR.NONE:
-			_x = window_get_width() / 2 - ezConsole.console_width / 2;
-			_y = window_get_height() / 2 - ezConsole.console_height / 2;
+			_x = ezConsole.__original_window_w / 2 - ezConsole.console_width / 2;
+			_y = ezConsole.__original_window_h / 2 - ezConsole.console_height / 2;
 			break;
 		
 		default:
@@ -473,10 +486,13 @@ function console_position_set_by_anchor(_anchor) {
 	ezConsole.console_y = _y;
 }
 
-/// @func	console_command_base_execute(command, args_given)
+/// @func	console_command_execute(command, args_given)
 /// @param	{any}	command
 /// @param	{array}	args_given
-function console_command_base_execute(_cmd, _args_given) {
+function console_command_execute(_cmd, _args_given) {
+	static _args_given_filter = function (_elem) { return _elem != "" };
+	_args_given = array_filter(_args_given, _args_given_filter);
+	
 	if (console_check_params_count(_cmd.name, array_length(_args_given), _cmd.args_min, _cmd.args_max)) {
 		script_execute(_cmd.callback, _args_given);
 	}
@@ -529,7 +545,9 @@ function console_get_type_from_string(_name) {
 function console_get_typeahead_icon(_index, _type) {
 	switch (_type) {
 		case asset_sprite:	return _index;
-		case asset_object:	return (_index.sprite_index ? _index.sprite_index : s_ezConsole_icon_object);
+		case asset_object:
+			var _obj_spr = object_get_sprite(_index);
+			return (_obj_spr ? _obj_spr : s_ezConsole_icon_object);
 		case asset_sound:	return s_ezConsole_icon_sound;
 		case asset_font:	return s_ezConsole_icon_font;
 		case asset_script:	return s_ezConsole_icon_script;
