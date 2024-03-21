@@ -9,6 +9,15 @@
 > [!NOTE]
 > ### Last updated: 2024-03-20
 
+[![license](https://img.shields.io/github/license/DAndrewBox/GM-EzConsole)](LICENSE)
+[![release](https://img.shields.io/github/v/release/DAndrewBox/GM-EzConsole)](https://github.com/DAndrewBox/GM-EzConsole)
+[![downloads](https://img.shields.io/github/downloads/DAndrewBox/GM-EzConsole/total)](https://github.com/DAndrewBox/GM-EzConsole/releases)
+
+<p align="center" style="display:flex; gap:5%">
+  <img src="./Images/img-v13-01.png" style="width:47.5%;"/>
+  <img src="./Images/img-v13-02.png" style="width:47.5%;"/>
+</p>
+
 ---
 
 ### Author and Collaborators
@@ -18,7 +27,7 @@ Originally created by [**@DAndrewBox**](https://twitter.com/DAndrewBox_).
 ### Special Thanks
 
 - [**YoYo Games**](https://www.yoyogames.com/) for creating GameMaker.
-- [**Ænigma**](https://www.dafont.com/aenigma.d188) For creating the `visitor` pixel font used on this project.
+- [**Ænigma**](https://www.dafont.com/aenigma.d188) For creating the `visitor` pixel font previously used on this project.
 
 ### Table of Contents
 
