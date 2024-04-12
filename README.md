@@ -43,6 +43,8 @@ Originally created by [**@DAndrewBox**](https://twitter.com/DAndrewBox_).
 If you want to contribute to this project, you can do so by forking this repository, finding the addecuate branch and submitting a pull request.
 You can also submit an issue if you find a bug or want to suggest a new feature, I'm open to add new features to this extension as long as I can see a use for it.
 
+#### You can report your issues or suggest a new feature [here](https://github.com/DAndrewBox/GM-EzConsole/issues/new/choose)
+
 ---
 
 ### License
