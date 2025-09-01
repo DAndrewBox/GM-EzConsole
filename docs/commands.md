@@ -149,11 +149,11 @@ Now you should see the commands you imported. If you don't, check if you followe
 
 ---
 
-# Commands Advanced
+# Commands Advanced ![](https://img.shields.io/badge/v1.3.0-ffd200?style=flat)
 > [!IMPORTANT]
 > This section is only valid for `v1.3.0+` version of the extension. If you are using a version released before, it will not work.
 
-## Your first command using arguments with options
+## Your first command using arguments with options 
 
 In this section, you will learn how to create a command with arguments that have options. This is useful when you want to create a command that can receive different types of arguments and you want to validate them.
 
