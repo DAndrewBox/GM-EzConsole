@@ -1,4 +1,39 @@
-## Installation
+# 🚀 Getting Started
+
+## 📖 Table of Contents
+
+- [🔧 Versioning & Compatibility](#🔧-versioning--compatibility)
+- [🌱 Installation](#🌱-installation)
+- [🆕 Setting up on a new project](#🆕-setting-up-on-a-new-project)
+- [🧰 Setting up on an existing project](#🧰-setting-up-on-an-existing-project)
+- [⚙️ Features customization](#️-features-customization)
+
+---
+
+### 🔧 Versioning and Compatibility
+
+Any of the releases of this extension are compatible with GameMaker Studio from versions 2.3 to 2022.11 (Including 2022.x LTS). But the table below shows the compatibility of each release.
+
+✅: Fully compatible. (\*: Recommended for this version.)
+
+⚠️: Compatible but could have some compatibility issues with the new features of the version.
+
+❌: Not compatible.
+
+| GameMaker Version | GM-EzConsole v1.0.0 | GM-EzConsole v1.1.0 | GM-EzConsole v1.2.x | GM-EzConsole v1.3.x |
+| ----------------: | :-----------------: | :-----------------: | :-----------------: | :-----------------: |
+|      Studio 1.4.x |          ❌          |          ❌          |          ❌          |          ❌          |
+|    Studio 2 - 2.2 |          ❌          |          ❌          |          ❌          |          ❌          |
+|      Studio 2.3.x |         ✅\*         |          ❌          |          ❌          |          ❌          |
+|   2022.1 - 2022.9 |         ✅\*         |          ❌          |          ❌          |          ❌          |
+|        2022.x LTS |         ✅\*         |          ⚠️          |          ❌          |          ❌          |
+|           2022.11 |          ⚠️          |          ✅          |         ✅\*         |          ⚠️          |
+|            2023.1 |          ⚠️          |          ✅          |         ✅\*         |          ⚠️          |
+|           2024.2+ |          ⚠️          |          ✅          |          ✅          |         ✅\*         |
+
+---
+
+## 🌱 Installation
 
 1. Download the latest release from the [releases page](https://github.com/DAndrewBox/GM-EzConsole/releases). **(Be sure you are downloading the correct version for your GameMaker version. Check the compatible versions in the [home page](https://github.com/DAndrewBox/GM-EzConsole/wiki).)**
 
@@ -18,7 +53,7 @@
 
 ---
 
-## Setting up on a new project
+## 🆕 Setting up on a new project
 
 To setup the extension on a new project, you shouldn't need to do anything special.
 
@@ -26,9 +61,10 @@ Just import the extension and you should be good to go. :)
 
 ---
 
-## Setting up on an existing project
+## 🧰 Setting up on an existing project
 
-> **IMPORTANT NOTE:** If you already installed this extension before and have custom commands callbacks or functions on the `ezConsole_custom_commands` script, **you should not import the `ezConsole_custom_commands` on step 1**.
+> [!IMPORTANT]
+> If you already installed this extension before and have custom commands callbacks or functions on the `ezConsole_custom_commands` script, **you should not import the `ezConsole_custom_commands` on step 1**.
 
 If you want to set up the extension on an existing project, you can do so by following these steps:
 
@@ -43,7 +79,7 @@ If you want to set up the extension on an existing project, you can do so by fol
 
 ---
 
-## Features customization
+## ⚙️ Features customization
 
 You can customize some of the features of the console on the `ezConsole_configurations` script.
 
@@ -54,10 +90,10 @@ The following table shows the available configurations and their default values:
 | `ezConsole_files`                     | An array with the filenames of the files with custom commands to import.                    | `["default_commands.json"]` |
 | `ezConsole_skin_selected`             | The skin to use for the console.                                                            | `"default-dark.skin"`       |
 | `ezConsole_debug_only`                | If `true`, the console will only be available on debug mode.                                | `false`                     |
-| `ezConsole_callback_onOpen`           | The function to call when the console is opened.                                            | -1                          |
-| `ezConsole_callback_onClose`          | The function to call when the console is closed.                                            | -1                          |
-| `ezConsole_callback_onLog`            | The function to call when a log is added to the console.                                    | -1                          |
-| `ezConsole_callback_onDestroy`        | The function to call when the console is destroyed.                                         | -1                          |
+| `ezConsole_callback_onOpen`           | The function to call when the console is opened.                                            | `noone`                     |
+| `ezConsole_callback_onClose`          | The function to call when the console is closed.                                            | `noone`                     |
+| `ezConsole_callback_onLog`            | The function to call when a log is added to the console.                                    | `noone`                     |
+| `ezConsole_callback_onDestroy`        | The function to call when the console is destroyed.                                         | `noone`                     |
 | `ezConsole_callback_onGameEnd`        | The function to call when the game ends.                                                    | `console_save_log_to_file`  |
 | `ezConsole_enable_blur`               | If `true`, the game will be blurred behind the console when is opened. (Will use more GPU)  | `true`                      |
 | `ezConsole_enable_suggestions`        | If `true`, the console will show suggestions in the console bar for the commands.           | `true`                      |
