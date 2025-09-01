@@ -1,5 +1,9 @@
 /// @description Draw above everything on GUI
 if !(visible) exit;
+display_set_gui_maximize();
+
+var _gui_w = display_get_width();
+var _gui_h = display_get_height();
 var _bar_y = console_y + console_height - console_bar_height;
 
 draw_set_alpha(1);
@@ -8,7 +12,6 @@ draw_set_alpha(1);
 if (console_anchor == EZ_CONSOLE_ANCHOR.NONE) {
 	var _offset = console_bar_height / 2;
 	var _height = (console_height * console_window_open) + console_bar_height + (2 * _offset);
-
 	
 	draw_sprite_stretched_ext(
 		s_ezConsole_shadow, 0,
@@ -22,14 +25,14 @@ if (console_anchor == EZ_CONSOLE_ANCHOR.NONE) {
 }
 
 // Draw screenfill
-if (console_screenfill_flag && console_window_open) {
+if (ezConsole_enable_screenfill && console_window_open) {
 	draw_set_alpha(console_screenfill_alpha);
 	draw_set_colour(console_screenfill_color);
-	draw_rectangle(0, 0, window_get_width(), window_get_height(), false);
+	draw_rectangle(0, 0, _gui_w, _gui_h, false);
 }
 
 // Draw blurred background
-if (console_window_open && console_blur_flag && surface_exists(application_surface)) {
+if (console_window_open && ezConsole_enable_blur && surface_exists(application_surface)) {
 	draw_set_alpha(1);
 	if (!surface_exists(console_blur_surf)) {
 		console_blur_surf = surface_create(console_width, console_height);
@@ -38,14 +41,14 @@ if (console_window_open && console_blur_flag && surface_exists(application_surfa
 	draw_clear_alpha(console_bg_color, .0);
 	draw_surface_part_ext(
 		application_surface,
-		console_x,
-		console_y,
+		0,
+		0,
 		console_width,
 		console_height - 1,
-		0,
-		0,
-		window_get_fullscreen() ? display_get_width() / __original_window_w : 1,
-		window_get_fullscreen() ? display_get_height() / __original_window_h : 1,
+		-console_x,
+		-console_y,
+		(_gui_w / __original_window_w) - 1,
+		(_gui_h / __original_window_h) - 1,
 		-1,
 		1
 	);
@@ -122,7 +125,7 @@ if (console_window_open) {
 	}
 
 	// Draw console bar text suggestion
-	if (console_suggestions_flag && console_suggestion_text != "") {
+	if (ezConsole_enable_suggestions && console_suggestion_text != "") {
 		var _console_text_w = string_width(console_text_start_char + console_text_actual);
 		draw_set_alpha(console_text_alpha * .50);
 		draw_text(	_console_text_x + _console_text_w,
@@ -162,7 +165,7 @@ if (console_window_open) {
 
 	// Draw typeahed
 	var _typeahead_max_len = array_length(console_typeahead_elements);
-	if (console_typeahead_flag && console_typeahead_show && _typeahead_max_len > 0) {
+	if (ezConsole_enable_typeahead && console_typeahead_show && _typeahead_max_len > 0) {
 		var _typeahead_xoff = string_width(" " + string_copy(console_text_actual, 1, string_last_pos(" ", console_text_actual)));
 	
 		var _bar_on_bottom = _bar_y > window_get_height() / 2;
@@ -239,7 +242,7 @@ if (console_window_open) {
 		
 		// Draw typeahead scrollbar
 		if (_typeahead_max_len > console_typeahead_elements_max) {
-			var _sidebar_x = console_x + _typeahead_w + 1 + _typeahead_xoff - _typeahead_icon_xoff;
+			var _sidebar_x = console_x + _typeahead_w + 1 + _typeahead_xoff + abs(_typeahead_icon_xoff);
 			var _sidebar_y = _bar_y + console_bar_height;
 			var _sidebar_elements_len = min(_typeahead_max_len, console_typeahead_elements_max);
 			var _sidebar_max_h = (_sidebar_elements_len / _typeahead_max_len) * (console_bar_height * _typeahead_max_len);
@@ -257,8 +260,8 @@ if (console_window_open) {
 							_sidebar_y + _sidebar_max_h,
 							false);
 			draw_set_color(console_text_actual_color);
+			var _sidebar_bottom_h = (_sidebar_max_h - _sidebar_cursor_h) * (max(0, console_typeahead_selected)/(_typeahead_max_len - 1));
 			if (_bar_on_bottom) {
-				var _sidebar_bottom_h = (_sidebar_max_h - _sidebar_cursor_h) * (max(0, console_typeahead_selected)/(_typeahead_max_len - 1));
 				draw_rectangle(
 					_sidebar_x - 1,
 					_bar_y - _sidebar_bottom_h,
@@ -269,9 +272,9 @@ if (console_window_open) {
 			} else {
 				draw_rectangle(
 					_sidebar_x - 1,
-					_sidebar_y + (_sidebar_max_h - _sidebar_cursor_h) * (max(0, console_typeahead_selected)/(_typeahead_max_len - 1)),
+					_sidebar_y + _sidebar_bottom_h,
 					_sidebar_x + 1,
-					_sidebar_y + (_sidebar_max_h - _sidebar_cursor_h) * (max(0, console_typeahead_selected)/(_typeahead_max_len - 1)) + _sidebar_cursor_h,
+					_sidebar_y + _sidebar_bottom_h + _sidebar_cursor_h,
 					false
 				);
 			}
@@ -286,10 +289,12 @@ if (console_fps_show) {
 	draw_set_valign(fa_top);
 	draw_set_colour(console_text_actual_color);
 	
-	var _x = window_get_width() - 2;
+	var _x = _gui_w - 2;
 	var _y = 2;
 	
-	draw_text(_x, _y, "FPS: "		+ console_fps + "\n" +
-					  "FPS REAL: "	+ console_fps_real + "\n" +
-					  "FPS AVG: "	+ console_fps_avg);
+	draw_text(_x, _y,
+		"FPS: "		+ console_fps + "\n" +
+		"FPS REAL: "+ console_fps_real + "\n" +
+		"FPS AVG: "	+ console_fps_avg
+	);
 }

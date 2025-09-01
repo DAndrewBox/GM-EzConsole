@@ -41,5 +41,6 @@ if (console_drag_mouse_active) {
 }
 
 var _debug_view_open = is_debug_overlay_open();
+display_set_gui_maximize();
 console_x = clamp(console_x, 0, display_get_gui_width() - console_width);
 console_y = clamp(console_y, console_bar_height + 19 * _debug_view_open, display_get_gui_height() - console_height * console_window_open);

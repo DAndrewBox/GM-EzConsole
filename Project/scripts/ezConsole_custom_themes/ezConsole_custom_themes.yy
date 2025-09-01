@@ -5,8 +5,8 @@
   "isDnD":false,
   "name":"ezConsole_custom_themes",
   "parent":{
-    "name":"Skins",
-    "path":"folders/Libraries/GM-EzConsole/Scripts/Skins.yy",
+    "name":"ONLY EDIT HERE",
+    "path":"folders/Libraries/GM-EzConsole/Scripts/ONLY EDIT HERE.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

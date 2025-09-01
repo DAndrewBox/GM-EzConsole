@@ -21,7 +21,7 @@ function console_command_base_game(_args) {
 				
 		default:
 			var _invalid_param = console_get_message(EZ_CONSOLE_MSG.INVALID_PARAM, "game", array_length(_args), 1, 1) + _args[0] + "\".";
-			console_write_log(_invalid_param, EZ_CONSOLE_MSG_TYPE.ERROR);
+			ezConsole_error(_invalid_param);
 			break;
 	}	
 }
@@ -42,7 +42,7 @@ function console_command_base_fullscreen(_args) {
 		case "0":
 		case "false":
 			window_set_fullscreen(false);
-			console_write_log("Fullscreen toggled OFF.", EZ_CONSOLE_MSG_TYPE.WARNING);
+			ezConsole_warn("Fullscreen toggled OFF.");
 			with (ezConsole) {
 				console_width	= ezConsole_skin_current[$ "width"] * __original_window_w;
 				console_height	= ezConsole_skin_current[$ "height"] * __original_window_h;
@@ -52,7 +52,7 @@ function console_command_base_fullscreen(_args) {
 		case "1":
 		case "true":
 			window_set_fullscreen(true);
-			console_write_log("Fullscreen toggled ON.", EZ_CONSOLE_MSG_TYPE.WARNING);
+			ezConsole_warn("Fullscreen toggled ON.");
 			with (ezConsole) {
 				console_width	= ezConsole_skin_current[$ "width"] * display_get_width();
 				console_height	= ezConsole_skin_current[$ "height"] * display_get_height();
@@ -62,7 +62,7 @@ function console_command_base_fullscreen(_args) {
 		default:
 			static _command = "fullscreen";
 			var _invalid_param = console_get_message(EZ_CONSOLE_MSG.INVALID_PARAM, _command, _params_len, 1, 1) + _args[0] + "\".";
-			console_write_log(_invalid_param, EZ_CONSOLE_MSG_TYPE.ERROR);
+			ezConsole_error(_invalid_param);
 			break;
 	}
 }
@@ -77,7 +77,7 @@ function console_command_base_help(_args) {
 	if (_params_len > 1) {
 		// Too much params
 		var _too_much_text = console_get_message(EZ_CONSOLE_MSG.TOO_MANY_PARAMS, _command, _params_len, 0, 1);
-		console_write_log(_too_much_text, EZ_CONSOLE_MSG_TYPE.INFO);
+		ezConsole_info(_too_much_text);
 		return -1;
 	}
 	
@@ -92,9 +92,9 @@ function console_command_base_help(_args) {
 		static _help_divider = string_repeat("-", 80);
 		static _help_text = console_get_message(EZ_CONSOLE_MSG.HELP_MENU, "help");
 		
-		console_write_log(_help_text, EZ_CONSOLE_MSG_TYPE.WARNING);
-		console_write_log(_help_header, EZ_CONSOLE_MSG_TYPE.INFO);
-		console_write_log(_help_divider, EZ_CONSOLE_MSG_TYPE.INFO);
+		ezConsole_warn(_help_text);
+		ezConsole_info(_help_header);
+		ezConsole_info(_help_divider);
 	
 		// General help
 		var _undefined_commands_detected = false;
@@ -109,12 +109,16 @@ function console_command_base_help(_args) {
 				continue;
 			}
 			
-			console_write_log(__ezConsole_dep_string_pad(_com_name, 20) + __ezConsole_dep_string_pad(_com_shrt, 12) + _com_desc, EZ_CONSOLE_MSG_TYPE.INFO);
+			ezConsole_info(
+				__ezConsole_dep_string_pad(_com_name, 20) +
+				__ezConsole_dep_string_pad(_com_shrt, 12) +
+				_com_desc
+			);
 		}
 		
 		if (_undefined_commands_detected) {
 			var _undefined_message = console_get_message(EZ_CONSOLE_MSG.UNDEFINED_COMMANDS_FOUND, _command);
-			console_write_log(_undefined_message, EZ_CONSOLE_MSG_TYPE.ERROR);
+			ezConsole_error(_undefined_message);
 		}
 	} else if (_params_len == 1) {
 		// First Checks if command exists
@@ -133,7 +137,7 @@ function console_command_base_help(_args) {
 		
 		if !(_command_exists) {
 			var _command_doesnt_exists_text = console_get_message(EZ_CONSOLE_MSG.COMMAND_DOESNT_EXISTS, _args[0]);
-			console_write_log(_command_doesnt_exists_text, EZ_CONSOLE_MSG_TYPE.ERROR);
+			ezConsole_error(_command_doesnt_exists_text);
 			return -1;
 		}
 		
@@ -158,26 +162,26 @@ function console_command_base_help(_args) {
 				_com_args_str += _com_args[j] + "  ";
 			}
 			
-			console_write_log("> USAGE", EZ_CONSOLE_MSG_TYPE.WARNING);
-			console_write_log(_com_name + "  " + _com_args_str, EZ_CONSOLE_MSG_TYPE.INFO);
+			ezConsole_warn("> USAGE");
+			ezConsole_info(_com_name + "  " + _com_args_str);
 			
 			if (_com_shrt != "") {
-				console_write_log(_com_shrt + "  " + _com_args_str, EZ_CONSOLE_MSG_TYPE.INFO);
+				ezConsole_info(_com_shrt + "  " + _com_args_str);
 			}
 			
 			// Description
-			console_write_log("\n> DESCRIPTION", EZ_CONSOLE_MSG_TYPE.WARNING);
-			console_write_log(_com_desc, EZ_CONSOLE_MSG_TYPE.INFO);
+			ezConsole_warn("\n> DESCRIPTION");
+			ezConsole_info(_com_desc);
 			
 			// Arguments description
 			var _command_args_len = array_length(_com_args);
 			if (_command_args_len > 0) {
-				console_write_log(__ezConsole_dep_string_pad("\n> ARGUMENTS", 22) + "   " + "DESCRIPTION", EZ_CONSOLE_MSG_TYPE.WARNING);
+				ezConsole_warn(__ezConsole_dep_string_pad("\n> ARGUMENTS", 22) + "   " + "DESCRIPTION");
 				var _com_args_val = _console_comands[i].args_desc;
-				console_write_log(__ezConsole_dep_string_pad(_console_comands[0].args[0], 24) + _console_comands[0].args_desc[0], EZ_CONSOLE_MSG_TYPE.INFO);
+				ezConsole_info(__ezConsole_dep_string_pad(_console_comands[0].args[0], 24) + _console_comands[0].args_desc[0]);
 			
 				for (var j = 0; j < _command_args_len; j++) {
-					console_write_log(__ezConsole_dep_string_pad(_com_args[j], 24) + _com_args_val[j], EZ_CONSOLE_MSG_TYPE.INFO);
+					ezConsole_info(__ezConsole_dep_string_pad(_com_args[j], 24) + _com_args_val[j]);
 				}
 			}
 			
@@ -225,19 +229,20 @@ function console_command_base_instances(_args) {
 	if (_params_len > 1) {
 		// Too much params
 		var _too_much_text = console_get_message(EZ_CONSOLE_MSG.TOO_MANY_PARAMS, _command, _params_len, 1, 1);
-		console_write_log(_too_much_text, EZ_CONSOLE_MSG_TYPE.INFO);
+		ezConsole_info(_too_much_text);
 	} else if (_params_len == 1) {
 		// Get all instances of 1 specific object
 		var _asset = asset_get_index(_args[0]);
 		
 		if (_asset == -1) {
-			console_write_log("There's no object named \"" + _args[0] + "\"!", EZ_CONSOLE_MSG_TYPE.ERROR);
+			ezConsole_error("There's no object named \"" + _args[0] + "\"!");
 		} else {
-			console_write_log(__ezConsole_dep_string_pad("NAME", 32) +
-							  __ezConsole_dep_string_pad("ID", 16) +
-							  __ezConsole_dep_string_pad("POSITION", 16) +
-							  __ezConsole_dep_string_pad("DEPTH", 8),
-							  EZ_CONSOLE_MSG_TYPE.INFO);
+			ezConsole_info(
+				__ezConsole_dep_string_pad("NAME", 32) +
+				__ezConsole_dep_string_pad("ID", 16) +
+				__ezConsole_dep_string_pad("POSITION", 16) +
+				__ezConsole_dep_string_pad("DEPTH", 8),
+			);
 			
 			var _inst, _name, _id, _pos, _depth;
 			var _len = instance_number(_asset);
@@ -248,16 +253,17 @@ function console_command_base_instances(_args) {
 				_pos  = __ezConsole_dep_string_pad("(" + string(_inst.x) + ", " + string(_inst.y) + ")", 16);
 				_depth= __ezConsole_dep_string_pad(string(_inst.depth), 8);
 				
-				console_write_log(_name + _id + _pos + _depth, EZ_CONSOLE_MSG_TYPE.INFO);
+				ezConsole_info(_name + _id + _pos + _depth);
 			}
 		}
 	} else if (_params_len == 0) {
 		// Get all active instances
-		console_write_log(	__ezConsole_dep_string_pad("NAME", 32) +
-							__ezConsole_dep_string_pad("ID", 16) +
-							__ezConsole_dep_string_pad("POSITION", 16) +
-							__ezConsole_dep_string_pad("DEPTH", 8),
-							EZ_CONSOLE_MSG_TYPE.INFO);
+		ezConsole_info(
+			__ezConsole_dep_string_pad("NAME", 32) +
+			__ezConsole_dep_string_pad("ID", 16) +
+			__ezConsole_dep_string_pad("POSITION", 16) +
+			__ezConsole_dep_string_pad("DEPTH", 8)
+		);
 							  
 		with (all) {
 			var _name = "", _id = 0, _pos = 0, _depth = 0;
@@ -266,7 +272,7 @@ function console_command_base_instances(_args) {
 			_pos  = __ezConsole_dep_string_pad("(" + string(x) + ", " + string(y) + ")", 16);
 			_depth= __ezConsole_dep_string_pad(string(depth), 8);
 			
-			console_write_log(_name + _id + _pos + _depth, EZ_CONSOLE_MSG_TYPE.INFO);
+			ezConsole_info(_name + _id + _pos + _depth);
 		}
 	}
 }
@@ -286,12 +292,12 @@ function console_command_base_instance_set(_args) {
 	);
 
 	if (!instance_exists(_inst_to_check) || _inst_to_check == -1) {
-		console_write_log("Instance " + _instance_id + " doesn't exists", EZ_CONSOLE_MSG_TYPE.ERROR);
+		ezConsole_error("Instance " + _instance_id + " doesn't exists");
 		return;
 	}
 		
 	if !(variable_instance_exists(_inst_to_check, _variable_name)) {
-		console_write_log("Variable " + _variable_name + " doesn't exists on instance " + _instance_id, EZ_CONSOLE_MSG_TYPE.ERROR);
+		ezConsole_error("Variable " + _variable_name + " doesn't exists on instance " + _instance_id);
 		return;
 	}
 		
@@ -306,7 +312,7 @@ function console_command_base_instance_set(_args) {
 	}
 		
 	variable_instance_set(_inst_to_check, _variable_name, _variable_value);
-	console_write_log(string("Variable {0} set as {1} on instance {2}.", _variable_name, _variable_value, _instance_id), EZ_CONSOLE_MSG_TYPE.INFO);
+	ezConsole_info(string("Variable {0} set as {1} on instance {2}.", _variable_name, _variable_value, _instance_id));
 }
 
 /// @func	console_command_base_instance_get(args)
@@ -345,7 +351,7 @@ function console_command_base_instance_get(_args) {
 	);
 
 	if (!instance_exists(_inst_to_check) || _inst_to_check == -1) {
-		console_write_log($"Instance {_instance_id} doesn't exists", EZ_CONSOLE_MSG_TYPE.ERROR);
+		ezConsole_error($"Instance {_instance_id} doesn't exists");
 		return;
 	}
 		
@@ -378,7 +384,7 @@ function console_command_base_instance_get(_args) {
 		}
 	} else {
 		if !(variable_instance_exists(_inst_to_check, _variable_name)) {
-			console_write_log($"Variable {_variable_name} doesn't exists on instance {_instance_id}", EZ_CONSOLE_MSG_TYPE.ERROR);
+			ezConsole_error($"Variable {_variable_name} doesn't exists on instance {_instance_id}");
 			return;
 		}
 		
@@ -403,6 +409,12 @@ function console_command_base_instance_get(_args) {
 function console_command_base_instance_delete(_args) {
 	var _instance_id	= _args[0];
 	var _exec_ev		= ( array_length(_args) > 1 ? _args[1] : "1" );
+	
+	_instance_id = array_last(string_split(_instance_id, ":"));
+	
+	if (_instance_id == "") {
+		ezConsole_error("Instance id not valid doesn't exists");
+	}
 		
 	var _inst_to_check = (
 		string_digits(_instance_id) == _instance_id
@@ -411,17 +423,17 @@ function console_command_base_instance_delete(_args) {
 	);
 
 	if (_inst_to_check.object_index == __EzConsole__) {
-		console_write_log("The ezConsole instance cannot be deleted!", EZ_CONSOLE_MSG_TYPE.ERROR);
+		ezConsole_error("The ezConsole instance cannot be deleted!");
 		return;
 	}
 
 	if (!instance_exists(_inst_to_check) || _inst_to_check == -1) {
-		console_write_log("Instance " + _instance_id + " doesn't exists", EZ_CONSOLE_MSG_TYPE.ERROR);
+		ezConsole_error("Instance " + _instance_id + " doesn't exists");
 		return;
 	}
 		
 	instance_destroy(_inst_to_check, _exec_ev == "1" || _exec_ev == "true");
-	console_write_log(string("Instance \"{0}\" destroyed.", _instance_id), EZ_CONSOLE_MSG_TYPE.INFO);
+	ezConsole_info($"Instance \"{_instance_id}\" destroyed.");
 }
 
 /// @func	console_command_base_clear(args)
@@ -447,9 +459,8 @@ function console_command_base_fps(_args) {
 	var _args_len = array_length(_args);
 	if (_args_len == 0) {
 		ezConsole.console_fps_show = !ezConsole.console_fps_show;
-		console_write_log(
-			$"FPS are now {( ezConsole.console_fps_show ? "visible" : "invisible" )}!",
-			EZ_CONSOLE_MSG_TYPE.WARNING
+		ezConsole_warn(
+			$"FPS are now {( ezConsole.console_fps_show ? "visible" : "invisible" )}!"
 		);
 		return;
 	}
@@ -458,18 +469,18 @@ function console_command_base_fps(_args) {
 		case "0":
 		case "false":
 			ezConsole.console_fps_show = false;
-			console_write_log("FPS are now invisible!", EZ_CONSOLE_MSG_TYPE.WARNING);
+			ezConsole_warn("FPS are now invisible!");
 			break;
 					
 		case "1":
 		case "true":
 			ezConsole.console_fps_show = true;
-			console_write_log("FPS are now visible!", EZ_CONSOLE_MSG_TYPE.WARNING);
+			ezConsole_warn("FPS are now visible!");
 			break;
 					
 		default:
 			var _invalid_param = console_get_message(EZ_CONSOLE_MSG.INVALID_PARAM, "fps", _args_len, 1, 1) + _args[1] + "\".";
-			console_write_log(_invalid_param, EZ_CONSOLE_MSG_TYPE.ERROR);
+			ezConsole_error(_invalid_param);
 	}
 }
 
@@ -480,24 +491,24 @@ function console_command_base_debug_overlay(_args) {
 	if (array_length(_args) == 0) {
 		ezConsole.console_debug_overlay_show = !ezConsole.console_debug_overlay_show;
 		show_debug_overlay(ezConsole.console_debug_overlay_show);
-		console_write_log(string("Debug overlay is now {0}!", ( ezConsole.console_debug_overlay_show ? "visible" : "invisible" )), EZ_CONSOLE_MSG_TYPE.WARNING);
+		ezConsole_warn(string("Debug overlay is now {0}!", ( ezConsole.console_debug_overlay_show ? "visible" : "invisible" )));
 	} else {
-		switch (_args[1]) {
+		switch (_args[0]) {
 			case "0":
 			case "false":
 				ezConsole.console_debug_overlay_show = false;
-				console_write_log("Debug overlay is now invisible!", EZ_CONSOLE_MSG_TYPE.WARNING);
+				ezConsole_warn("Debug overlay is now invisible!");
 				break;
 					
 			case "1":
 			case "true":
 				ezConsole.console_debug_overlay_show = true;
-				console_write_log("Debug overlay is now visible!", EZ_CONSOLE_MSG_TYPE.WARNING);
+				ezConsole_warn("Debug overlay is now visible!");
 				break;
 					
 			default:
-				var _invalid_param = console_get_message(EZ_CONSOLE_MSG.INVALID_PARAM, "overlay", array_length(_args), 1, 1) + _args[1] + "\".";
-				console_write_log(_invalid_param, EZ_CONSOLE_MSG_TYPE.ERROR);
+				var _invalid_param = console_get_message(EZ_CONSOLE_MSG.INVALID_PARAM, "debug_view", array_length(_args), 1, 1) + _args[0] + "\".";
+				ezConsole_error(_invalid_param);
 		}
 	}
 }

@@ -99,8 +99,6 @@ function console_skin_set_prop(_prop, _val) {
 	if (!_is_color && !_is_string) {
 		_fixed_val = real(_val);
 	}
-	
-	show_debug_message(_val)
-	show_debug_message(_fixed_val);
+
 	struct_set(ezConsole_skin_current, _prop, _fixed_val);
 }

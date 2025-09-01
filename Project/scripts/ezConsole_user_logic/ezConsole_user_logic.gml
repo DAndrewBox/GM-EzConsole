@@ -9,27 +9,33 @@ function ezConsole_log(_msg) {
 /// @param	{String}	message
 /// @param	{Bool}	no_output
 /// @desc	Logs a warning message on the console.
-function ezConsole_warn(_msg) {
+function ezConsole_warn(_msg, _no_output = false) {
 	console_write_log(_msg, EZ_CONSOLE_MSG_TYPE.WARNING);
-	show_debug_message($"(EzConsole) WARNING! - {_msg}");
+	if (!_no_output) {
+		show_debug_message($"(EzConsole) WARNING! - {_msg}");
+	}
 }
 
 /// @func	ezConsole_error(message, no_output)
 /// @param	{String}	message
 /// @param	{Bool}		no_output
 /// @desc	Logs a error message on the console.
-function ezConsole_error(_msg) {
+function ezConsole_error(_msg, _no_output = false) {
 	console_write_log(_msg, EZ_CONSOLE_MSG_TYPE.ERROR);
-	show_debug_message($"(EzConsole) ERROR! - {_msg}");
+	if (!_no_output) {
+		show_debug_message($"(EzConsole) ERROR! - {_msg}");
+	}
 }
 
 /// @func	ezConsole_info(message, no_output)
 /// @param	{String}	message
 /// @param	{Bool}		no_output
 /// @desc	Logs a info message on the console.
-function ezConsole_info(_msg) {
+function ezConsole_info(_msg, _no_output = false) {
 	console_write_log(_msg, EZ_CONSOLE_MSG_TYPE.INFO);
-	show_debug_message($"(EzConsole) INFO - {_msg}");
+	if (!_no_output) {
+		show_debug_message($"(EzConsole) INFO - {_msg}");
+	}
 }
 
 /// @func	ezConsole_is_open()

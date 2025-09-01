@@ -39,9 +39,10 @@ ezConsole_skin_selected	= "default-ImGui";
 // Console props
 #macro	ezConsole_prop_depth				-10000	// Depth. Keep a large negative number to draw above everything else.
 #macro	ezConsole_prop_start_open			true	// Console should always start open when created
-#macro	ezConsole_prop_typeahead_elements	20		// Maximum amount of typeahead elements to show at the same time
+#macro	ezConsole_prop_typeahead_elements	10		// Maximum amount of typeahead elements to show at the same time
 #macro	ezConsole_prop_nav_scroll_speed		1		// Scroll speed ratio when using mouse wheel
 #macro	ezConsole_prop_blur_quality			3		// Quality of the Blur shader. (1: Lowest quality (Low GPU usage) | 4: Best quality (More GPU usage))
+#macro	ezConsole_prop_blur_multiplier		2.5		// Blur multiplier.
 
 // Valid characters that can be typed on console
 #macro	ezConsole_valid_charset_letters		"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"

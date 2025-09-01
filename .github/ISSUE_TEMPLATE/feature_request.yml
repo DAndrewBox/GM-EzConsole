@@ -1,0 +1,40 @@
+name: Feature Request
+description: Request a feature that you would love to see in future versions.
+title: "[Feature]: "
+labels: ["feature request"]
+assignees:
+  - dandrewbox
+body:
+  - type: markdown
+    attributes:
+      value: |
+        I appreciate any feature that would help to make this extension better!
+
+  - type: dropdown
+    id: feature-type
+    attributes:
+      label: Feature Type
+      description: This feature is more focused on what?
+      options:
+        - UI/UX (or Skins/Themes)
+        - Quality of Life
+        - Base Commands
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Is your feature request related to a problem?
+      description: A clear and concise description of what the problem is.
+    validations:
+      required: true
+      
+  - type: textarea
+    id: solution
+    attributes:
+      label: Describe the solution you'd like
+      description: A clear and concise description of what you want to happen.
+    validations:
+      required: true

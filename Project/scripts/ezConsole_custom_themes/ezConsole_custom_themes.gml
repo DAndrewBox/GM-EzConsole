@@ -11,7 +11,7 @@ call_later(2, time_source_units_frames, function () {
 	
 	new EzConsoleSkin(
 		new EzConsoleSkinOwnership("default-ImGui", "DAndrëwBox"),
-		new EzConsoleSkinSize(.75, .40, EZ_CONSOLE_ANCHOR.NONE),
+		new EzConsoleSkinSize(.50, .33, EZ_CONSOLE_ANCHOR.NONE),
 		new EzConsoleSkinBackground(#111111, #4f4f4f, .85, 1., .10),
 		new EzConsoleSkinText(fnt_ezConsole_Smooth, 0, 0, #FFFFFF, #ff0000, #ffff00, #838383, 1.),
 		new EzConsoleSkinBar(16, #1e304a, #397ccd, 4, 4, 2),

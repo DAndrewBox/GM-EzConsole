@@ -1,7 +1,7 @@
 /// @description Systems
 // Discard event if not visible
 if (!visible) {
-	console_set_visible();
+	ezConsole_set_visible();
 	exit;
 }
 
@@ -15,6 +15,9 @@ var _nav_right	= keyboard_check_pressed(ezConsole_key_nav_right);
 
 var _nav_hold_up = keyboard_check(ezConsole_key_nav_up);
 var _nav_hold_down = keyboard_check(ezConsole_key_nav_down);
+
+var _nav_hold_up = keyboard_check(console_key_nav_up);
+var _nav_hold_down = keyboard_check(console_key_nav_down);
 
 var _backspace_is_pressed	= false;
 var _delete_is_pressed		= false;
@@ -50,8 +53,8 @@ if (keyboard_check_pressed(vk_anykey)) {
 		
 		case ezConsole_key_auto_complete:
 			// Autocomplete commands
-			var _use_suggestion	= (console_suggestions_flag && console_suggestion_text != "");
-			var _use_typeahead	= (console_typeahead_flag && console_typeahead_selected > -1);
+			var _use_suggestion	= (ezConsole_enable_suggestions && console_suggestion_text != "");
+			var _use_typeahead	= (ezConsole_enable_typeahead && console_typeahead_selected > -1);
 			
 			if (_use_suggestion || _use_typeahead) {
 				var _is_command = array_length(string_split(keyboard_string, " ")) == 1;
@@ -213,7 +216,7 @@ if (keyboard_check(vk_anykey)) {
 		console_nav_hor = clamp(console_nav_hor, -string_length(console_text_actual), 0);
 	}
 	
-	if (console_suggestions_flag) {
+	if (ezConsole_enable_suggestions) {
 		if (console_typeahead_selected < 0) {
 			console_suggestion_text = (
 				string_length(console_text_actual) > 0
@@ -223,7 +226,7 @@ if (keyboard_check(vk_anykey)) {
 		}
 	}
 	
-	if (console_typeahead_flag) {
+	if (ezConsole_enable_typeahead) {
 		console_typeahead_elements =  (
 			string_length(console_text_actual) > 0
 			? console_get_typeahead(console_text_actual)
@@ -231,14 +234,12 @@ if (keyboard_check(vk_anykey)) {
 		);
 		console_typeahead_elements = array_filter(
 			console_typeahead_elements,
-			function (e) {
-				return is_string(e);
-			}
+			console_typeahead_filter
 		);
 		var _typeahead_len = array_length(console_typeahead_elements);
 		console_typeahead_show = (
-			_typeahead_len >= 1 && console_suggestions_flag ||
-			_typeahead_len > 0 && !console_suggestions_flag
+			_typeahead_len >= 1 && ezConsole_enable_suggestions ||
+			_typeahead_len > 0 && !ezConsole_enable_suggestions
 		);
 		console_typeahead_selected = console_typeahead_show ? console_typeahead_selected : -1;
 		console_typeahead_selected_yoff =
@@ -355,7 +356,7 @@ if (_log_len > 0) {
 			#endregion
 			
 			if (console_typeahead_selected > -1) {
-				if (console_suggestions_flag) {
+				if (ezConsole_enable_suggestions) {
 					var _console_text_len = string_length(console_text_actual);
 					var _console_text_actual_split = string_split(console_text_actual, " "); 
 					var _console_text_actual_split_len = array_length(_console_text_actual_split);
