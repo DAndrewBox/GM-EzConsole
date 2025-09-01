@@ -1,5 +1,5 @@
 // Initialize ezConsole globals
-ezConsole_init();
+gml_pragma("global", "ezConsole_init()");
 
 /* ====================================================== */
 /* ============ DO NOT MODIFY ANYTHING ABOVE ============ */
@@ -20,10 +20,10 @@ ezConsole_skin_selected	= "default-ImGui";
 #macro	ezConsole_debug_only			false
 
 // Custom Console callbacks on actions
-#macro	ezConsole_callback_onOpen		-1
-#macro	ezConsole_callback_onClose		-1
-#macro	ezConsole_callback_onLog		-1
-#macro	ezConsole_callback_onDestroy	-1
+#macro	ezConsole_callback_onOpen		noone
+#macro	ezConsole_callback_onClose		noone
+#macro	ezConsole_callback_onLog		noone
+#macro	ezConsole_callback_onDestroy	noone
 #macro	ezConsole_callback_onGameEnd	console_save_log_to_file
 
 // Custom Console flags

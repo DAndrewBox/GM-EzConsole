@@ -8,10 +8,13 @@ if (!visible) {
 // Don't do anything if window close
 if (!console_window_open) exit;
 
-var _nav_up		= keyboard_check_pressed(console_key_nav_up);
-var _nav_down	= keyboard_check_pressed(console_key_nav_down);
-var _nav_left	= keyboard_check_pressed(console_key_nav_left);
-var _nav_right	= keyboard_check_pressed(console_key_nav_right);
+var _nav_up		= keyboard_check_pressed(ezConsole_key_nav_up);
+var _nav_down	= keyboard_check_pressed(ezConsole_key_nav_down);
+var _nav_left	= keyboard_check_pressed(ezConsole_key_nav_left);
+var _nav_right	= keyboard_check_pressed(ezConsole_key_nav_right);
+
+var _nav_hold_up = keyboard_check(ezConsole_key_nav_up);
+var _nav_hold_down = keyboard_check(ezConsole_key_nav_down);
 
 var _backspace_is_pressed	= false;
 var _delete_is_pressed		= false;
@@ -19,7 +22,7 @@ var _delete_is_pressed		= false;
 var _inst_ref_split_delim	= "(ref";
 
 // Blink thing after text in bar
-console_text_blink_t = ( console_text_blink_t > room_speed * console_text_blink_rate ? 0 : ++console_text_blink_t );
+console_text_blink_t = ( console_text_blink_t > game_get_speed(gamespeed_fps) * console_text_blink_rate ? 0 : ++console_text_blink_t );
 console_surf_yoffset = lerp(console_surf_yoffset, console_surf_yoffset_to, .16);
 
 // Do actions
@@ -75,7 +78,7 @@ if (keyboard_check_pressed(vk_anykey)) {
 			}
 			break;
 			
-		case console_key_toggle: // toggle console on/off
+		case ezConsole_key_toggle: // toggle console on/off
 			ezConsole_set_invisible();
 			break;
 			
@@ -92,10 +95,10 @@ if (keyboard_check_pressed(vk_anykey)) {
 			break;
 			
 		
-		case console_key_nav_up:
-		case console_key_nav_down:
-		case console_key_nav_left:
-		case console_key_nav_right:
+		case ezConsole_key_nav_up:
+		case ezConsole_key_nav_down:
+		case ezConsole_key_nav_left:
+		case ezConsole_key_nav_right:
 		case vk_shift:
 		case vk_lshift:
 		case vk_rshift:
@@ -265,7 +268,7 @@ if (_mouse_x >= console_x && _mouse_x <= console_x + console_width) && (_mouse_y
 	
 	if (_mouse_wheel_up || _mouse_wheel_down || console_surf_yoffset != console_surf_yoffset_to) {
 		console_surf_yoffset_to = ( ( console_surf_yoffset_to/console_log_total_h < 1 && _mouse_wheel_down) || (console_surf_yoffset_to > 0 && _mouse_wheel_up)
-								? console_surf_yoffset_to + (console_nav_scroll_speed * 24 * (_mouse_wheel_down - _mouse_wheel_up))
+								? console_surf_yoffset_to + (ezConsole_prop_nav_scroll_speed * 24 * (_mouse_wheel_down - _mouse_wheel_up))
 								: console_surf_yoffset_to );
 		
 		console_surf_yoffset_to = ( console_surf_yoffset_to/console_log_total_h > 1 ? console_log_total_h : console_surf_yoffset_to );
@@ -276,12 +279,28 @@ if (_mouse_x >= console_x && _mouse_x <= console_x + console_width) && (_mouse_y
 
 // Navigation with keys
 var _log_len = ds_list_size(console_text_log);
-if (_log_len > 0) {		
-	if (_nav_up || _nav_down) {
-		if (console_typeahead_flag && console_typeahead_show) {
+if (_log_len > 0) {
+	if (_nav_hold_up || _nav_hold_down) {
+		console_typeahead_nav_t++;
+	} else {
+		console_typeahead_nav_t = 0;
+	}
+	
+	if (_nav_up || _nav_down || console_typeahead_nav_t > game_get_speed(gamespeed_fps) * .66) {
+		if (ezConsole_enable_typeahead && console_typeahead_show) {
 			var _typeahead_len = array_length(console_typeahead_elements);
 			var _bar_y = console_y + console_height - console_bar_height;
 			var _console_on_bottom = _bar_y > window_get_height() / 2;
+			
+			if (_nav_hold_up) {
+				keyboard_key_press(ezConsole_key_nav_up);
+				_nav_up = true;
+			} else if (_nav_hold_down) {
+				keyboard_key_press(ezConsole_key_nav_down);
+				_nav_down = true;
+			}
+			
+			console_typeahead_nav_t *= .80;
 			
 			if (console_typeahead_selected == -1 && ((_console_on_bottom && _nav_down) || (!_console_on_bottom && _nav_up))) {
 				console_typeahead_selected = _typeahead_len - 1;
@@ -386,7 +405,7 @@ if (_log_len > 0) {
 // Update fps every half second
 if (console_fps_show) {
 	console_fps_t++
-	if (console_fps_t > room_speed * .5) {
+	if (console_fps_t > game_get_speed(gamespeed_fps) * .5) {
 		var _fps_hist_len = array_length(console_fps_hist);
 		if (_fps_hist_len >= 20) {
 			array_delete(console_fps_hist, 0, 1);

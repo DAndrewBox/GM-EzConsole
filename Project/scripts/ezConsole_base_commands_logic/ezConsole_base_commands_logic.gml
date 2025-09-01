@@ -1,13 +1,13 @@
 #region // Base commands
 /// @func	console_command_base_message(args)
-/// @param	{array}	args
+/// @param	{Array}	args
 /// @desc	Hide debug overlay
 function console_command_base_message(_args) {		
 	show_message_async(_args[0]);
 }
 
 /// @func	console_command_base_game(args)
-/// @param	{array}	args
+/// @param	{Array}	args
 /// @desc	Execute game actions
 function console_command_base_game(_args) {
 	switch (_args[0]) {
@@ -27,7 +27,7 @@ function console_command_base_game(_args) {
 }
 
 /// @func	console_command_base_fullscreen(args)
-/// @param	{array}	args
+/// @param	{Array}	args
 /// @desc	Hide debug overlay
 function console_command_base_fullscreen(_args) {
 	var _params_len = array_length(_args);
@@ -68,7 +68,7 @@ function console_command_base_fullscreen(_args) {
 }
 
 /// @func	console_command_base_help(args)
-/// @param	{array}	args
+/// @param	{Array}	args
 /// @desc	Show help about commands
 function console_command_base_help(_args) {
 	static _command	= "help";
@@ -187,31 +187,36 @@ function console_command_base_help(_args) {
 }
 
 /// @func	console_command_base_create(args)
-/// @param	{array}	args
+/// @param	{Array<String>}	args
 /// @desc	Creates an instance
 function console_command_base_create(_args) {
+	var _x = 0;
+	var _y = 0;
+	var _depth = 0;
 	var _asset = asset_get_index(_args[0]);
 	var _params_len = array_length(_args);
 		
 	try {
-		var _x = ( _params_len > 1 ? real(_args[1]) : mouse_x );
-		var _y = ( _params_len > 2 ? real(_args[2]) : mouse_y );
-		var _depth = ( _params_len > 3 ? real(_args[3]) : -100 );
+		_x = ( _params_len > 1 ? real(_args[1]) : mouse_x );
+		_y = ( _params_len > 2 ? real(_args[2]) : mouse_y );
+		_depth = ( _params_len > 3 ? real(_args[3]) : -100 );
 	} catch (e) {
-		console_write_log(e.message, EZ_CONSOLE_MSG_TYPE.ERROR);
-		return -1;
+		ezConsole_error(e.message);
+		return;
 	}
 		
 	if (_asset == -1) {
-		console_write_log("There's no object named \"" + _args[0] + "\"!", EZ_CONSOLE_MSG_TYPE.ERROR);
-	} else {
-		var _inst = instance_create_depth(_x, _y, _depth, _asset);
-		console_write_log("Instance created with id " + string(_inst.id) + ".", EZ_CONSOLE_MSG_TYPE.INFO);
+		ezConsole_error("There's no object named \"" + _args[0] + "\"!");
+		return;
 	}
+	
+	// Feather ignore once GM1041 - We cannot retrive the Asset.GMObject from "_asset".
+	var _inst = instance_create_depth(_x, _y, _depth, _asset);
+	ezConsole_info("Instance created with id " + string(_inst.id) + ".");
 }
 
 /// @func	console_command_base_instances(args)
-/// @param	{array}	args
+/// @param	{Array}	args
 /// @desc	Get all instances
 function console_command_base_instances(_args) {
 	var _command	= "instances";
@@ -255,7 +260,7 @@ function console_command_base_instances(_args) {
 							EZ_CONSOLE_MSG_TYPE.INFO);
 							  
 		with (all) {
-			var _name, _id, _pos, _depth;
+			var _name = "", _id = 0, _pos = 0, _depth = 0;
 			_name = __ezConsole_dep_string_pad(object_get_name(object_index), 32);
 			_id	  = __ezConsole_dep_string_pad(string_replace_all(string(id), "ref instance ", ""), 16);
 			_pos  = __ezConsole_dep_string_pad("(" + string(x) + ", " + string(y) + ")", 16);
@@ -267,7 +272,7 @@ function console_command_base_instances(_args) {
 }
 
 /// @func	console_command_base_instance_set(args)
-/// @param	{array}	args
+/// @param	{Array<String>}	args
 /// @desc	Set a variable in an instance
 function console_command_base_instance_set(_args) {
 	var _instance_id	= _args[0];
@@ -305,12 +310,34 @@ function console_command_base_instance_set(_args) {
 }
 
 /// @func	console_command_base_instance_get(args)
-/// @param	{array}	args
+/// @param	{Array}	args
 /// @desc	Gets a variable in an instance
 function console_command_base_instance_get(_args) {
 	var _instance_id	= _args[0];
 	var _variable_name	= array_length(_args) > 1 ? _args[1] : "";
+	
+	// If we want to get a global variable
+	if (_instance_id == "global") {
+		if !(variable_global_exists(_variable_name)) {
+			ezConsole_error($"Variable {_variable_name} doesn't exists on global.");
+			return;
+		}
+		var _var_name_length = min(24, string_length(_variable_name) + 2);
 		
+		ezConsole_info(
+			__ezConsole_dep_string_pad("VARIABLE NAME", _var_name_length) +
+			"VALUE"
+		);
+			
+		var _variable_value = variable_global_get(_variable_name);
+		ezConsole_info(
+			__ezConsole_dep_string_pad(_variable_name, _var_name_length) +
+			__ezConsole_dep_value_to_string(_variable_value)
+		);
+		return;
+	}
+	
+	// If its not global		
 	var _inst_to_check = (
 		string_digits(_instance_id) == _instance_id
 		? _instance_id
@@ -322,47 +349,56 @@ function console_command_base_instance_get(_args) {
 		return;
 	}
 		
-	if (_variable_name != "") {
+	if (_variable_name == "all") {			
+		var _variable_names = variable_instance_get_names(_inst_to_check);
+		var _variable_names_len = array_length(_variable_names);
+		array_sort(_variable_names, true);
+	
+		// Find the appropiate char lenght to draw
+		var _var_name_pad = 24;
+		for (var i = 0; i < _variable_names_len; i++) {
+			var _var_name_length = string_length(_variable_names[i]);
+			if (_var_name_length > _var_name_pad) {
+				_var_name_pad = _var_name_length + 2;
+			}
+		}
+				
+		ezConsole_info(
+			__ezConsole_dep_string_pad("VARIABLE NAME", _var_name_pad) +
+			"VALUE"
+		);
+
+		// Draw in console
+		for (var i = 0; i < _variable_names_len; i++) {
+			var _variable_value = variable_instance_get(_inst_to_check, _variable_names[i]);
+			ezConsole_info(
+				__ezConsole_dep_string_pad(_variable_names[i], _var_name_pad) +
+				__ezConsole_dep_value_to_string(_variable_value)
+			);
+		}
+	} else {
 		if !(variable_instance_exists(_inst_to_check, _variable_name)) {
 			console_write_log($"Variable {_variable_name} doesn't exists on instance {_instance_id}", EZ_CONSOLE_MSG_TYPE.ERROR);
 			return;
 		}
-			
-		console_write_log(
-			__ezConsole_dep_string_pad("VARIABLE NAME", 32) +
-			"VALUE",
-			EZ_CONSOLE_MSG_TYPE.INFO
+		
+		var _var_name_length = min(24, string_length(_variable_name) + 2);
+		
+		ezConsole_info(
+			__ezConsole_dep_string_pad("VARIABLE NAME", _var_name_length) +
+			"VALUE"
 		);
 			
 		var _variable_value = variable_instance_get(_inst_to_check, _variable_name);
-		console_write_log(
-			__ezConsole_dep_string_pad(_variable_name, 32) +
-			__ezConsole_dep_value_to_string(_variable_value),
-			EZ_CONSOLE_MSG_TYPE.INFO
-		);
-		return;
-	}
-		
-	var _variable_names = variable_instance_get_names(_inst_to_check);
-	array_sort(_variable_names, true);
-	console_write_log(
-		__ezConsole_dep_string_pad("VARIABLE NAME", 32) +
-		"VALUE",
-		EZ_CONSOLE_MSG_TYPE.INFO
-	);
-		
-	for (var i = 0; i < array_length(_variable_names); i++) {
-		var _variable_value = variable_instance_get(_inst_to_check, _variable_names[i]);
-		console_write_log(
-			__ezConsole_dep_string_pad(_variable_names[i], 32) +
-			__ezConsole_dep_value_to_string(_variable_value),
-			EZ_CONSOLE_MSG_TYPE.INFO
+		ezConsole_info(
+			__ezConsole_dep_string_pad(_variable_name, _var_name_length) +
+			__ezConsole_dep_value_to_string(_variable_value)
 		);
 	}
 }
 
 /// @func	console_command_base_instance_delete(args)
-/// @param	{array}	args
+/// @param	{Array}	args
 /// @desc	Delete an instance
 function console_command_base_instance_delete(_args) {
 	var _instance_id	= _args[0];
@@ -389,7 +425,7 @@ function console_command_base_instance_delete(_args) {
 }
 
 /// @func	console_command_base_clear(args)
-/// @param	{array}	args
+/// @param	{Array}	args
 /// @desc	Clears console log
 function console_command_base_clear(_args) {
 	with (ezConsole) {
@@ -405,7 +441,7 @@ function console_command_base_clear(_args) {
 }
 
 /// @func	console_command_base_fps(args)
-/// @param	{array}	args
+/// @param	{Array}	args
 /// @desc	Toggle or set and set FPS on screen
 function console_command_base_fps(_args) {
 	var _args_len = array_length(_args);
@@ -438,7 +474,7 @@ function console_command_base_fps(_args) {
 }
 
 /// @func	console_command_base_debug_overlay(args)
-/// @param	{array}	args
+/// @param	{Array}	args
 /// @desc	Toggle or set and set debug overlay on screen
 function console_command_base_debug_overlay(_args) {
 	if (array_length(_args) == 0) {
@@ -467,21 +503,24 @@ function console_command_base_debug_overlay(_args) {
 }
 
 /// @func	console_command_base_goto(args)
-/// @param	{array}	args
+/// @param	{Array}	args
 /// @desc	Toggle or set and set debug overlay on screen
 function console_command_base_goto(_args) {
-	room_goto(asset_get_index(_args[0]));
+	var _room_index = asset_get_index(_args[0]);
+	// Feather ignore once GM1041 - We cannot get the "Asset.GMRoom" from _room_index.
+	room_goto(_room_index);
 }
 
 /// @func	console_command_base_skin(args)
-/// @param	{array}	args
+/// @param	{Array}	args
 /// @desc	Toggle or set and set debug overlay on screen
 function console_command_base_skin(_args) {
 	var _args_len = array_length(_args);
+	var _current_skin = {};
 	
 	switch (_args[0]) {
 		case "set":
-			var _current_skin = struct_get(ezConsole_skin_list, ezConsole_skin_selected);
+			_current_skin = struct_get(ezConsole_skin_list, ezConsole_skin_selected);
 			
 			if (_args_len < 3) {
 				var _msg = console_get_message(EZ_CONSOLE_MSG.NOT_ENOUGH_PARAMS, "skin set", _args_len, 3, 3);
@@ -502,7 +541,7 @@ function console_command_base_skin(_args) {
 			break;
 					
 		case "get":
-			var _current_skin = struct_get(ezConsole_skin_list, ezConsole_skin_selected);
+			_current_skin = struct_get(ezConsole_skin_list, ezConsole_skin_selected);
 			
 			if (_args_len == 1) {
 				var _json_str = _current_skin.toJSON();

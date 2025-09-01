@@ -19,20 +19,20 @@ function console_skin_load_all() {
 }
 
 /// @func	console_add_skin(skin_struct)
-/// @param	{struct}	skin_struct
+/// @param	{Struct}	skin_struct
 function console_add_skin(_skin) {
 	ezConsole_skin_list[$ _skin.name] = _skin;
 }
 
 /// @func	console_skin_get_width(width)
-/// @param	{real}	width
+/// @param	{Real}	width
 function console_skin_get_width(_w) {
 	_w = real(_w);
 	return round( _w <= 1 ? (_w * window_get_width()) : _w );
 }
 
 /// @func	console_skin_get_height(height)
-/// @param	{real}	height
+/// @param	{Real}	height
 function console_skin_get_height(_h) {
 	_h = real(_h);
 	return round( _h <= 1 ? (_h * window_get_height()) : _h );
@@ -77,7 +77,7 @@ function console_get_skin_prop_names() {
 }
 
 /// @func	console_skin_set_prop(prop, value)
-/// @param	{str}	prop
+/// @param	{String}	prop
 /// @param	{any}	value
 function console_skin_set_prop(_prop, _val) {
 	var _fixed_val;

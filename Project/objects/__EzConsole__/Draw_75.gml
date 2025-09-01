@@ -88,7 +88,7 @@ if (console_anchor == EZ_CONSOLE_ANCHOR.NONE) {
 	draw_set_font(console_text_font);
 	draw_set_colour(console_typeahead_text_highlight);
 	draw_set_halign(fa_left);
-	draw_set_valign(fa_center);
+	draw_set_valign(fa_middle);
 	draw_text(console_x + console_log_xpad * 5, (console_y - console_bar_height / 2) + 2, console_window_title);
 
 	draw_sprite(s_ezConsole_icon_window_status, console_window_open, console_x + console_log_xpad, console_y - console_bar_height / 2);
@@ -102,11 +102,11 @@ if (console_window_open) {
 	draw_set_alpha(console_text_alpha);
 	draw_set_colour(console_text_actual_color);
 	draw_set_halign(fa_left);
-	draw_set_valign(fa_center);
+	draw_set_valign(fa_middle);
 
 	var _console_msg = console_text_actual
 	var _console_blink_char =
-		( console_text_blink_t < room_speed * .66
+		( console_text_blink_t < game_get_speed(gamespeed_fps) * .66
 		&& string_width(console_text_start_char + keyboard_string) < (console_width - console_log_xpad * 2)
 		? console_text_blink_char
 		: "" );
@@ -174,11 +174,13 @@ if (console_window_open) {
 		}
 		
 		// Draw typeahead element
+		var _typeahead_icon_xoff = 0;
+		
 		for (var i = console_typeahead_selected_yoff; i < _typeahead_len; i++) {
 			var _element = string_trim(console_typeahead_elements[i]);
 			var _asset_index = asset_get_index(_element);
 			var _typeahead_icon_size = (console_bar_height - 4); // 2px border
-			var _typeahead_icon_xoff = ezConsole_enable_typeahead_icons * console_get_typeahead_asset_valid(_asset_index) * (_typeahead_icon_size + 4);
+			_typeahead_icon_xoff = ezConsole_enable_typeahead_icons * console_get_typeahead_asset_valid(_asset_index) * (_typeahead_icon_size + 4);
 
 			var _text_height = string_height(_element);
 

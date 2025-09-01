@@ -1,5 +1,5 @@
 {
-  "$GMScript":"",
+  "$GMScript":"v1",
   "%Name":"ezConsole_base_commands_logic",
   "isCompatibility":false,
   "isDnD":false,

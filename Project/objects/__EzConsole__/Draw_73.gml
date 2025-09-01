@@ -11,7 +11,7 @@ console_instance_highlight_index = console_instance_highlight_index mod 2;
 var _selected = console_typeahead_elements[console_typeahead_selected];
 var _is_instance = string_pos("(ref ", _selected);
 if (_is_instance) {
-	var _inst_id = real(string_digits(string_split(_selected, "(ref ")));
+	var _inst_id = real(string_digits(string_replace(_selected, "(ref ", "")));
 	var _inst = instance_find(_inst_id, 0);
 		
 	if (_inst) {
@@ -38,7 +38,7 @@ if (_is_instance) {
 		draw_text(
 			_inst.bbox_left + (_inst.bbox_right - _inst.bbox_left) / 2,
 			_inst.bbox_bottom + 4 + _offset,
-			$"ref:{string_split(_inst, " ")[2]}"
+			$"ref:{string_split(string(_inst), " ")[2]}"
 		);
 	}
 }

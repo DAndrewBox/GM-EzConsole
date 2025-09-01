@@ -1,6 +1,6 @@
 /// @func 	EzConsoleLog(message, [type])
-/// @param	{str}	message
-/// @param	{real}		[type]
+/// @param	{String}	message
+/// @param	{Real}		[type]
 /// @desc	Logs messages to the console with specified types.
 function EzConsoleLog(_msg, _type = EZ_CONSOLE_MSG_TYPE.COMMON) constructor {
 	message		= _msg;
@@ -11,13 +11,13 @@ function EzConsoleLog(_msg, _type = EZ_CONSOLE_MSG_TYPE.COMMON) constructor {
 }
 
 /// @func	EzConsoleCommand(name, alias, description, callback, arguments)
-/// @param	{str}	name
-/// @param	{str}	alias
-/// @param	{str}	description
-/// @param	{ref}	callback
-/// @param	{Array}	arguments
+/// @param	{String}	name
+/// @param	{String}	alias
+/// @param	{String}	description
+/// @param	{Function}	callback
+/// @param	{Array}		arguments
 /// @desc	Used to create a new ezConsole command
-function EzConsoleCommand(_name, _alias = "", _desc = "", _cb = -1, _args = []) constructor {
+function EzConsoleCommand(_name, _alias = "", _desc = "", _cb = noone, _args = []) constructor {
 	name		= _name;
 	alias		= _alias;
 	desc		= _desc;
@@ -49,10 +49,10 @@ function EzConsoleCommand(_name, _alias = "", _desc = "", _cb = -1, _args = []) 
 }
 
 /// @func	EzConsoleCommandArgument(name, description, required, ezConsole_type)
-/// @param	{str}	name
-/// @param	{str}	description
-/// @param	{bool}	required
-/// @param	{real}	ezConsole_type
+/// @param	{String}	name
+/// @param	{String}	description
+/// @param	{Bool}	required
+/// @param	{Real}	ezConsole_type
 /// @desc	Used to create a new Argument for an ezConsole command.
 function EzConsoleCommandArgument(_arg_name, _arg_desc = "", _arg_req = true, _arg_type = noone) constructor {
 	name = _arg_name;
@@ -63,10 +63,10 @@ function EzConsoleCommandArgument(_arg_name, _arg_desc = "", _arg_req = true, _a
 }
 
 /// @func	EzConsoleCommandArgumentWithOptions(name, description, required, options)
-/// @param	{str}	name
-/// @param	{str}	description
-/// @param	{bool}	required
-/// @param	{array}	options
+/// @param	{String}	name
+/// @param	{String}	description
+/// @param	{Bool}	required
+/// @param	{Array}	options
 /// @desc	Used to create a new Argument for an ezConsole command that can only select from the options array.
 function EzConsoleCommandArgumentWithOptions(_arg_name, _arg_desc = "", _arg_req = true, _arg_options = []) constructor {
 	array_sort(_arg_options, true);
@@ -79,12 +79,12 @@ function EzConsoleCommandArgumentWithOptions(_arg_name, _arg_desc = "", _arg_req
 }
 
 /// @func	EzConsoleSkin(ownership, size, background_props, text_props, bar_props, misc_props)
-/// @param	{struct}	ownership
-/// @param	{struct}	size
-/// @param	{struct}	background_props
-/// @param	{struct}	text_props
-/// @param	{struct}	bar_props
-/// @param	{struct}	misc_props
+/// @param	{Struct}	ownership
+/// @param	{Struct}	size
+/// @param	{Struct}	background_props
+/// @param	{Struct}	text_props
+/// @param	{Struct}	bar_props
+/// @param	{Struct}	misc_props
 function EzConsoleSkin(_owner, _size, _bg, _text, _bar, _misc) constructor {
 	name	= _owner.name;
 	author	= _owner.author;
@@ -147,9 +147,9 @@ function EzConsoleSkin(_owner, _size, _bg, _text, _bar, _misc) constructor {
 }
 
 /// @func	EzConsoleSkinOwnership(theme_name, author, version)
-/// @param	{str}	theme_name
-/// @param	{str}	author
-/// @param	{str}	version
+/// @param	{String}	theme_name
+/// @param	{String}	author
+/// @param	{String}	version
 function EzConsoleSkinOwnership(_name, _author = "unknown", _version = ezConsole_version) constructor {
 	name = _name;
 	author = _author;
@@ -157,9 +157,9 @@ function EzConsoleSkinOwnership(_name, _author = "unknown", _version = ezConsole
 }
 
 /// @func	EzConsoleSkinSize(width, height, anchor)
-/// @param	{real}	width
-/// @param	{real}	height
-/// @param	{real}	anchor
+/// @param	{Real}	width
+/// @param	{Real}	height
+/// @param	{Real}	anchor
 function EzConsoleSkinSize(_w, _h, _anchor = 0) constructor {
 	width = _w;
 	height = _h;
@@ -167,11 +167,11 @@ function EzConsoleSkinSize(_w, _h, _anchor = 0) constructor {
 }
 
 /// @func	EzConsoleSkinBackground(bg_color, border_color, bg_alpha, border_alpha, blur_amount)
-/// @param	{color}	bg_color
-/// @param	{color}	border_color
-/// @param	{real}	alpha
-/// @param	{real}	border_alpha
-/// @param	{real}	blur_amount
+/// @param	{Real}	bg_color
+/// @param	{Real}	border_color
+/// @param	{Real}	alpha
+/// @param	{Real}	border_alpha
+/// @param	{Real}	blur_amount
 function EzConsoleSkinBackground(_col, _border_col, _alpha = 1., _border_alpha = .0, _blur_amount = .20) constructor {
 	bg_color = _col;
 	bg_alpha = _alpha;
@@ -184,13 +184,13 @@ function EzConsoleSkinBackground(_col, _border_col, _alpha = 1., _border_alpha =
 
 /// @func	EzConsoleSkinText(font, font_xoff, font_yoff, color_default, color_error, color_warn, color_info, alpha)
 /// @param	{ref}	font
-/// @param	{real}	font_xoff
-/// @param	{real}	font_yoff
-/// @param	{color}	color_default
-/// @param	{color}	color_error
-/// @param	{color}	color_warn
-/// @param	{color}	color_info
-/// @param	{real}	alpha
+/// @param	{Real}	font_xoff
+/// @param	{Real}	font_yoff
+/// @param	{Real}	color_default
+/// @param	{Real}	color_error
+/// @param	{Real}	color_warn
+/// @param	{Real}	color_info
+/// @param	{Real}	alpha
 function EzConsoleSkinText(_fnt, _fnt_xoff, _fnt_yoff, _col_default, _col_error, _col_warn, _col_info, _alpha) constructor {
 	text_font =				is_string(_fnt) ? _fnt : font_get_name(_fnt);
 	text_font_xoff =		_fnt_xoff;
@@ -203,12 +203,12 @@ function EzConsoleSkinText(_fnt, _fnt_xoff, _fnt_yoff, _col_default, _col_error,
 }
 
 /// @func	EzConsoleSkinBar(height, color_default, color_highlight, xpad, ypad, inset)
-/// @param	{real}	height
-/// @param	{color}	color_default
-/// @param	{color}	color_highlight
-/// @param	{real}	xpad
-/// @param	{real}	ypad
-/// @param	{real}	inset
+/// @param	{Real}	height
+/// @param	{Real}	color_default
+/// @param	{Real}	color_highlight
+/// @param	{Real}	xpad
+/// @param	{Real}	ypad
+/// @param	{Real}	inset
 function EzConsoleSkinBar(_h, _col_default, _col_highlight, _xpad = 4, _ypad = 4, _inset = 0) constructor {
 	bar_height =			_h;
 	bar_color =				_col_default;
@@ -219,13 +219,13 @@ function EzConsoleSkinBar(_h, _col_default, _col_highlight, _xpad = 4, _ypad = 4
 }
 
 /// @func	EzConsoleSkinMisc(blink_char, blink_rate, start_char, screenfill_color, screenfill_alpha, typeahead_text_color, typeahead_text_highlight)
-/// @param	{str}	blink_char
-/// @param	{real}	blink_rate
-/// @param	{str}	start_char
-/// @param	{color}	screenfill_color
-/// @param	{real}	screenfill_alpha
-/// @param	{color}	typeahead_text_color
-/// @param	{color}	typeahead_text_highlight
+/// @param	{String}	blink_char
+/// @param	{Real}	blink_rate
+/// @param	{String}	start_char
+/// @param	{Real}	screenfill_color
+/// @param	{Real}	screenfill_alpha
+/// @param	{Real}	typeahead_text_color
+/// @param	{Real}	typeahead_text_highlight
 function EzConsoleSkinMisc(_blink_char="_", _blink_rate=1, _start_char=">", _sf_col=#eeeeee, _sf_alpha=.33, _ta_color_default=#eeeeee, _ta_color_high=#0f0f3c) constructor {
 	text_blink_char = _blink_char;
 	text_blink_rate = _blink_rate;

@@ -31,7 +31,7 @@ console_bar_inset			= ezConsole_skin_current[$ "bar_inset"];
 console_log_xpad			= ezConsole_skin_current[$ "bar_xpad"];
 console_log_ypad			= ezConsole_skin_current[$ "bar_ypad"];
 
-console_screenfill_alpha		= ezConsole_skin_current[$ "screenfill_alpha"];
-console_screenfill_color		= __ezConsole_dep_hex_to_dec(ezConsole_skin_current[$ "screenfill_color"]);
+console_screenfill_alpha	= ezConsole_skin_current[$ "screenfill_alpha"];
+console_screenfill_color	= __ezConsole_dep_hex_to_dec(ezConsole_skin_current[$ "screenfill_color"]);
 
-console_blur_amount				= ezConsole_skin_current[$ "blur_amount"];
+console_blur_amount			= ezConsole_skin_current[$ "blur_amount"];

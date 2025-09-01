@@ -1,28 +1,31 @@
 /// @func	ezConsole_log(message)
-/// @param	{str}	message
+/// @param	{String}	message
 /// @desc	Logs a user typed message on the console.
 function ezConsole_log(_msg) {
 	console_write_log(_msg, EZ_CONSOLE_MSG_TYPE.COMMON);
 }
 
-/// @func	ezConsole_warn(message)
-/// @param	{str}	message
+/// @func	ezConsole_warn(message, no_output)
+/// @param	{String}	message
+/// @param	{Bool}	no_output
 /// @desc	Logs a warning message on the console.
 function ezConsole_warn(_msg) {
 	console_write_log(_msg, EZ_CONSOLE_MSG_TYPE.WARNING);
 	show_debug_message($"(EzConsole) WARNING! - {_msg}");
 }
 
-/// @func	ezConsole_error(message)
-/// @param	{str}	message
+/// @func	ezConsole_error(message, no_output)
+/// @param	{String}	message
+/// @param	{Bool}		no_output
 /// @desc	Logs a error message on the console.
 function ezConsole_error(_msg) {
 	console_write_log(_msg, EZ_CONSOLE_MSG_TYPE.ERROR);
 	show_debug_message($"(EzConsole) ERROR! - {_msg}");
 }
 
-/// @func	ezConsole_info(message)
-/// @param	{str}	message
+/// @func	ezConsole_info(message, no_output)
+/// @param	{String}	message
+/// @param	{Bool}		no_output
 /// @desc	Logs a info message on the console.
 function ezConsole_info(_msg) {
 	console_write_log(_msg, EZ_CONSOLE_MSG_TYPE.INFO);
@@ -45,13 +48,17 @@ function ezConsole_is_visible() {
 /// @desc	Sets the console to be visible based on user interaction.
 function ezConsole_set_visible() {
 	if (!ezConsole) return;
-	if (keyboard_check_pressed(ezConsole.console_key_toggle)) {
+	if (keyboard_check_pressed(ezConsole_key_toggle)) {
 		// Reset console text bar when visible again
 		keyboard_lastkey = noone;
 		keyboard_string = "";
 		ezConsole.console_text_actual = "";
 		visible = true;
-		if (ezConsole.console_callback_on_open) ezConsole.console_callback_on_open();
+		
+		if (is_callable(ezConsole_callback_onOpen)) {
+			// Feather ignore once GM1041 - This is already validated to be a callable.
+			script_execute(ezConsole_callback_onOpen);
+		}
 	}
 }
 
@@ -60,5 +67,8 @@ function ezConsole_set_visible() {
 function ezConsole_set_invisible() {
 	if (!ezConsole) return;
 	ezConsole.visible = false;
-	if (ezConsole.console_callback_on_close) ezConsole.console_callback_on_close();
+	if (is_callable(ezConsole_callback_onClose)) {
+		// Feather ignore once GM1041 - This is already validated to be a callable.
+		script_execute(ezConsole_callback_onClose);
+	}
 }

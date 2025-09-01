@@ -1,4 +1,5 @@
 /// @description On Game End
-if (console_callback_on_game_end) {
-	console_callback_on_game_end();
+if (is_callable(ezConsole_callback_onGameEnd)) {
+	// Feather ignore once GM1041 - This is already validated to be a callable.
+	ezConsole_callback_onGameEnd();
 }

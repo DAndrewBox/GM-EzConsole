@@ -10,11 +10,11 @@ function console_get_commands() {
 }
 
 /// @func	console_get_message(message_type, command, params_count, min_params, max_params)
-/// @param	{real}    message_type
-/// @param	{str}    command
-/// @param	{real}    params_count
-/// @param	{real}    min_params
-/// @param	{real}    max_params
+/// @param	{Real}    message_type
+/// @param	{String}    command
+/// @param	{Real}    params_count
+/// @param	{Real}    min_params
+/// @param	{Real}    max_params
 /// @desc	Retrieves console messages based on message types.
 function console_get_message(_type, _command, _params_count=0, _min_params=0, _max_params=1) {
     switch (_type) {
@@ -47,7 +47,7 @@ function console_get_message(_type, _command, _params_count=0, _min_params=0, _m
 }
 
 /// @func 	console_get_type_color(type)
-/// @param	{real}    type
+/// @param	{Real}    type
 /// @desc	Retrieves the color associated with a message type.
 function console_get_type_color(_type) {
     switch (_type) {
@@ -60,7 +60,7 @@ function console_get_type_color(_type) {
 }
 
 /// @func 	console_get_timestamp(time)
-/// @param	{real}    time
+/// @param	{Real}    time
 /// @desc	Retrieves a formatted timestamp.
 function console_get_timestamp(_t) {
     var _hh, _mm, _ss;
@@ -72,7 +72,7 @@ function console_get_timestamp(_t) {
 }
 
 /// @func 	console_get_suggestion(message)
-/// @param	{str}    message
+/// @param	{String}    message
 /// @desc	Provides command suggestions based on user input.
 function console_get_suggestion(_msg) {
 	var _msg_trimmed	= string_split(_msg, " ");
@@ -121,7 +121,7 @@ function console_get_suggestion(_msg) {
 }
 
 /// @func 	console_get_typeahead(message)
-/// @param	{str}    message
+/// @param	{String}    message
 /// @desc	Provides auto-completion suggestions based on user input.
 function console_get_typeahead(_msg) {
 	var _msg_trimmed	= string_split(_msg, " ");
@@ -190,12 +190,12 @@ function console_get_typeahead(_msg) {
 					} else {
 						var _inst_ref = string_split(string(id), " ");
 						if (is_array(_inst_ref)) {
-							_inst_ref = array_last(_inst_ref);
+							_inst_ref = string(array_last(_inst_ref));
 						}
 						
 						var _arg_ref = string_split(_arg, ":");
 						if (is_array(_arg_ref)) {
-							_arg_ref = array_last(_arg_ref);
+							_arg_ref = string(array_last(_arg_ref));
 						}
 						
 						var _arg_ref_len = string_length(_arg_ref);
@@ -242,7 +242,7 @@ function console_add_command(_cmd) {
 }
 
 /// @func 	   console_add_commands_from_file(filepath)
-/// @param	{str}    filepath
+/// @param	{String}    filepath
 /// @desc	Adds commands from a file to the console.
 function console_add_commands_from_file(_path) {
 	if (!file_exists(_path)) {
@@ -260,27 +260,33 @@ function console_add_commands_from_file(_path) {
 		var _args_len = array_length(_cmd.args);
 		
 		for (var j = 0; j < _args_len; j++) {
-			var _new_arg;
+			var _new_arg = undefined;
 			if (_cmd.args[j].type != "option") {
 				_new_arg = new EzConsoleCommandArgument(
 					_cmd.args[j].name,
 					_cmd.args[j].desc,
 					_cmd.args[j].required,
-					console_get_type_from_string(_cmd.args[j].type),
+					console_get_type_from_string(_cmd.args[j].type)
 				);
 			} else {
 				_new_arg = new EzConsoleCommandArgumentWithOptions(
 					_cmd.args[j].name,
 					_cmd.args[j].desc,
 					_cmd.args[j].required,
-					_cmd.args[j].options,
+					_cmd.args[j].options
 				);
 			}
 			
 			array_push(_args, _new_arg);
 		}
 		
-		new EzConsoleCommand(_cmd.name, _cmd.alias, _cmd.desc, asset_get_index(_cmd.callback), _args);
+		var _callback = asset_get_index(_cmd.callback);
+		if (is_callable(_callback)) {
+			// Feather ignore once GM1041 - We cannot conver "_callback" to Function even if it's a valid one.
+			new EzConsoleCommand(_cmd.name, _cmd.alias, _cmd.desc, _callback, _args);
+		} else {
+			ezConsole_error($"Cannot load command \"{_cmd.name}\". Function with name \"{_cmd.callback}\" passed in prop \"callback\" does not exists!");
+		}
 	}
 	
 	file_text_close(_file);
@@ -289,12 +295,16 @@ function console_add_commands_from_file(_path) {
 
 #region // Write on console log logic
 /// @func 	console_write_log(message, type)
-/// @param	{str}	message
-/// @param	{real}	type
+/// @param	{String}	message
+/// @param	{Real}	type
 /// @desc	Writes messages to the console log.
 function console_write_log(_msg, _type = EZ_CONSOLE_MSG_TYPE.COMMON) {
 	with (ezConsole) {
-		if (console_callback_on_log) console_callback_on_log();
+		if (is_callable(ezConsole_callback_onLog)) {
+			// Feather ignore once GM1041 - This is already checked to be a callable.
+			script_execute(ezConsole_callback_onLog);
+		}
+		
 		var _new_msg = new EzConsoleLog(_msg, _type);
 		ds_list_add(console_text_log, _new_msg);
 	
@@ -307,7 +317,7 @@ function console_write_log(_msg, _type = EZ_CONSOLE_MSG_TYPE.COMMON) {
 #endregion
 
 /// @func 	console_check_command(message)
-/// @param	{str}	message
+/// @param	{String}	message
 /// @desc	Checks if the provided message is a valid console command.
 function console_check_command(_msg) {
 	var _msg_array	= string_split(_msg, " ");
@@ -355,7 +365,7 @@ function console_check_command(_msg) {
 	static _commands_len = array_length(_commands);
 	for (var i = 0; i < _commands_len; i++) {
 		if (_commands[i].name == _command || (_commands[i].alias == _command && _commands[i].alias != "-")) {
-			if (_commands[i].callback != -1) {
+			if (_commands[i].callback != noone) {
 				var _args_len = array_length(_params);
 				for (var j = 0; j < _args_len; j++) {
 					if (j > array_length(_commands[i].args_type) - 1) break;
@@ -363,7 +373,7 @@ function console_check_command(_msg) {
 						var _inst_ref = string_split(_params[j], ":");
 						if (!is_array(_inst_ref) || array_length(_inst_ref) < 2) continue;
 						
-						_inst_ref = _inst_ref[1];
+						_inst_ref = string(array_last(_inst_ref));
 						if (_inst_ref == "") continue;
 						
 						var _inst_id = string_digits(_inst_ref);
@@ -392,10 +402,10 @@ function console_check_command(_msg) {
 }
 
 /// @func 	console_check_params_count(command, params_len, min_params, max_params)
-/// @param	{str}	command
-/// @param	{real}	params_len
-/// @param	{real}	min_params
-/// @param	{real}	max_params
+/// @param	{String}	command
+/// @param	{Real}	params_len
+/// @param	{Real}	min_params
+/// @param	{Real}	max_params
 /// @desc	Checks if the number of parameters in a command is within the expected range.
 function console_check_params_count(_command, _params_len, _min_params, _max_params) {
 	if (_params_len < _min_params) {
@@ -430,7 +440,7 @@ function console_save_log_to_file() {
 }
 
 /// @func 	console_position_set_by_anchor(anchor)
-/// @param	{real}	anchor
+/// @param	{Real}	anchor
 /// @desc	Sets the console position based on the anchor point.
 function console_position_set_by_anchor(_anchor) {
 	if (!ezConsole) return;
@@ -475,15 +485,18 @@ function console_position_set_by_anchor(_anchor) {
 
 /// @func	console_command_base_execute(command, args_given)
 /// @param	{any}	command
-/// @param	{array}	args_given
-function console_command_base_execute(_cmd, _args_given) {
+/// @param	{Array}	args_given
+function console_command_execute(_cmd, _args_given) {
+	static _args_given_filter = function (_elem) { return _elem != "" };
+	_args_given = array_filter(_args_given, _args_given_filter);
+	
 	if (console_check_params_count(_cmd.name, array_length(_args_given), _cmd.args_min, _cmd.args_max)) {
 		script_execute(_cmd.callback, _args_given);
 	}
 }
 
 /// @func	console_typeahead_get_names(ezConsole_type)
-/// @param	{real}	ezConsole_type
+/// @param	{Real}	ezConsole_type
 /// @desc	Retrieves a list of names for type-ahead suggestions based on asset type.
 function console_typeahead_get_names(_type) {
 	static _names = {
@@ -507,7 +520,7 @@ function console_typeahead_get_names(_type) {
 }
 
 /// @func console_get_type_from_string(type_name)
-/// @param	{str}	type_name
+/// @param	{String}	type_name
 function console_get_type_from_string(_name) {
 	switch (_name) {
 		case "sprite":		return ezConsole_type_sprite;
@@ -524,8 +537,8 @@ function console_get_type_from_string(_name) {
 }
 
 /// @func	console_get_typeahead_icon(asset_index, asset_type)
-/// @param	{real}	asset_index
-/// @param	{real}	asset_type
+/// @param	{Asset | Asset.GMObject}	asset_index
+/// @param	{Real}						asset_type
 function console_get_typeahead_icon(_index, _type) {
 	switch (_type) {
 		case asset_sprite:	return _index;
@@ -539,7 +552,7 @@ function console_get_typeahead_icon(_index, _type) {
 }
 
 /// @func	console_get_typeahead_asset_valid(asset_index)
-/// @param	{real}	asset_index
+/// @param	{Asset}	asset_index
 function console_get_typeahead_asset_valid(_index) {
 	var _type = asset_get_type(_index);
 	switch (_type) {

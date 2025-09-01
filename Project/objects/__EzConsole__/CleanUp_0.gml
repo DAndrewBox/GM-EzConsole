@@ -2,7 +2,10 @@
 if (ezConsole_debug_only && debug_mode) exit;
 
 // Do destroy callback
-if (console_callback_on_destroy) console_callback_on_destroy();
+if (is_callable(ezConsole_callback_onDestroy)) {
+	// Feather ignore once GM1041 - This is already validated to be a callable.
+	script_execute(ezConsole_callback_onDestroy);
+}
 
 // Destroy log structs
 var _log_len = ds_list_size(console_text_log);
