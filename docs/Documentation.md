@@ -30,6 +30,10 @@ This is the offline version of the official and up-to-date documentation for **G
   - [ezConsole_is_visible](#ezconsole_is_visible)
   - [ezConsole_set_visible](#ezconsole_set_visible)
   - [ezConsole_set_hidden](#ezconsole_set_hidden)
+- [Console Window](#console-window)
+  - [Focus](#focus)
+  - [Resizing](#resizing)
+  - [The input bar](#the-input-bar)
 - [Customization](#customization)
   - [Using a theme](#using-a-theme)
   - [Create your own theme (file)](#create-your-own-theme-using-skin-files)
@@ -285,13 +289,12 @@ This section contains all the functions that you can use and call on your own Ga
 Log a message to the console as if it was an user input (includes current timestamp).
 
 ```ts
-ezConsole_log(message: String, no_output: Boolean) -> None
+ezConsole_log(message: String) -> None
 ```
 
-| Argument  | Type    | Description                                                      |
-| :-------- | :------ | :--------------------------------------------------------------- |
-| message   | String  | The message to log.                                              |
-| no_output | Boolean | If `true`, the message will not be output to the IDE output tab. |
+| Argument | Type   | Description         |
+| :------- | :----- | :------------------ |
+| message  | String | The message to log. |
 
 ---
 
@@ -299,13 +302,14 @@ ezConsole_log(message: String, no_output: Boolean) -> None
 Log an error message to the console.
 
 ```ts
-ezConsole_error(message: String, no_output: Boolean) -> None
+ezConsole_error(message: String, no_output: Boolean, clear_input: Boolean) -> None
 ```
 
-| Argument  | Type    | Description                                                      |
-| :-------- | :------ | :--------------------------------------------------------------- |
-| message   | String  | The message to log.                                              |
-| no_output | Boolean | If `true`, the message will not be output to the IDE output tab. |
+| Argument                                                                     | Type    | Description                                                                                                                                                     |
+| :--------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| message                                                                      | String  | The message to log.                                                                                                                                             |
+| no_output                                                                    | Boolean | If `true`, the message will not be output to the IDE output tab.                                                                                                |
+| clear_input ![](https://img.shields.io/badge/v1.4.0-ffd200?style=flat) | Boolean | Defaults to `true`, which empties the input bar the way a submitted command does. Pass `false` when the log is not the user's doing so it keeps what they typed. |
 
 ---
 
@@ -313,13 +317,14 @@ ezConsole_error(message: String, no_output: Boolean) -> None
 Log a warning message to the console.
 
 ```ts
-ezConsole_warn(message: String, no_output: Boolean) -> None
+ezConsole_warn(message: String, no_output: Boolean, clear_input: Boolean) -> None
 ```
 
-| Argument  | Type    | Description                                                      |
-| :-------- | :------ | :--------------------------------------------------------------- |
-| message   | String  | The message to log.                                              |
-| no_output | Boolean | If `true`, the message will not be output to the IDE output tab. |
+| Argument                                                                     | Type    | Description                                                                                                                                                     |
+| :--------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| message                                                                      | String  | The message to log.                                                                                                                                             |
+| no_output                                                                    | Boolean | If `true`, the message will not be output to the IDE output tab.                                                                                                |
+| clear_input ![](https://img.shields.io/badge/v1.4.0-ffd200?style=flat) | Boolean | Defaults to `true`, which empties the input bar the way a submitted command does. Pass `false` when the log is not the user's doing so it keeps what they typed. |
 
 ---
 
@@ -327,13 +332,14 @@ ezConsole_warn(message: String, no_output: Boolean) -> None
 Log an informational message to the console.
 
 ```ts
-ezConsole_info(message: String, no_output: Boolean) -> None
+ezConsole_info(message: String, no_output: Boolean, clear_input: Boolean) -> None
 ```
 
-| Argument  | Type    | Description                                                      |
-| :-------- | :------ | :--------------------------------------------------------------- |
-| message   | String  | The message to log.                                              |
-| no_output | Boolean | If `true`, the message will not be output to the IDE output tab. |
+| Argument                                                                     | Type    | Description                                                                                                                                                     |
+| :--------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| message                                                                      | String  | The message to log.                                                                                                                                             |
+| no_output                                                                    | Boolean | If `true`, the message will not be output to the IDE output tab.                                                                                                |
+| clear_input ![](https://img.shields.io/badge/v1.4.0-ffd200?style=flat) | Boolean | Defaults to `true`, which empties the input bar the way a submitted command does. Pass `false` when the log is not the user's doing so it keeps what they typed. |
 
 ---
 
@@ -376,6 +382,66 @@ Set the console to be hidden.
 ```ts
 ezConsole_set_invisible() -> None
 ```
+
+---
+
+## Console Window ![](https://img.shields.io/badge/v1.4.0-ffd200?style=flat)
+
+This section covers how the user interacts with the console window itself. None of it needs
+any setup, but every part of it can be turned off or retuned from `ezConsole_configurations`.
+
+### Focus ![](https://img.shields.io/badge/v1.4.0-ffd200?style=flat)
+
+The console only reacts to the keyboard while it is **focused**, so it never steals input from
+your game just by being on screen.
+
+- Clicking anywhere on the console (its window bar included) focuses it.
+- Clicking anywhere outside it drops the focus.
+- Opening the console with `ezConsole_key_toggle` focuses it; closing it drops the focus.
+- `ezConsole_key_toggle` is the one key that always answers, focused or not, so the console
+  can never be left open with no way to close it.
+
+While focused the console draws its drop shadow and highlights its border with the theme's
+`bar_color_highlight`. While unfocused there is no shadow, the border falls back to the theme's
+`border_color`, and the text cursor is hidden.
+
+Anything typed while the console is unfocused is discarded when it regains focus, so a stray
+keystroke never shows up in the bar later.
+
+### Resizing ![](https://img.shields.io/badge/v1.4.0-ffd200?style=flat)
+
+Dragging the bottom-right corner resizes the console. The cursor turns into `cr_size_nwse`
+while the corner is under the mouse or being dragged, and the corner itself is marked with a
+small grip.
+
+- The **minimum** size is whatever size the current theme asks for, so a console can never be
+  shrunk below its theme.
+- The **maximum** size is the room left on the GUI from the console's own position.
+- Releasing the mouse writes the new size to the log as an info message.
+- Reloading a theme, or toggling fullscreen with the `fullscreen` command, resets the console
+  back to the theme size.
+
+| Configuration                    | Description                                                             | Default      |
+| :------------------------------- | :---------------------------------------------------------------------- | :----------- |
+| ezConsole_enable_resize          | Set to `false` to disable resizing entirely.                            | `true`       |
+| ezConsole_prop_resize_grip       | Size in pixels of the corner area that grabs a resize.                  | `14`         |
+| ezConsole_prop_resize_grip_outer | Extra pixels outside the console that still count as the resize corner. | `4`          |
+| ezConsole_prop_cursor_default    | The cursor restored when the mouse leaves the corner.                   | `cr_default` |
+
+### The input bar ![](https://img.shields.io/badge/v1.4.0-ffd200?style=flat)
+
+The command line is no longer capped to the width of the bar. It is drawn into its own surface,
+which clips it to the bar and scrolls horizontally to keep the text cursor in view, so a command
+can be as long as you like and the bar always shows the part you are editing.
+
+Holding a key down auto-repeats it in the bar after a short delay. This works for typing,
+backspace and delete, and for `ezConsole_key_nav_left` / `ezConsole_key_nav_right` moving the
+text cursor, including when the text cursor is somewhere in the middle of the line.
+
+| Configuration                 | Description                                                            | Default |
+| :---------------------------- | :--------------------------------------------------------------------- | :------ |
+| ezConsole_prop_key_hold_delay | Seconds a key must be held before it starts auto-repeating.            | `.35`   |
+| ezConsole_prop_key_hold_rate  | Seconds between each auto-repeat while the key stays held.             | `.03`   |
 
 ---
 

@@ -1,9 +1,9 @@
 /* ====================================================== */
 /*	Project:	GameMaker's EzConsole					  */
 /*	Author:		DAndrëwBox								  */
-/*	Version:	v1.3.1									  */
+/*	Version:	v1.4.0									  */
 /*	License:	MIT										  */
-/*	Updated:	2024-03-20								  */
+/*	Updated:	2026-09-07								  */
 /* ====================================================== */
 
 ezConsole_skin_list		= console_skin_load_all();
@@ -56,5 +56,5 @@ enum EZ_CONSOLE_ANCHOR {
 
 #macro	ezConsole					instance_find(__EzConsole__, 0)
 
-#macro	ezConsole_version			"1.3.2"
+#macro	ezConsole_version			"1.4.0"
 #endregion
