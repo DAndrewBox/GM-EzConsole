@@ -2,7 +2,7 @@ call_later(1, time_source_units_frames, function () {
 	new EzConsoleCommand(
 		"message",
 		"msg",
-		"Shows a message and pauses the game.",
+		"Shows a message on screen.",
 		console_command_base_message,
 		[
 			new EzConsoleCommandArgument("text", "Message to show", true),

@@ -1,5 +1,5 @@
 {
-  "$GMScript":"",
+  "$GMScript":"v1",
   "%Name":"ezConsole_custom_themes",
   "isCompatibility":false,
   "isDnD":false,

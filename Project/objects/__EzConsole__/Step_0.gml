@@ -22,7 +22,7 @@ var _delete_is_pressed		= false;
 var _inst_ref_split_delim	= "(ref";
 
 // Blink thing after text in bar
-console_text_blink_t = ( console_text_blink_t > room_speed * console_text_blink_rate ? 0 : ++console_text_blink_t );
+console_text_blink_t = ( console_text_blink_t > game_get_speed(gamespeed_fps) * console_text_blink_rate ? 0 : ++console_text_blink_t );
 console_surf_yoffset = lerp(console_surf_yoffset, console_surf_yoffset_to, .16);
 
 // Do actions
@@ -284,7 +284,7 @@ if (_log_len > 0) {
 		console_typeahead_nav_t = 0;
 	}
 	
-	if (_nav_up || _nav_down || console_typeahead_nav_t > room_speed * .66) {
+	if (_nav_up || _nav_down || console_typeahead_nav_t > game_get_speed(gamespeed_fps) * .66) {
 		if (ezConsole_enable_typeahead && console_typeahead_show) {
 			var _typeahead_len = array_length(console_typeahead_elements);
 			var _bar_y = console_y + console_height - console_bar_height;
@@ -403,7 +403,7 @@ if (_log_len > 0) {
 // Update fps every half second
 if (console_fps_show) {
 	console_fps_t++
-	if (console_fps_t > room_speed * .5) {
+	if (console_fps_t > game_get_speed(gamespeed_fps) * .5) {
 		var _fps_hist_len = array_length(console_fps_hist);
 		if (_fps_hist_len >= 20) {
 			array_delete(console_fps_hist, 0, 1);

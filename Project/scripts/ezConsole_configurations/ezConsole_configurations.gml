@@ -1,5 +1,5 @@
 // Initialize ezConsole globals
-ezConsole_init();
+gml_pragma("global", "ezConsole_init()");
 
 /* ====================================================== */
 /* ============ DO NOT MODIFY ANYTHING ABOVE ============ */

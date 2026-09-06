@@ -1,6 +1,7 @@
 #region // GET
 /// @func	console_get_commands()
 /// @desc	Retrieves the list of commands available in the console.
+/// @ignore
 function console_get_commands() {
     static _commands = array_create_ext(array_length(ezConsole_commands), function (_index) {
         return ezConsole_commands[_index];
@@ -16,6 +17,7 @@ function console_get_commands() {
 /// @param	{real}    min_params
 /// @param	{real}    max_params
 /// @desc	Retrieves console messages based on message types.
+/// @ignore
 function console_get_message(_type, _command, _params_count=0, _min_params=0, _max_params=1) {
     switch (_type) {
         case EZ_CONSOLE_MSG.NOT_ENOUGH_PARAMS:
@@ -49,6 +51,7 @@ function console_get_message(_type, _command, _params_count=0, _min_params=0, _m
 /// @func 	console_get_type_color(type)
 /// @param	{real}    type
 /// @desc	Retrieves the color associated with a message type.
+/// @ignore
 function console_get_type_color(_type) {
     switch (_type) {
         default:
@@ -62,6 +65,7 @@ function console_get_type_color(_type) {
 /// @func 	console_get_timestamp(time)
 /// @param	{real}    time
 /// @desc	Retrieves a formatted timestamp.
+/// @ignore
 function console_get_timestamp(_t) {
     var _hh, _mm, _ss;
     _hh = string_replace(string_format(date_get_hour(_t), 2, 0), " ", "0");
@@ -74,6 +78,7 @@ function console_get_timestamp(_t) {
 /// @func 	console_get_suggestion(message)
 /// @param	{str}    message
 /// @desc	Provides command suggestions based on user input.
+/// @ignore
 function console_get_suggestion(_msg) {
 	var _msg_trimmed	= string_split(_msg, " ");
 	var _is_command		= array_length(_msg_trimmed) < 2;
@@ -123,6 +128,7 @@ function console_get_suggestion(_msg) {
 /// @func 	console_get_typeahead(message)
 /// @param	{str}    message
 /// @desc	Provides auto-completion suggestions based on user input.
+/// @ignore
 function console_get_typeahead(_msg) {
 	var _msg_trimmed	= string_split(_msg, " ");
 	var _is_command		= array_length(_msg_trimmed) == 1;
@@ -235,6 +241,7 @@ function console_get_typeahead(_msg) {
 /// @func 	   console_add_command(command)
 /// @param	{any}    command
 /// @desc	Adds a new command to the console.
+/// @ignore
 function console_add_command(_cmd) {
     array_push(ezConsole_commands, _cmd);
 }
@@ -242,6 +249,7 @@ function console_add_command(_cmd) {
 /// @func 	   console_add_commands_from_file(filepath)
 /// @param	{str}    filepath
 /// @desc	Adds commands from a file to the console.
+/// @ignore
 function console_add_commands_from_file(_path) {
 	if (!file_exists(_path)) {
 		show_debug_message($"(EzConsole) ERROR! - File \"{_path}\" not found!");
@@ -260,18 +268,18 @@ function console_add_commands_from_file(_path) {
 		for (var j = 0; j < _args_len; j++) {
 			var _new_arg;
 			if (_cmd.args[j].type != "option") {
-				_new_arg = new EzConsoleCommandArgument(
-					_cmd.args[j].name,
-					_cmd.args[j].desc,
+				_new_arg = new EzConsoleCommandArgument( 
+					_cmd.args[j].name, 
+					_cmd.args[j].desc, 
 					_cmd.args[j].required,
-					console_get_type_from_string(_cmd.args[j].type),
+					console_get_type_from_string(_cmd.args[j].type)
 				);
 			} else {
 				_new_arg = new EzConsoleCommandArgumentWithOptions(
 					_cmd.args[j].name,
 					_cmd.args[j].desc,
 					_cmd.args[j].required,
-					_cmd.args[j].options,
+					_cmd.args[j].options
 				);
 			}
 			
@@ -290,6 +298,7 @@ function console_add_commands_from_file(_path) {
 /// @param	{str}	message
 /// @param	{real}	type
 /// @desc	Writes messages to the console log.
+/// @ignore
 function console_write_log(_msg, _type = EZ_CONSOLE_MSG_TYPE.COMMON) {
 	with (ezConsole) {
 		if (script_exists(ezConsole_callback_onLog)) {
@@ -310,6 +319,7 @@ function console_write_log(_msg, _type = EZ_CONSOLE_MSG_TYPE.COMMON) {
 /// @func 	console_check_command(message)
 /// @param	{str}	message
 /// @desc	Checks if the provided message is a valid console command.
+/// @ignore
 function console_check_command(_msg) {
 	var _msg_array	= string_split(_msg, " ");
 	var _command	= _msg_array[0];
@@ -324,7 +334,7 @@ function console_check_command(_msg) {
 	
 	for (var i = 0; i < _params_len; i++) {
 		if (_in_str_param && string_ends_with(_params[i], "\"")) {
-			_str_param += _params[i];
+			_str_param += string_delete(_params[i], string_length(_params[i]), 1);
 			_in_str_param = false;
 			array_push(_new_params, _str_param);
 			
@@ -410,6 +420,7 @@ function console_check_command(_msg) {
 /// @param	{real}	min_params
 /// @param	{real}	max_params
 /// @desc	Checks if the number of parameters in a command is within the expected range.
+/// @ignore
 function console_check_params_count(_command, _params_len, _min_params, _max_params) {
 	if (_params_len < _min_params) {
 		// Not enough params
@@ -428,6 +439,7 @@ function console_check_params_count(_command, _params_len, _min_params, _max_par
 	
 /// @func 	console_save_log_to_file()
 /// @desc	Saves the console log to a file.
+/// @ignore
 function console_save_log_to_file() {
 	var _logs = console_text_log;
 	var _msg, _time, _file;	
@@ -445,6 +457,7 @@ function console_save_log_to_file() {
 /// @func 	console_position_set_by_anchor(anchor)
 /// @param	{real}	anchor
 /// @desc	Sets the console position based on the anchor point.
+/// @ignore
 function console_position_set_by_anchor(_anchor) {
 	if (!ezConsole) return;
 	var _x, _y;
@@ -489,6 +502,7 @@ function console_position_set_by_anchor(_anchor) {
 /// @func	console_command_execute(command, args_given)
 /// @param	{any}	command
 /// @param	{array}	args_given
+/// @ignore
 function console_command_execute(_cmd, _args_given) {
 	static _args_given_filter = function (_elem) { return _elem != "" };
 	_args_given = array_filter(_args_given, _args_given_filter);
@@ -501,6 +515,7 @@ function console_command_execute(_cmd, _args_given) {
 /// @func	console_typeahead_get_names(ezConsole_type)
 /// @param	{real}	ezConsole_type
 /// @desc	Retrieves a list of names for type-ahead suggestions based on asset type.
+/// @ignore
 function console_typeahead_get_names(_type) {
 	static _names = {
 		sprite:	__ezConsole_dep_get_asset_names(asset_sprite),
@@ -524,6 +539,7 @@ function console_typeahead_get_names(_type) {
 
 /// @func console_get_type_from_string(type_name)
 /// @param	{str}	type_name
+/// @ignore
 function console_get_type_from_string(_name) {
 	switch (_name) {
 		case "sprite":		return ezConsole_type_sprite;
@@ -542,6 +558,7 @@ function console_get_type_from_string(_name) {
 /// @func	console_get_typeahead_icon(asset_index, asset_type)
 /// @param	{real}	asset_index
 /// @param	{real}	asset_type
+/// @ignore
 function console_get_typeahead_icon(_index, _type) {
 	switch (_type) {
 		case asset_sprite:	return _index;
@@ -558,6 +575,7 @@ function console_get_typeahead_icon(_index, _type) {
 
 /// @func	console_get_typeahead_asset_valid(asset_index)
 /// @param	{real}	asset_index
+/// @ignore
 function console_get_typeahead_asset_valid(_index) {
 	var _type = asset_get_type(_index);
 	switch (_type) {

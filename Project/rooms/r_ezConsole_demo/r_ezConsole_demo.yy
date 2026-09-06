@@ -1,5 +1,5 @@
 {
-  "$GMRoom":"",
+  "$GMRoom":"v1",
   "%Name":"r_ezConsole_demo",
   "creationCodeFile":"",
   "inheritCode":false,

@@ -109,7 +109,7 @@ if (console_window_open) {
 
 	var _console_msg = console_text_actual
 	var _console_blink_char =
-		( console_text_blink_t < room_speed * .66
+		( console_text_blink_t < game_get_speed(gamespeed_fps) * .66
 		&& string_width(console_text_start_char + keyboard_string) < (console_width - console_log_xpad * 2)
 		? console_text_blink_char
 		: "" );
@@ -177,11 +177,12 @@ if (console_window_open) {
 		}
 		
 		// Draw typeahead element
+        var _typeahead_icon_xoff = 0;
 		for (var i = console_typeahead_selected_yoff; i < _typeahead_len; i++) {
 			var _element = string_trim(console_typeahead_elements[i]);
 			var _asset_index = asset_get_index(_element);
 			var _typeahead_icon_size = (console_bar_height - 4); // 2px border
-			var _typeahead_icon_xoff = ezConsole_enable_typeahead_icons * console_get_typeahead_asset_valid(_asset_index) * (_typeahead_icon_size + 4);
+			_typeahead_icon_xoff = ezConsole_enable_typeahead_icons * console_get_typeahead_asset_valid(_asset_index) * (_typeahead_icon_size + 4);
 
 			var _text_height = string_height(_element);
 

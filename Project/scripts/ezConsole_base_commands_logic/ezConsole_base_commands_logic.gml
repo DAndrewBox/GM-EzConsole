@@ -197,10 +197,12 @@ function console_command_base_create(_args) {
 	var _asset = asset_get_index(_args[0]);
 	var _params_len = array_length(_args);
 		
+    var _x, _y, _depth;
+    
 	try {
-		var _x = ( _params_len > 1 ? real(_args[1]) : mouse_x );
-		var _y = ( _params_len > 2 ? real(_args[2]) : mouse_y );
-		var _depth = ( _params_len > 3 ? real(_args[3]) : -100 );
+		_x = ( _params_len > 1 ? real(_args[1]) : mouse_x );
+		_y = ( _params_len > 2 ? real(_args[2]) : mouse_y );
+		_depth = ( _params_len > 3 ? real(_args[3]) : -100 );
 	} catch (e) {
 		ezConsole_error(e.message);
 		return -1;
@@ -486,10 +488,11 @@ function console_command_base_goto(_args) {
 /// @desc	Toggle or set and set debug overlay on screen
 function console_command_base_skin(_args) {
 	var _args_len = array_length(_args);
-	
+	var _current_skin;
+    
 	switch (_args[0]) {
 		case "set":
-			var _current_skin = struct_get(ezConsole_skin_list, ezConsole_skin_selected);
+			_current_skin = struct_get(ezConsole_skin_list, ezConsole_skin_selected);
 			
 			if (_args_len < 3) {
 				var _msg = console_get_message(EZ_CONSOLE_MSG.NOT_ENOUGH_PARAMS, "skin set", _args_len, 3, 3);
@@ -510,7 +513,7 @@ function console_command_base_skin(_args) {
 			break;
 					
 		case "get":
-			var _current_skin = struct_get(ezConsole_skin_list, ezConsole_skin_selected);
+			_current_skin = struct_get(ezConsole_skin_list, ezConsole_skin_selected);
 			
 			if (_args_len == 1) {
 				var _json_str = _current_skin.toJSON();
