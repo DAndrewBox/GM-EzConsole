@@ -6,6 +6,7 @@ on:
       - master
     paths:
       - "docs/**"
+  workflow_dispatch:
 
 jobs:
   sync-wiki:
@@ -19,7 +20,8 @@ jobs:
         with:
           repository: ${{ github.repository }}.wiki
           path: wiki
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # GITHUB_TOKEN has no access to the .wiki repo, so a PAT is required here.
+          token: ${{ secrets.WIKI_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Copy Docs to wiki
         run: |
