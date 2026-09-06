@@ -8,6 +8,9 @@ on:
       - "docs/**"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   sync-wiki:
     runs-on: ubuntu-latest
@@ -20,8 +23,7 @@ jobs:
         with:
           repository: ${{ github.repository }}.wiki
           path: wiki
-          # GITHUB_TOKEN has no access to the .wiki repo, so a PAT is required here.
-          token: ${{ secrets.WIKI_TOKEN || secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Copy Docs to wiki
         run: |
