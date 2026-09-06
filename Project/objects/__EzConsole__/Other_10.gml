@@ -1,7 +1,8 @@
 /// @description Setup surface
-var _surf_h = console_height - console_bar_height - (2 * console_log_ypad);
+var _surf_h = max(1, console_height - console_bar_height - (2 * console_log_ypad));
+var _surf_w = max(1, console_width - (3 * console_log_xpad));
 if (!surface_exists(console_surf)) {
-	console_surf = surface_create(console_width - (3 * console_log_xpad), _surf_h);
+	console_surf = surface_create(_surf_w, _surf_h);
 }
 
 surface_set_target(console_surf);

@@ -16,6 +16,28 @@ var _nav_right	= keyboard_check_pressed(console_key_nav_right);
 var _nav_hold_up = keyboard_check(console_key_nav_up);
 var _nav_hold_down = keyboard_check(console_key_nav_down);
 
+/*	GameMaker reports a key as "pressed" for a single frame, and its own keyboard_string
+	repeat can only ever append at the end of the line. Every path that edits the line by
+	hand (typing with the text cursor moved back, backspace/delete, moving the cursor)
+	therefore needs its own repeat beat, which this drives for whatever key is held. */
+var _hold_key		= keyboard_key;
+var _key_repeated	= false;
+
+if (_hold_key > 0 && _hold_key == console_key_hold_last) {
+	console_key_hold_t++;
+	
+	var _hold_delay	= floor(game_get_speed(gamespeed_fps) * ezConsole_prop_key_hold_delay);
+	var _hold_rate	= max(1, floor(game_get_speed(gamespeed_fps) * ezConsole_prop_key_hold_rate));
+	
+	_key_repeated = (console_key_hold_t > _hold_delay)
+				 && (((console_key_hold_t - _hold_delay) mod _hold_rate) == 0);
+} else {
+	// New key: remember which character it types, before the switch below clears it.
+	console_key_hold_last	= _hold_key;
+	console_key_hold_char	= keyboard_lastchar;
+	console_key_hold_t		= 0;
+}
+
 var _backspace_is_pressed	= false;
 var _delete_is_pressed		= false;
 
@@ -128,6 +150,45 @@ if (keyboard_check_pressed(vk_anykey)) {
 	}
 }
 
+#region // Held key auto-repeat
+/*	Only the actions GameMaker does not repeat on its own are re-fired here. Anything
+	that keyboard_string already handles (typing / backspacing at the end of the line)
+	is left alone, so a held key never registers twice. */
+if (_key_repeated) {
+	switch (_hold_key) {
+		case console_key_nav_left:
+			_nav_left = true;
+			break;
+		
+		case console_key_nav_right:
+			_nav_right = true;
+			break;
+		
+		case vk_backspace:
+		case vk_delete:
+			_backspace_is_pressed	= (_hold_key == vk_backspace);
+			_delete_is_pressed		= (_hold_key == vk_delete);
+			
+			if (console_nav_hor != 0) {
+				keyboard_string = console_text_actual;
+			}
+			break;
+		
+		default:
+			// Typing with the text cursor moved back has to insert by hand.
+			if (console_nav_hor != 0 && string_pos(console_key_hold_char, ezConsole_valid_charset) > 0) {
+				keyboard_string =
+					string_insert(
+						console_key_hold_char,
+						console_text_actual,
+						string_length(console_text_actual) + console_nav_hor + 1
+					);
+			}
+			break;
+	}
+}
+#endregion
+
 // Update text in bar
 if (keyboard_check(vk_anykey)) {
 	var _control_is_pressed = keyboard_check(vk_control);
@@ -167,32 +228,31 @@ if (keyboard_check(vk_anykey)) {
 	}
 	
 	draw_set_font(console_text_font);
-	if (string_width(console_text_start_char + keyboard_string) < (console_width - console_log_xpad - console_text_font_xoff)) {
-		console_text_actual = string_copy(keyboard_string, 1, string_length(keyboard_string));
+	// The bar scrolls horizontally, so the line is not capped to the bar width.
+	console_text_actual = string_copy(keyboard_string, 1, string_length(keyboard_string));
+	
+	var _console_text_actual_split = string_split(console_text_actual, " "); 
+	var _console_text_actual_split_len = array_length(_console_text_actual_split);
+	
+	console_typeahead_selected = min(array_length(console_typeahead_elements) - 1, console_typeahead_selected);
+	
+	if (_console_text_actual_split_len > 0 && array_length(console_typeahead_elements) > 0 && console_typeahead_selected > -1) {
+		var _console_text_last_arg_len = string_length(_console_text_actual_split[_console_text_actual_split_len - 1]);
+		console_suggestion_text = string_copy(
+			console_typeahead_elements[console_typeahead_selected],
+			_console_text_last_arg_len + 1,
+			string_length(console_typeahead_elements[console_typeahead_selected]) - _console_text_last_arg_len
+		);
 		
-		var _console_text_actual_split = string_split(console_text_actual, " "); 
-		var _console_text_actual_split_len = array_length(_console_text_actual_split);
-		
-		console_typeahead_selected = min(array_length(console_typeahead_elements) - 1, console_typeahead_selected);
-		
-		if (_console_text_actual_split_len > 0 && array_length(console_typeahead_elements) > 0 && console_typeahead_selected > -1) {
-			var _console_text_last_arg_len = string_length(_console_text_actual_split[_console_text_actual_split_len - 1]);
-			console_suggestion_text = string_copy(
-				console_typeahead_elements[console_typeahead_selected],
-				_console_text_last_arg_len + 1,
-				string_length(console_typeahead_elements[console_typeahead_selected]) - _console_text_last_arg_len
-			);
-			
-			if (ezConsole_enable_typeahead_inst_ref && string_pos(_inst_ref_split_delim, console_suggestion_text)) {
-				var _splitted_str = string_split(console_suggestion_text, _inst_ref_split_delim);
-				var _ref_number = string_digits(_splitted_str[1]);
-				var _trimmed_arg = string_trim(_splitted_str[0]);
-				var _last_kb_str_arg = array_last(string_split(keyboard_string, " "));
-				_last_kb_str_arg = string_copy(_last_kb_str_arg, 2, string_length(_last_kb_str_arg) - 2);
-							
-				_trimmed_arg += ( string_pos(":", _last_kb_str_arg) ? "" : ":" );
-				console_suggestion_text = $"{_trimmed_arg}{_ref_number}";
-			}
+		if (ezConsole_enable_typeahead_inst_ref && string_pos(_inst_ref_split_delim, console_suggestion_text)) {
+			var _splitted_str = string_split(console_suggestion_text, _inst_ref_split_delim);
+			var _ref_number = string_digits(_splitted_str[1]);
+			var _trimmed_arg = string_trim(_splitted_str[0]);
+			var _last_kb_str_arg = array_last(string_split(keyboard_string, " "));
+			_last_kb_str_arg = string_copy(_last_kb_str_arg, 2, string_length(_last_kb_str_arg) - 2);
+						
+			_trimmed_arg += ( string_pos(":", _last_kb_str_arg) ? "" : ":" );
+			console_suggestion_text = $"{_trimmed_arg}{_ref_number}";
 		}
 	}
 	

@@ -31,6 +31,7 @@ ezConsole_skin_selected	= "default-ImGui";
 #macro	ezConsole_enable_suggestions		true	// Console suggestions (autocomplete in bar)
 #macro	ezConsole_enable_typeahead			true	// Console type-ahead predictions (autocomplete on selection)
 #macro	ezConsole_enable_screenfill			true	// Console fills screen with color above everything
+#macro	ezConsole_enable_resize				true	// Console can be resized by dragging its bottom-right corner
 
 // Typeahead enhancements flags
 #macro	ezConsole_enable_typeahead_icons	true	// Console show type-ahead icons for elements
@@ -43,6 +44,11 @@ ezConsole_skin_selected	= "default-ImGui";
 #macro	ezConsole_prop_nav_scroll_speed		1		// Scroll speed ratio when using mouse wheel
 #macro	ezConsole_prop_blur_quality			3		// Quality of the Blur shader. (1: Lowest quality (Low GPU usage) | 4: Best quality (More GPU usage))
 #macro	ezConsole_prop_blur_multiplier		2.5		// Blur multiplier.
+#macro	ezConsole_prop_resize_grip			14		// Size (in px) of the bottom-right corner area that grabs a resize
+#macro	ezConsole_prop_resize_grip_outer		4		// Extra px outside the console that still counts as the resize corner
+#macro	ezConsole_prop_cursor_default		cr_default	// Cursor restored when leaving the resize corner
+#macro	ezConsole_prop_key_hold_delay		.35		// Seconds a key must be held before it starts auto-repeating in the bar
+#macro	ezConsole_prop_key_hold_rate		.03		// Seconds between each auto-repeat while the key stays held
 
 // Valid characters that can be typed on console
 #macro	ezConsole_valid_charset_letters		"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"

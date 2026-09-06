@@ -294,12 +294,17 @@ function console_add_commands_from_file(_path) {
 #endregion
 
 #region // Write on console log logic
-/// @func 	console_write_log(message, type)
+/// @func 	console_write_log(message, type, clear_input)
 /// @param	{str}	message
 /// @param	{real}	type
+/// @param	{bool}	clear_input
 /// @desc	Writes messages to the console log.
+///			`clear_input` empties the input bar, which is what a command that was
+///			just submitted wants. Logs triggered by anything else (a resize, a
+///			background system) should pass `false` so they don't eat what the user
+///			is currently typing.
 /// @ignore
-function console_write_log(_msg, _type = EZ_CONSOLE_MSG_TYPE.COMMON) {
+function console_write_log(_msg, _type = EZ_CONSOLE_MSG_TYPE.COMMON, _clear_input = true) {
 	with (ezConsole) {
 		if (script_exists(ezConsole_callback_onLog)) {
 			script_execute(ezConsole_callback_onLog);
@@ -308,8 +313,12 @@ function console_write_log(_msg, _type = EZ_CONSOLE_MSG_TYPE.COMMON) {
 		var _new_msg = new EzConsoleLog(_msg, _type);
 		ds_list_add(console_text_log, _new_msg);
 	
-		keyboard_string = "";
-		console_text_actual = "";
+		if (_clear_input) {
+			keyboard_string		= "";
+			console_text_actual	= "";
+			console_nav_hor		= 0;
+		}
+		
 		console_nav_scroll = ds_list_size(console_text_log);
 		event_user(0);
 	}
@@ -452,6 +461,51 @@ function console_save_log_to_file() {
 	}
 	
 	file_text_close(_file);
+}
+
+/// @func 	console_release_cursor()
+/// @desc	Hands the mouse cursor back, but only if the console was the one that changed it.
+/// @ignore
+function console_release_cursor() {
+	if (!ezConsole) return;
+	
+	with (ezConsole) {
+		if (!variable_instance_exists(id, "console_cursor_owned") || !console_cursor_owned) return;
+		window_set_cursor(ezConsole_prop_cursor_default);
+		console_cursor_owned = false;
+	}
+}
+
+/// @func 	console_surfaces_rebuild()
+/// @desc	Frees the console surfaces so they get rebuilt at the current console size.
+///			Must be called after anything that changes console_width / console_height.
+/// @ignore
+function console_surfaces_rebuild() {
+	if (!ezConsole) return;
+	
+	with (ezConsole) {
+		if (variable_instance_exists(id, "console_surf") && surface_exists(console_surf)) {
+			surface_free(console_surf);
+		}
+		console_surf = -1;
+		
+		if (variable_instance_exists(id, "console_blur_surf") && surface_exists(console_blur_surf)) {
+			surface_free(console_blur_surf);
+		}
+		console_blur_surf = -1;
+		
+		if (variable_instance_exists(id, "console_bar_surf") && surface_exists(console_bar_surf)) {
+			surface_free(console_bar_surf);
+		}
+		console_bar_surf = -1;
+		
+		// Log height depends on the surface size, so it has to be measured again.
+		if (variable_instance_exists(id, "console_text_log") && ds_exists(console_text_log, ds_type_list)) {
+			event_user(0);
+			console_surf_yoffset_to	= clamp(console_surf_yoffset_to, 0, max(0, console_log_total_h));
+			console_surf_yoffset	= console_surf_yoffset_to;
+		}
+	}
 }
 
 /// @func 	console_position_set_by_anchor(anchor)

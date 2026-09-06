@@ -46,7 +46,12 @@ function console_command_base_fullscreen(_args) {
 			with (ezConsole) {
 				console_width	= ezConsole_skin_current[$ "width"] * __original_window_w;
 				console_height	= ezConsole_skin_current[$ "height"] * __original_window_h;
+				
+				// The theme size is the resize floor, so it moves with the resolution.
+				console_width_min	= console_width;
+				console_height_min	= console_height;
 			}
+			console_surfaces_rebuild();
 			break;
 				
 		case "1":
@@ -56,7 +61,12 @@ function console_command_base_fullscreen(_args) {
 			with (ezConsole) {
 				console_width	= ezConsole_skin_current[$ "width"] * display_get_width();
 				console_height	= ezConsole_skin_current[$ "height"] * display_get_height();
+				
+				// The theme size is the resize floor, so it moves with the resolution.
+				console_width_min	= console_width;
+				console_height_min	= console_height;
 			}
+			console_surfaces_rebuild();
 			break;
 				
 		default:

@@ -30,11 +30,22 @@ console_drag_mouse_active	= false;
 console_drag_mouse_xoff		= 0;
 console_drag_mouse_yoff		= 0;
 
+console_resize_active		= false;
+console_resize_hover		= false;
+console_resize_xoff			= 0;
+console_resize_yoff			= 0;
+console_resize_from_w		= 0;
+console_resize_from_h		= 0;
+console_cursor_owned		= false;
+
 console_window_title		= $"GameMaker's EzConsole (v{ezConsole_version})";
 console_window_open			= true;
 
 console_text_actual			= "";
 console_text_blink_t		= 0;
+
+console_bar_surf			= -1;
+console_bar_xscroll			= 0;
 
 console_text_log			= ds_list_create();
 console_log_total_h			= 0;
@@ -42,6 +53,10 @@ console_log_total_h			= 0;
 console_surf				= -1;
 console_surf_yoffset		= 0;
 console_surf_yoffset_to		= 0;
+
+console_key_hold_last		= -1;
+console_key_hold_char		= "";
+console_key_hold_t			= 0;
 
 console_key_toggle			= ezConsole_key_toggle;
 console_key_nav_up			= ezConsole_key_nav_up;

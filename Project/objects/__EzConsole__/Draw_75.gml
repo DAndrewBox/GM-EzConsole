@@ -84,7 +84,7 @@ if (console_window_open) {
 	draw_rectangle(console_x, console_y, console_x + console_width, _bar_y + ((_bar_inset > 0) * console_bar_height), false);
 	
 	draw_set_colour(console_bar_color);
-	draw_rectangle(console_x + _bar_inset, _bar_y + _bar_inset, console_x + console_width - _bar_inset, _bar_y + console_bar_height - _bar_inset, false);
+	draw_rectangle(console_x + _bar_inset, _bar_y + _bar_inset, console_x + console_width - _bar_inset - (ezConsole_enable_resize ? ezConsole_prop_resize_grip + 2 : 0), _bar_y + console_bar_height - _bar_inset, false);
 }
 
 if (console_border_alpha > .0) {
@@ -99,6 +99,29 @@ if (console_border_alpha > .0) {
 		draw_rectangle(console_x, console_y - (_no_anchor * console_bar_height), console_x + console_width, console_y, true);
 	}
 }
+
+#region // Resize grip on the bottom-right corner
+if (ezConsole_enable_resize && console_window_open) {
+	var _corner_x	= console_x + console_width;
+	var _corner_y	= console_y + console_height;
+	var _grip_pad	= 3;
+	var _grip_lines	= 3;
+	var _grip_step	= 4;
+	
+	draw_set_alpha(1);
+	draw_set_colour(console_resize_hover ? console_bar_color_highlight : console_border_color);
+	
+	for (var i = 1; i <= _grip_lines; i++) {
+		var _len = i * _grip_step;
+		draw_line(
+			_corner_x - _grip_pad - _len, _corner_y - _grip_pad,
+			_corner_x - _grip_pad, _corner_y - _grip_pad - _len
+		);
+	}
+	
+	draw_set_alpha(1);
+}
+#endregion
 
 #region // Windowed title if no anchor
 if (console_anchor == EZ_CONSOLE_ANCHOR.NONE) {
@@ -119,40 +142,84 @@ if (console_anchor == EZ_CONSOLE_ANCHOR.NONE) {
 #endregion
 
 if (console_window_open) {
-	// Draw console bar text
+	#region // Console bar text
+	/*	The line can be longer than the bar, so it is rendered into its own surface
+		and scrolled horizontally to keep the text cursor in view. The surface also
+		stops long lines from spilling over the bar edges. */
 	draw_set_font(console_text_font);
+
+	var _console_text_x	= console_x + console_log_xpad + console_text_font_xoff;
+
+	// The resize grip sits in the bottom-right corner, so the bar has to stop short of it.
+	var _bar_pad_right	= console_log_xpad + (ezConsole_enable_resize ? ezConsole_prop_resize_grip + 2 : 0);
+	var _bar_text_w		= max(1, console_width - console_log_xpad - console_text_font_xoff - _bar_pad_right);
+	var _bar_text_h		= max(1, console_bar_height);
+
+	if (surface_exists(console_bar_surf)
+	&& (surface_get_width(console_bar_surf)  != _bar_text_w
+	||  surface_get_height(console_bar_surf) != _bar_text_h)) {
+		surface_free(console_bar_surf);
+	}
+
+	if (!surface_exists(console_bar_surf)) {
+		console_bar_surf = surface_create(_bar_text_w, _bar_text_h);
+	}
+
+	var _console_msg		= console_text_start_char + console_text_actual;
+	var _console_msg_w		= string_width(_console_msg);
+	var _console_caret_at	= clamp(string_length(console_text_actual) + console_nav_hor, 0, string_length(console_text_actual));
+	var _console_caret_x	= string_width(console_text_start_char + string_copy(console_text_actual, 1, _console_caret_at));
+	var _console_suggest	= (ezConsole_enable_suggestions ? console_suggestion_text : "");
+	var _console_total_w	= _console_msg_w + string_width(_console_suggest);
+
+	// Follow the text cursor, but never scroll past the end of the line.
+	console_bar_xscroll = min(console_bar_xscroll, _console_caret_x);
+	console_bar_xscroll = max(console_bar_xscroll, _console_caret_x - _bar_text_w + 2);
+	console_bar_xscroll = clamp(console_bar_xscroll, 0, max(0, _console_total_w - _bar_text_w + 2));
+
+	var _console_blink_char =
+		( console_text_blink_t < game_get_speed(gamespeed_fps) * .66
+		? console_text_blink_char
+		: "" );
+
+	var _surf_text_x = -console_bar_xscroll;
+	var _surf_text_y = _bar_text_h/2 + 1 + console_text_font_yoff;
+
+	surface_set_target(console_bar_surf);
+	/*	Must clear to black, not to the bar colour: the surface is composited with
+		premultiplied alpha, so any colour left in the transparent pixels is ADDED
+		on top of the bar instead of being ignored. */
+	draw_clear_alpha(c_black, .0);
+
+	/*	Premultiplied alpha: keeps the glyph edges clean on a transparent surface and
+		lets the text cursor sit on top of a character instead of punching a hole in it. */
+	gpu_set_blendmode_ext_sepalpha(bm_src_alpha, bm_inv_src_alpha, bm_one, bm_inv_src_alpha);
+
 	draw_set_alpha(console_text_alpha);
 	draw_set_colour(console_text_actual_color);
 	draw_set_halign(fa_left);
 	draw_set_valign(fa_center);
 
-	var _console_msg = console_text_actual
-	var _console_blink_char =
-		( console_text_blink_t < game_get_speed(gamespeed_fps) * .66
-		&& string_width(console_text_start_char + keyboard_string) < (console_width - console_log_xpad * 2)
-		? console_text_blink_char
-		: "" );
-	var _console_text_x = console_x + console_log_xpad + console_text_font_xoff;
-	var _console_text_y = _bar_y + console_bar_height/2 + 1 + console_text_font_yoff;
+	draw_text(_surf_text_x, _surf_text_y, _console_msg);
 
-	draw_text(_console_text_x, _console_text_y, console_text_start_char + _console_msg);
+	if (_console_suggest != "") {
+		draw_set_alpha(console_text_alpha * .50);
+		draw_text(_surf_text_x + _console_msg_w, _surf_text_y, _console_suggest);
+		draw_set_alpha(console_text_alpha);
+	}
 
 	if (_console_blink_char != "") {
-		var _console_blink_char_xoff =
-			string_width(console_text_start_char + _console_msg) + (console_nav_hor * string_width("M"));
-		draw_text(_console_text_x + _console_blink_char_xoff, _console_text_y, _console_blink_char);
+		draw_text(_surf_text_x + _console_caret_x, _surf_text_y, _console_blink_char);
 	}
 
-	// Draw console bar text suggestion
-	if (ezConsole_enable_suggestions && console_suggestion_text != "") {
-		var _console_text_w = string_width(console_text_start_char + console_text_actual);
-		draw_set_alpha(console_text_alpha * .50);
-		draw_text(	_console_text_x + _console_text_w,
-					_console_text_y,
-					console_suggestion_text);
-				
-		draw_set_alpha(1);
-	}
+	gpu_set_blendmode(bm_normal);
+	surface_reset_target();
+
+	draw_set_alpha(1);
+	gpu_set_blendmode_ext(bm_one, bm_inv_src_alpha);
+	draw_surface(console_bar_surf, _console_text_x, _bar_y + (console_bar_height - _bar_text_h)/2);
+	gpu_set_blendmode(bm_normal);
+	#endregion
 
 	// Draw text in console
 	if !(surface_exists(console_surf)) {
@@ -189,7 +256,7 @@ if (console_window_open) {
 	// Draw typeahed
 	var _typeahead_max_len = array_length(console_typeahead_elements);
 	if (ezConsole_enable_typeahead && console_typeahead_show && _typeahead_max_len > 0) {
-		var _typeahead_xoff = string_width(" " + string_copy(console_text_actual, 1, string_last_pos(" ", console_text_actual)));
+		var _typeahead_xoff = max(0, string_width(" " + string_copy(console_text_actual, 1, string_last_pos(" ", console_text_actual))) - console_bar_xscroll);
 	
 		var _bar_on_bottom = _bar_y > window_get_height() / 2;
 		var _typeahead_len = min(_typeahead_max_len, console_typeahead_elements_max) + console_typeahead_selected_yoff;

@@ -15,5 +15,13 @@ for (var i = 0; i < _log_len; i++) {
 // Destroy data struct
 ds_list_destroy(console_text_log);
 
-// Free surface from memory
-surface_free(console_surf);
+// Free surfaces from memory
+if (surface_exists(console_surf))		surface_free(console_surf);
+if (surface_exists(console_blur_surf))	surface_free(console_blur_surf);
+if (surface_exists(console_bar_surf))	surface_free(console_bar_surf);
+
+// Give the mouse cursor back if the resize corner was still holding it
+if (console_cursor_owned) {
+	window_set_cursor(ezConsole_prop_cursor_default);
+	console_cursor_owned = false;
+}

@@ -2,6 +2,11 @@
 console_width	= console_skin_get_width(ezConsole_skin_current[$ "width"]);
 console_height	= console_skin_get_height(ezConsole_skin_current[$ "height"]);
 
+/* The size the theme asks for is also the smallest the console may be shrunk to
+   by a manual resize. Reloading a skin drops any manual resize. */
+console_width_min	= console_width;
+console_height_min	= console_height;
+
 console_anchor	= ezConsole_skin_current[$ "anchor"];
 console_position_set_by_anchor(console_anchor);
 
@@ -35,3 +40,6 @@ console_screenfill_alpha		= ezConsole_skin_current[$ "screenfill_alpha"];
 console_screenfill_color		= __ezConsole_dep_hex_to_dec(ezConsole_skin_current[$ "screenfill_color"]);
 
 console_blur_amount				= ezConsole_skin_current[$ "blur_amount"];
+
+// Surfaces are sized from the props above, so rebuild them last.
+console_surfaces_rebuild();
