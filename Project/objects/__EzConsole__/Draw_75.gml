@@ -8,8 +8,8 @@ var _bar_y = console_y + console_height - console_bar_height;
 
 draw_set_alpha(1);
 
-// Draw drop-shadow if window mode
-if (console_anchor == EZ_CONSOLE_ANCHOR.NONE) {
+// Draw drop-shadow if window mode (only the focused console casts one)
+if (console_anchor == EZ_CONSOLE_ANCHOR.NONE && console_focused) {
 	var _offset = console_bar_height / 2;
 	var _height = (console_height * console_window_open) + console_bar_height + (2 * _offset);
 	
@@ -20,7 +20,7 @@ if (console_anchor == EZ_CONSOLE_ANCHOR.NONE) {
 		console_width + (2 * _offset),
 		_height,
 		c_white,
-		.80
+		.50
 	);
 }
 
@@ -90,7 +90,7 @@ if (console_window_open) {
 if (console_border_alpha > .0) {
 	var _no_anchor = console_anchor == EZ_CONSOLE_ANCHOR.NONE;
 	draw_set_alpha(console_border_alpha);
-	draw_set_colour(console_window_open ? console_border_color : console_bar_color_highlight);
+	draw_set_colour(console_focused ? console_bar_color_highlight : console_border_color);
 	
 	if (console_window_open) {
 		draw_rectangle(console_x, console_y - (_no_anchor * console_bar_height), console_x + console_width, _bar_y + console_bar_height, true);
@@ -143,9 +143,6 @@ if (console_anchor == EZ_CONSOLE_ANCHOR.NONE) {
 
 if (console_window_open) {
 	#region // Console bar text
-	/*	The line can be longer than the bar, so it is rendered into its own surface
-		and scrolled horizontally to keep the text cursor in view. The surface also
-		stops long lines from spilling over the bar edges. */
 	draw_set_font(console_text_font);
 
 	var _console_text_x	= console_x + console_log_xpad + console_text_font_xoff;
@@ -178,7 +175,7 @@ if (console_window_open) {
 	console_bar_xscroll = clamp(console_bar_xscroll, 0, max(0, _console_total_w - _bar_text_w + 2));
 
 	var _console_blink_char =
-		( console_text_blink_t < game_get_speed(gamespeed_fps) * .66
+		( console_focused && console_text_blink_t < game_get_speed(gamespeed_fps) * .66
 		? console_text_blink_char
 		: "" );
 
@@ -186,9 +183,6 @@ if (console_window_open) {
 	var _surf_text_y = _bar_text_h/2 + 1 + console_text_font_yoff;
 
 	surface_set_target(console_bar_surf);
-	/*	Must clear to black, not to the bar colour: the surface is composited with
-		premultiplied alpha, so any colour left in the transparent pixels is ADDED
-		on top of the bar instead of being ignored. */
 	draw_clear_alpha(c_black, .0);
 
 	/*	Premultiplied alpha: keeps the glyph edges clean on a transparent surface and

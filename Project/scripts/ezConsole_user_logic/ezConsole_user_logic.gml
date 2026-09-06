@@ -71,6 +71,7 @@ function ezConsole_set_visible() {
 		keyboard_lastkey = noone;
 		keyboard_string = "";
 		_console.console_text_actual = "";
+		_console.console_focused = true;
 		visible = true;
 		
 		if (script_exists(ezConsole_callback_onOpen)) {
@@ -86,6 +87,7 @@ function ezConsole_set_invisible() {
     if (!_console) return;
     
 	_console.visible = false;
+	_console.console_focused = false;
 	_console.console_resize_active = false;
 	console_release_cursor();
     

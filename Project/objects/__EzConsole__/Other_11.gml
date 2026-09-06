@@ -2,8 +2,6 @@
 console_width	= console_skin_get_width(ezConsole_skin_current[$ "width"]);
 console_height	= console_skin_get_height(ezConsole_skin_current[$ "height"]);
 
-/* The size the theme asks for is also the smallest the console may be shrunk to
-   by a manual resize. Reloading a skin drops any manual resize. */
 console_width_min	= console_width;
 console_height_min	= console_height;
 

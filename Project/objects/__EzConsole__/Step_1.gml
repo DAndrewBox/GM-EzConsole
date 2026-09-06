@@ -12,6 +12,35 @@ var _mouse_gui_y	= display_mouse_get_y() - window_get_y();
 var _mouse_press	= mouse_check_button_pressed(mb_left);
 var _mouse_hold		= mouse_check_button(mb_left);
 
+#region // Focus
+/*	Clicking anywhere on the console focuses it, clicking outside drops the focus.
+	Only a focused console reacts to the keyboard. */
+if (_mouse_press) {
+	var _focus_pad	= (ezConsole_enable_resize ? ezConsole_prop_resize_grip_outer : 0);
+	var _focus_y1	= console_y - (console_anchor == EZ_CONSOLE_ANCHOR.NONE ? console_bar_height : 0);
+	var _focus_y2	= (console_window_open ? console_y + console_height + _focus_pad : console_y);
+	var _was_focused = console_focused;
+	
+	console_focused = point_in_rectangle(
+		_mouse_gui_x, _mouse_gui_y,
+		console_x, _focus_y1,
+		console_x + console_width + _focus_pad, _focus_y2
+	);
+	
+	if (console_focused != _was_focused) {
+		if (console_focused) {
+			keyboard_string		= console_text_actual;
+			keyboard_lastchar	= "";
+			keyboard_lastkey	= vk_nokey;
+		} else {
+			console_typeahead_show		= false;
+			console_typeahead_selected	= -1;
+			console_suggestion_text		= "";
+		}
+	}
+}
+#endregion
+
 #region // Resize by the bottom-right corner
 console_resize_hover = false;
 

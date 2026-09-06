@@ -8,6 +8,12 @@ if (!visible) {
 // Don't do anything if window close
 if (!console_window_open) exit;
 
+// The toggle key works whether the console is focused or not.
+if (keyboard_check_pressed(console_key_toggle)) {
+	ezConsole_set_invisible();
+	exit;
+}
+
 var _nav_up		= keyboard_check_pressed(console_key_nav_up);
 var _nav_down	= keyboard_check_pressed(console_key_nav_down);
 var _nav_left	= keyboard_check_pressed(console_key_nav_left);
@@ -16,10 +22,6 @@ var _nav_right	= keyboard_check_pressed(console_key_nav_right);
 var _nav_hold_up = keyboard_check(console_key_nav_up);
 var _nav_hold_down = keyboard_check(console_key_nav_down);
 
-/*	GameMaker reports a key as "pressed" for a single frame, and its own keyboard_string
-	repeat can only ever append at the end of the line. Every path that edits the line by
-	hand (typing with the text cursor moved back, backspace/delete, moving the cursor)
-	therefore needs its own repeat beat, which this drives for whatever key is held. */
 var _hold_key		= keyboard_key;
 var _key_repeated	= false;
 
@@ -48,7 +50,7 @@ console_text_blink_t = ( console_text_blink_t > game_get_speed(gamespeed_fps) * 
 console_surf_yoffset = lerp(console_surf_yoffset, console_surf_yoffset_to, .16);
 
 // Do actions
-if (keyboard_check_pressed(vk_anykey)) {
+if (console_focused && keyboard_check_pressed(vk_anykey)) {
 	switch (keyboard_lastkey) {
 		case ezConsole_key_send_line:
 			#region // Send command
@@ -100,10 +102,6 @@ if (keyboard_check_pressed(vk_anykey)) {
 			}
 			break;
 			
-		case console_key_toggle: // toggle console on/off
-			ezConsole_set_invisible();
-			break;
-			
 		case vk_backspace:
 		case vk_delete:
 			_backspace_is_pressed = keyboard_check_pressed(vk_backspace);
@@ -151,10 +149,7 @@ if (keyboard_check_pressed(vk_anykey)) {
 }
 
 #region // Held key auto-repeat
-/*	Only the actions GameMaker does not repeat on its own are re-fired here. Anything
-	that keyboard_string already handles (typing / backspacing at the end of the line)
-	is left alone, so a held key never registers twice. */
-if (_key_repeated) {
+if (console_focused && _key_repeated) {
 	switch (_hold_key) {
 		case console_key_nav_left:
 			_nav_left = true;
@@ -190,7 +185,7 @@ if (_key_repeated) {
 #endregion
 
 // Update text in bar
-if (keyboard_check(vk_anykey)) {
+if (console_focused && keyboard_check(vk_anykey)) {
 	var _control_is_pressed = keyboard_check(vk_control);
 	
 	if (_control_is_pressed) {
@@ -320,7 +315,9 @@ if (keyboard_check(vk_anykey)) {
 var _mouse_x = display_mouse_get_x() - window_get_x();
 var _mouse_y = display_mouse_get_y() - window_get_y();
 
-if (_mouse_x >= console_x && _mouse_x <= console_x + console_width) && (_mouse_y >= console_y && _mouse_y <= console_y + console_height) {
+if (console_focused
+&& (_mouse_x >= console_x && _mouse_x <= console_x + console_width)
+&& (_mouse_y >= console_y && _mouse_y <= console_y + console_height)) {
 	var _mouse_wheel_up = mouse_wheel_up();
 	var _mouse_wheel_down = mouse_wheel_down();
 	
@@ -337,7 +334,7 @@ if (_mouse_x >= console_x && _mouse_x <= console_x + console_width) && (_mouse_y
 
 // Navigation with keys
 var _log_len = ds_list_size(console_text_log);
-if (_log_len > 0) {
+if (console_focused && _log_len > 0) {
 	if (_nav_hold_up || _nav_hold_down) {
 		console_typeahead_nav_t++;
 	} else {

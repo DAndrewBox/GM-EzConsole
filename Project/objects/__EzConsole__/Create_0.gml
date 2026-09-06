@@ -40,6 +40,7 @@ console_cursor_owned		= false;
 
 console_window_title		= $"GameMaker's EzConsole (v{ezConsole_version})";
 console_window_open			= true;
+console_focused				= ezConsole_prop_start_open;
 
 console_text_actual			= "";
 console_text_blink_t		= 0;
