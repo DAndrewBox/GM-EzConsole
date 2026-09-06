@@ -19,10 +19,11 @@ function EzConsoleLog(_msg, _type = EZ_CONSOLE_MSG_TYPE.COMMON) constructor {
 /// @desc	Used to create a new ezConsole command
 function EzConsoleCommand(_name, _alias = "", _desc = "", _cb = -1, _args = []) constructor {
 	name		= _name;
-	alias		= _alias;
-	desc		= _desc;
-	callback	= _cb;
+	alias		= _alias ?? "";
+	desc		= _desc ?? "";
+	callback	= _cb ?? -1;
 	
+	_args		= _args ?? [];
 	var _args_len = array_length(_args);
 	args		= array_create(_args_len, "");
 	args_desc	= array_create(_args_len, "");

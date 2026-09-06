@@ -2,8 +2,8 @@
 if !(visible) exit;
 display_set_gui_maximize();
 
-var _gui_w = display_get_width();
-var _gui_h = display_get_height();
+var _gui_w = display_get_gui_width();
+var _gui_h = display_get_gui_height();
 var _bar_y = console_y + console_height - console_bar_height;
 
 draw_set_alpha(1);
@@ -34,21 +34,40 @@ if (ezConsole_enable_screenfill && console_window_open) {
 // Draw blurred background
 if (console_window_open && ezConsole_enable_blur && surface_exists(application_surface)) {
 	draw_set_alpha(1);
+	
+	/* [Bugfix EZC-3]
+		Blur surface kept its old size after the console was resized.
+	*/
+	if (surface_exists(console_blur_surf)
+	&& (surface_get_width(console_blur_surf) != console_width
+	||  surface_get_height(console_blur_surf) != console_height)) {
+		surface_free(console_blur_surf);
+	}
+	
 	if (!surface_exists(console_blur_surf)) {
 		console_blur_surf = surface_create(console_width, console_height);
 	}
+	
+	/* [Bugfix EZC-4]
+		Blur always grabbed the top-left corner of the application surface
+		instead of the region behind the console. The console rect lives in GUI
+		space, so it has to be converted to application surface space first.
+	*/
+	var _app_xscale = surface_get_width(application_surface) / max(1, _gui_w);
+	var _app_yscale = surface_get_height(application_surface) / max(1, _gui_h);
+	
 	surface_set_target(console_blur_surf);
 	draw_clear_alpha(console_bg_color, .0);
 	draw_surface_part_ext(
 		application_surface,
+		console_x * _app_xscale,
+		console_y * _app_yscale,
+		console_width * _app_xscale,
+		console_height * _app_yscale,
 		0,
 		0,
-		console_width,
-		console_height - 1,
-		-console_x,
-		-console_y,
-		(_gui_w / __original_window_w) - 1,
-		(_gui_h / __original_window_h) - 1,
+		1 / _app_xscale,
+		1 / _app_yscale,
 		-1,
 		1
 	);
@@ -150,17 +169,21 @@ if (console_window_open) {
 		var _sidebar_cursor_h = max(1, (_sidebar_max_h / 3) * (_sidebar_max_h / console_log_total_h));
 		draw_set_alpha(console_bg_alpha);
 		draw_set_color(console_bg_color);
-		draw_rectangle(_sidebar_x - 1,
-					   _sidebar_y,
+		draw_roundrect_ext(_sidebar_x - 1,
+					   round(_sidebar_y),
 					   _sidebar_x + 1,
-					   _sidebar_y + _sidebar_max_h,
+					   round(_sidebar_y + _sidebar_max_h),
+                       8,
+                       8,
 					   false);
 		draw_set_color(console_text_actual_color);
-		draw_rectangle(_sidebar_x - 2,
-					   _sidebar_y + max(0, (console_surf_yoffset/console_log_total_h * (_sidebar_max_h - _sidebar_cursor_h))),
+		draw_roundrect_ext(_sidebar_x - 2,
+					   round(_sidebar_y + max(0, (console_surf_yoffset/console_log_total_h * (_sidebar_max_h - _sidebar_cursor_h)))),
 					   _sidebar_x + 2,
-					   _sidebar_y + min(_sidebar_max_h, (console_surf_yoffset/console_log_total_h * (_sidebar_max_h - _sidebar_cursor_h)) + _sidebar_cursor_h),
-					   false);
+					   round(_sidebar_y + min(_sidebar_max_h, (console_surf_yoffset/console_log_total_h * (_sidebar_max_h - _sidebar_cursor_h)) + _sidebar_cursor_h)),
+					   8,
+                       8,
+                       false);
 	}
 
 	// Draw typeahed

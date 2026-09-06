@@ -40,7 +40,7 @@ call_later(1, time_source_units_frames, function () {
 	);
 	
 	new EzConsoleCommand(
-		"help",,
+		"help", "",
 		"Show help about commands.",
 		console_command_base_help,
 		[
@@ -53,7 +53,7 @@ call_later(1, time_source_units_frames, function () {
 	);
 	
 	new EzConsoleCommand(
-		"create",,
+		"create", "",
 		"Creates an instance on position.",
 		console_command_base_create,
 		[
@@ -97,7 +97,7 @@ call_later(1, time_source_units_frames, function () {
 	);
 	
 	new EzConsoleCommand(
-		"set",,
+		"set", "",
 		"Set a new value to a variable on an instance",
 		console_command_base_instance_set,
 		[
@@ -121,7 +121,7 @@ call_later(1, time_source_units_frames, function () {
 	);
 	
 	new EzConsoleCommand(
-		"get",,
+		"get", "",
 		"Get the value of a variable on an instance",
 		console_command_base_instance_get,
 		[
@@ -162,7 +162,7 @@ call_later(1, time_source_units_frames, function () {
 	);
 	
 	new EzConsoleCommand(
-		"fps",,
+		"fps", "",
 		"Show FPS on screen.",
 		console_command_base_fps,
 		[
@@ -176,7 +176,7 @@ call_later(1, time_source_units_frames, function () {
 	);
 	
 	new EzConsoleCommand(
-		"debug_view",,
+		"debug_view", "",
 		"Enables the debug view.",
 		console_command_base_debug_overlay,
 		[
@@ -190,7 +190,7 @@ call_later(1, time_source_units_frames, function () {
 	);
 	
 	new EzConsoleCommand(
-		"goto",,
+		"goto", "",
 		"Go to a new room.",
 		console_command_base_goto,
 		[

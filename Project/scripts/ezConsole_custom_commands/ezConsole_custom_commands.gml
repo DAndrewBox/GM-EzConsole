@@ -2,7 +2,7 @@
 call_later(1, time_source_units_frames, function () {
 	#region // Use `new EzConsoleCommand()` below		
 	new EzConsoleCommand(
-		"types",,
+		"types", "",
 		"Check types",
 		function (_args) {
 			show_message(_args);

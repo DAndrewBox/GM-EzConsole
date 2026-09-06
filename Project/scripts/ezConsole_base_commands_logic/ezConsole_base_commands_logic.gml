@@ -81,9 +81,10 @@ function console_command_base_help(_args) {
 		return -1;
 	}
 	
-	var _console_comands = ezConsole_commands;
+	var _console_comands = variable_clone(ezConsole_commands);
+	
 	array_sort(_console_comands, function (_elem_a, _elem_b) {
-		return (_elem_a.name > _elem_b.name);
+		return (_elem_a.name > _elem_b.name) - (_elem_a.name < _elem_b.name);
 	})
 	
 	if (_params_len == 0) {
