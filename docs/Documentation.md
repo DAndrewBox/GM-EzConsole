@@ -28,10 +28,12 @@ This is the offline version of the official and up-to-date documentation for **G
   - [ezConsole\_info](#ezconsole_info)
   - [ezConsole\_is\_open](#ezconsole_is_open-)
   - [ezConsole\_is\_visible](#ezconsole_is_visible-)
+  - [ezConsole\_is\_focused](#ezconsole_is_focused-)
   - [ezConsole\_set\_visible](#ezconsole_set_visible-)
   - [ezConsole\_set\_invisible](#ezconsole_set_invisible-)
 - [Console Window](#console-window-)
   - [Focus](#focus-)
+  - [Draw order](#draw-order)
   - [Resizing](#resizing-)
   - [Scrolling](#scrolling-)
   - [Copying from the log](#copying-from-the-log-)
@@ -405,6 +407,18 @@ ezConsole_is_visible() -> Boolean
 
 ---
 
+### ezConsole_is_focused ![](https://img.shields.io/badge/v1.4.0-ffd200?style=flat)
+Check whether the console currently holds the keyboard. Returns a boolean.
+
+Only a focused console reads input, so this is what to test before letting your own code react
+to a key the console might be consuming.
+
+```ts
+ezConsole_is_focused() -> Boolean
+```
+
+---
+
 ### ezConsole_set_visible ![](https://img.shields.io/badge/v1.3.0-ffd200?style=flat)
 
 Set the console to be visible.
@@ -451,11 +465,32 @@ While focused the console draws its drop shadow and highlights its border with t
 Anything typed while the console is unfocused is discarded when it regains focus, so a stray
 keystroke never shows up in the bar later.
 
+### Draw order
+
+The console renders in the **Post Draw** event at `ezConsole_prop_depth` (`-10000`), so it is
+the last instance drawn within that event and sits above everything drawn in the regular Draw
+events.
+
+> [!IMPORTANT]
+> Post Draw runs *before* the Draw GUI events. Anything your game draws in Draw GUI, Draw GUI
+> Begin or Draw GUI End is therefore painted **on top of** the console, and is not covered by
+> it or picked up by its background blur. Draw those elements in a regular Draw event if they
+> should sit under the console.
+
+The blur samples `application_surface`, which holds the regular Draw output only. That is the
+same reason GUI-drawn content is never blurred.
+
 ### Resizing ![](https://img.shields.io/badge/v1.4.0-ffd200?style=flat)
 
 Dragging the bottom-right corner resizes the console. The cursor turns into `cr_size_nwse`
 while the corner is under the mouse or being dragged, and the corner itself is marked with a
 small grip.
+
+> [!NOTE]
+> The console remembers the cursor it found before taking it over and restores exactly that,
+> so a game drawing its own cursor (usually via `cr_none`) is not left with the default arrow.
+> Set `ezConsole_enable_cursor_change` to `false` to stop the console touching the cursor at
+> all - resizing still works, only the cursor stops changing.
 
 - The **minimum** size is whatever size the current theme asks for, so a console can never be
   shrunk below its theme.

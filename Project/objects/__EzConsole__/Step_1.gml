@@ -95,11 +95,19 @@ if (ezConsole_enable_resize && console_window_open) {
 }
 
 // Only touch the cursor while the console actually owns it.
-if (console_resize_hover) {
-	window_set_cursor(cr_size_nwse);
-	console_cursor_owned = true;
-} else {
-	console_release_cursor();
+if (ezConsole_enable_cursor_change) {
+	if (console_resize_hover) {
+		/*	Remember what the cursor was before taking it, so a game drawing its own cursor
+			(usually with cr_none) gets that state back instead of the default arrow. */
+		if (!console_cursor_owned) {
+			console_cursor_previous	= window_get_cursor();
+			console_cursor_owned	= true;
+		}
+		
+		window_set_cursor(cr_size_nwse);
+	} else {
+		console_release_cursor();
+	}
 }
 #endregion
 

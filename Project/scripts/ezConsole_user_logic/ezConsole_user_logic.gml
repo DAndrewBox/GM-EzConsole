@@ -60,6 +60,17 @@ function ezConsole_is_visible() {
 	return _console && _console.visible;
 }
 
+/// @func 	ezConsole_is_focused()
+/// @desc	Checks whether the console currently holds the keyboard. Returns a boolean.
+///			Only a focused console reads input, so this is what to test before letting your
+///			own code react to a key the console might be consuming.
+function ezConsole_is_focused() {
+	var _console = ezConsole;
+	if (!_console) return false;
+	
+	return (_console.visible && _console.console_focused);
+}
+
 /// @func 	ezConsole_set_visible()
 /// @desc	Sets the console to be visible based on user interaction.
 function ezConsole_set_visible() {

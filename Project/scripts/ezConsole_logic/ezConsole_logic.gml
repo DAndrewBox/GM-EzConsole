@@ -973,10 +973,17 @@ function console_target_variable_set(_target, _variable, _value) {
 /// @ignore
 function console_release_cursor() {
 	if (!ezConsole) return;
+	if (!ezConsole_enable_cursor_change) return;
 	
 	with (ezConsole) {
 		if (!variable_instance_exists(id, "console_cursor_owned") || !console_cursor_owned) return;
-		window_set_cursor(ezConsole_prop_cursor_default);
+		
+		// Hand back whatever the cursor was, not a hardcoded default.
+		window_set_cursor(
+			variable_instance_exists(id, "console_cursor_previous")
+			? console_cursor_previous
+			: ezConsole_prop_cursor_default
+		);
 		console_cursor_owned = false;
 	}
 }

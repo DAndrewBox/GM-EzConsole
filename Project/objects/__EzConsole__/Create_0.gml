@@ -37,6 +37,7 @@ console_resize_yoff			= 0;
 console_resize_from_w		= 0;
 console_resize_from_h		= 0;
 console_cursor_owned		= false;
+console_cursor_previous		= ezConsole_prop_cursor_default;
 
 console_window_title		= $"GameMaker's EzConsole (v{ezConsole_version})";
 console_window_open			= true;

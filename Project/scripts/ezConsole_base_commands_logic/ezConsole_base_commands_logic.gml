@@ -663,7 +663,14 @@ function console_command_base_debug_overlay(_args) {
 /// @param	{array}	args
 /// @desc	Toggle or set and set debug overlay on screen
 function console_command_base_goto(_args) {
-	room_goto(asset_get_index(_args[0]));
+    var _room = asset_get_index(_args[0]);
+    
+    if (!_room || asset_get_type(_room) != asset_room) {
+        ezConsole_error($"Room with name {_args[0]} does not exist!");
+		return;
+    }
+    
+    room_goto(_room);
 }
 
 /// @func	console_command_base_skin(args)
@@ -726,10 +733,8 @@ function console_command_base_skin(_args) {
 /// @param	{array}	args
 /// @desc	Shows the console, runtime and platform versions
 function console_command_base_version(_args) {
-	/*	Left on the IDE output as well as the console: the point of this command is to be
-		pasted into a bug report. */
-	ezConsole_info($"=== GM EzConsole v{ezConsole_version} ===");
-	ezConsole_info(__ezConsole_dep_string_pad("GameMaker", 16) + string(GM_version), false, false);
+    ezConsole_info(__ezConsole_dep_string_pad("EzConsole Version", 16) + string(ezConsole_version), false, false);
+	ezConsole_info(__ezConsole_dep_string_pad("Game Version", 16) + string(GM_version), false, false);
 	ezConsole_info(__ezConsole_dep_string_pad("Runtime", 16) + string(GM_runtime_version), false, false);
 	ezConsole_info(__ezConsole_dep_string_pad("Platform", 16) + __ezConsole_dep_get_os_name(), false, false);
 	

@@ -103,6 +103,7 @@ The following table shows the available configurations and their default values:
 | `ezConsole_enable_resize`             | If `true`, the console can be resized by dragging its bottom-right corner.                  | `true`                     |
 | `ezConsole_enable_log_copy`           | If `true`, clicking a log line copies it to the clipboard.                                  | `true`                     |
 | `ezConsole_enable_middle_paste`       | If `true`, the middle mouse button pastes the clipboard into the bar.                       | `true`                     |
+| `ezConsole_enable_cursor_change`      | If `true`, the console may change the mouse cursor. Turn off if your game draws its own.    | `true`                     |
 | `ezConsole_enable_typeahead_icons`    | If `true`, the console will show icons for the type-ahead suggestions.                      | `true`                     |
 | `ezConsole_enable_typeahead_inst_ref` | If `true`, the console will show instance reference index for the type-ahead suggestions.   | `true`                     |
 | `ezConsole_prop_depth`                | The depth of the console.                                                                   | `-10000`                   |
@@ -113,7 +114,7 @@ The following table shows the available configurations and their default values:
 | `ezConsole_prop_blur_multiplier`      | The multiplier of the blur effect.                                                          | `2.5`                      |
 | `ezConsole_prop_resize_grip`          | Size in pixels of the bottom-right corner area that grabs a resize.                         | `14`                       |
 | `ezConsole_prop_resize_grip_outer`    | Extra pixels outside the console that still count as the resize corner.                     | `4`                        |
-| `ezConsole_prop_cursor_default`       | The cursor restored when the mouse leaves the resize corner.                                | `cr_default`               |
+| `ezConsole_prop_cursor_default`       | Fallback cursor, used only if the console never captured one to restore.                    | `cr_default`               |
 | `ezConsole_prop_key_hold_delay`       | Seconds a key must be held before it starts auto-repeating in the bar.                      | `.35`                      |
 | `ezConsole_prop_key_hold_rate`        | Seconds between each auto-repeat while the key stays held.                                  | `.03`                      |
 | `ezConsole_prop_scrollbar_grab`       | Half-width in pixels of the area that grabs the log scrollbar.                              | `6`                        |

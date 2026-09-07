@@ -34,6 +34,7 @@ ezConsole_skin_selected	= "default-ImGui";
 #macro	ezConsole_enable_resize				true	// Console can be resized by dragging its bottom-right corner
 #macro	ezConsole_enable_log_copy			true	// Clicking a log line copies it to the clipboard
 #macro	ezConsole_enable_middle_paste		true	// Middle mouse button pastes the clipboard into the bar
+#macro	ezConsole_enable_cursor_change		true	// Console may change the mouse cursor (turn off if your game draws its own)
 
 // Typeahead enhancements flags
 #macro	ezConsole_enable_typeahead_icons	true	// Console show type-ahead icons for elements
