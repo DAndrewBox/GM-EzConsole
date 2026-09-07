@@ -588,6 +588,8 @@ function console_command_base_clear(_args) {
 		ds_list_clear(console_text_log);
 		console_log_total_h = 0;
 		console_nav_scroll = 0;
+		console_log_copied_index = -1;
+		console_log_copied_t = 0;
 		console_surf_yoffset = 0;
 		console_surf_yoffset_to = 0;
 	}

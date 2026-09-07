@@ -100,6 +100,8 @@ The following table shows the available configurations and their default values:
 | `ezConsole_enable_typeahead`          | If `true`, the console will show type-ahead suggestions for the commands.                   | `true`                      |
 | `ezConsole_enable_screenfill`         | If `true`, the console will fill the entire screen with a color when the console is opened. | `true`                      |
 | `ezConsole_enable_resize`             | If `true`, the console can be resized by dragging its bottom-right corner.                  | `true`                      |
+| `ezConsole_enable_log_copy`           | If `true`, clicking a log line copies it to the clipboard.                                  | `true`                      |
+| `ezConsole_enable_middle_paste`       | If `true`, the middle mouse button pastes the clipboard into the bar.                       | `true`                      |
 | `ezConsole_enable_typeahead_icons`    | If `true`, the console will show icons for the type-ahead suggestions.                      | `true`                      |
 | `ezConsole_enable_typeahead_inst_ref` | If `true`, the console will show instance reference index for the type-ahead suggestions.   | `true`                      |
 | `ezConsole_prop_depth`                | The depth of the console.                                                                   | `-10000`                    |
@@ -113,6 +115,9 @@ The following table shows the available configurations and their default values:
 | `ezConsole_prop_cursor_default`       | The cursor restored when the mouse leaves the resize corner.                                | `cr_default`                |
 | `ezConsole_prop_key_hold_delay`       | Seconds a key must be held before it starts auto-repeating in the bar.                      | `.35`                       |
 | `ezConsole_prop_key_hold_rate`        | Seconds between each auto-repeat while the key stays held.                                  | `.03`                       |
+| `ezConsole_prop_scrollbar_grab`       | Half-width in pixels of the area that grabs the log scrollbar.                              | `6`                         |
+| `ezConsole_prop_log_copy_flash`       | Seconds a copied log line stays highlighted.                                                | `.60`                       |
+| `ezConsole_prop_notice_time`          | Seconds a notice stays next to the console title.                                           | `1.50`                      |
 | `ezConsole_autocreate`                | If `true`, the console will be created automatically when the game starts.                  | `true`                      |
 | `ezConsole_key_toggle`                | The key to toggle the console.                                                              | `vk_f1`                     |
 | `ezConsole_key_nav_up`                | The key to navigate up in the console.                                                      | `vk_up`                     |

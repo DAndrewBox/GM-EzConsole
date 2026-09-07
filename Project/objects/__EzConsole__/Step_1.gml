@@ -103,6 +103,124 @@ if (console_resize_hover) {
 }
 #endregion
 
+#region // Scrollbar dragging
+console_scroll_hover = false;
+
+var _scrollbar = console_get_scrollbar();
+
+if (!is_undefined(_scrollbar) && !console_resize_active && !console_drag_mouse_active) {
+	var _grab		= ezConsole_prop_scrollbar_grab;
+	var _thumb_y	= console_get_scrollbar_thumb_y(_scrollbar, console_surf_yoffset_to);
+	
+	var _on_track = point_in_rectangle(
+		_mouse_gui_x, _mouse_gui_y,
+		_scrollbar.x - _grab, _scrollbar.track_y,
+		_scrollbar.x + _grab, _scrollbar.track_y + _scrollbar.track_h
+	);
+	
+	console_scroll_hover = (_on_track || console_scroll_drag_active);
+	
+	if (!console_scroll_drag_active && _mouse_press && _on_track) {
+		var _on_thumb = point_in_rectangle(
+			_mouse_gui_x, _mouse_gui_y,
+			_scrollbar.x - _grab, _thumb_y,
+			_scrollbar.x + _grab, _thumb_y + _scrollbar.thumb_h
+		);
+		
+		/*	Grabbing the thumb keeps the log still under the cursor. Clicking the bare
+			track jumps instead, centring the thumb on the click. */
+		console_scroll_drag_active	= true;
+		console_scroll_drag_yoff	= (_on_thumb ? _mouse_gui_y - _thumb_y : _scrollbar.thumb_h / 2);
+	}
+}
+
+if (console_scroll_drag_active) {
+	if (is_undefined(_scrollbar) || !_mouse_hold) {
+		console_scroll_drag_active = false;
+	} else {
+		var _travelled	= (_mouse_gui_y - console_scroll_drag_yoff) - _scrollbar.track_y;
+		var _offset_to	= clamp(_travelled / _scrollbar.travel, 0, 1) * console_log_total_h;
+		
+		if (_offset_to != console_surf_yoffset_to) {
+			console_surf_yoffset_to	= _offset_to;
+			// Track the cursor exactly rather than easing behind it while dragging.
+			console_surf_yoffset	= _offset_to;
+			event_user(0);
+		}
+	}
+}
+#endregion
+
+#region // Click a log line to copy it
+/*	The scrollbar sits inside the log viewport, so it gets first refusal on the click. */
+if (ezConsole_enable_log_copy
+&& _mouse_press
+&& !console_scroll_hover
+&& !console_scroll_drag_active
+&& !console_resize_hover
+&& !console_drag_mouse_active) {
+	var _viewport = console_get_log_viewport();
+	
+	if (!is_undefined(_viewport)
+	&& console_window_open
+	&& point_in_rectangle(_mouse_gui_x, _mouse_gui_y, _viewport.x1, _viewport.y1, _viewport.x2, _viewport.y2)) {
+		var _layout		= console_get_log_layout();
+		var _layout_len	= array_length(_layout);
+		
+		for (var i = 0; i < _layout_len; i++) {
+			if (_mouse_gui_y < _layout[i].top || _mouse_gui_y > _layout[i].bottom) continue;
+			
+			clipboard_set_text(console_text_log[| i].message);
+			
+			/*	The highlight is the whole confirmation: writing a "copied!" line to the log
+				would push the log around and bury the line that was just copied. */
+			console_log_copied_index	= i;
+			console_log_copied_t		= game_get_speed(gamespeed_fps) * ezConsole_prop_log_copy_flash;
+			console_show_notice("Line copied!");
+			break;
+		}
+	}
+}
+
+if (console_log_copied_t > 0) {
+	console_log_copied_t--;
+	
+	if (console_log_copied_t <= 0) {
+		console_log_copied_index = -1;
+	}
+}
+#endregion
+
+#region // Middle-click paste
+/*	Same gesture as an X11 terminal: the middle button drops the clipboard at the text
+	cursor, with no keyboard involved. */
+if (ezConsole_enable_middle_paste && console_window_open && mouse_check_button_pressed(mb_middle)) {
+	var _paste_y1 = console_y - (console_anchor == EZ_CONSOLE_ANCHOR.NONE ? console_bar_height : 0);
+	
+	var _mouse_on_console = point_in_rectangle(
+		_mouse_gui_x, _mouse_gui_y,
+		console_x, _paste_y1,
+		console_x + console_width, console_y + console_height
+	);
+	
+	if (_mouse_on_console) {
+		console_focused = true;
+		
+		if (console_paste_from_clipboard()) {
+			console_show_notice("Pasted!");
+		}
+	}
+}
+#endregion
+
+if (console_notice_t > 0) {
+	console_notice_t--;
+	
+	if (console_notice_t <= 0) {
+		console_notice_text = "";
+	}
+}
+
 if (console_anchor != EZ_CONSOLE_ANCHOR.NONE) exit;
 
 var _mouse_in_area	= point_in_rectangle(_mouse_gui_x, _mouse_gui_y, console_x, console_y - console_bar_height, console_x + console_width, console_y);

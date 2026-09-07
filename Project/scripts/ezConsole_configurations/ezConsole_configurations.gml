@@ -32,6 +32,8 @@ ezConsole_skin_selected	= "default-ImGui";
 #macro	ezConsole_enable_typeahead			true	// Console type-ahead predictions (autocomplete on selection)
 #macro	ezConsole_enable_screenfill			true	// Console fills screen with color above everything
 #macro	ezConsole_enable_resize				true	// Console can be resized by dragging its bottom-right corner
+#macro	ezConsole_enable_log_copy			true	// Clicking a log line copies it to the clipboard
+#macro	ezConsole_enable_middle_paste		true	// Middle mouse button pastes the clipboard into the bar
 
 // Typeahead enhancements flags
 #macro	ezConsole_enable_typeahead_icons	true	// Console show type-ahead icons for elements
@@ -49,6 +51,9 @@ ezConsole_skin_selected	= "default-ImGui";
 #macro	ezConsole_prop_cursor_default		cr_default	// Cursor restored when leaving the resize corner
 #macro	ezConsole_prop_key_hold_delay		.35		// Seconds a key must be held before it starts auto-repeating in the bar
 #macro	ezConsole_prop_key_hold_rate		.03		// Seconds between each auto-repeat while the key stays held
+#macro	ezConsole_prop_scrollbar_grab		6		// Half-width (in px) of the area that grabs the log scrollbar
+#macro	ezConsole_prop_log_copy_flash		.60		// Seconds a copied log line stays highlighted
+#macro	ezConsole_prop_notice_time			1.50	// Seconds a notice stays next to the console title
 
 // Valid characters that can be typed on console
 #macro	ezConsole_valid_charset_letters		"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"

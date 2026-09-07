@@ -24,7 +24,6 @@
   ],
   "ResourceOrderSettings":[
     {"name":"fnt_ezConsole_Pixel","order":1,"path":"fonts/fnt_ezConsole_Pixel/fnt_ezConsole_Pixel.yy",},
-    {"name":"__ezConsole_test_object__","order":1,"path":"objects/__ezConsole_test_object__/__ezConsole_test_object__.yy",},
     {"name":"ezConsole_base_commands_setup","order":1,"path":"scripts/ezConsole_base_commands_setup/ezConsole_base_commands_setup.yy",},
     {"name":"ezConsole_custom_commands","order":1,"path":"scripts/ezConsole_custom_commands/ezConsole_custom_commands.yy",},
     {"name":"ezConsole_custom_themes","order":2,"path":"scripts/ezConsole_custom_themes/ezConsole_custom_themes.yy",},
@@ -33,6 +32,7 @@
     {"name":"ezConsole_logic","order":3,"path":"scripts/ezConsole_logic/ezConsole_logic.yy",},
     {"name":"ezConsole_user_logic","order":4,"path":"scripts/ezConsole_user_logic/ezConsole_user_logic.yy",},
     {"name":"s_ezConsole_border_highlight","order":7,"path":"sprites/s_ezConsole_border_highlight/s_ezConsole_border_highlight.yy",},
+    {"name":"s_ezConsole_icon_copy","order":10,"path":"sprites/s_ezConsole_icon_copy/s_ezConsole_icon_copy.yy",},
     {"name":"s_ezConsole_icon_font","order":4,"path":"sprites/s_ezConsole_icon_font/s_ezConsole_icon_font.yy",},
     {"name":"s_ezConsole_icon_object","order":3,"path":"sprites/s_ezConsole_icon_object/s_ezConsole_icon_object.yy",},
     {"name":"s_ezConsole_icon_script","order":1,"path":"sprites/s_ezConsole_icon_script/s_ezConsole_icon_script.yy",},

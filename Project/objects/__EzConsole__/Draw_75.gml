@@ -139,7 +139,22 @@ if (console_anchor == EZ_CONSOLE_ANCHOR.NONE) {
 	draw_set_colour(console_typeahead_text_highlight);
 	draw_set_halign(fa_left);
 	draw_set_valign(fa_center);
-	draw_text(console_x + console_log_xpad * 5, (console_y - console_bar_height / 2) + 2, console_window_title);
+	var _title_x = console_x + console_log_xpad * 5;
+	var _title_y = (console_y - console_bar_height / 2) + 2;
+	
+	draw_text(_title_x, _title_y, console_window_title);
+	
+	// Short-lived notice after a copy or a paste, so the log never has to record it.
+	if (console_notice_t > 0 && console_notice_text != "") {
+		draw_set_alpha(min(1, console_notice_t / max(1, game_get_speed(gamespeed_fps) * .5)));
+		draw_set_colour(console_bar_color_highlight);
+		draw_text(
+			_title_x + string_width(console_window_title + "  "),
+			_title_y,
+			$"- {console_notice_text}"
+		);
+		draw_set_alpha(1);
+	}
 
 	draw_sprite(s_ezConsole_icon_window_status, console_window_open, console_x + console_log_xpad, console_y - console_bar_height / 2);
 	draw_sprite(s_ezConsole_icon_toggle, 0, console_x + console_width - console_log_xpad, console_y - console_bar_height / 2)
@@ -225,31 +240,53 @@ if (console_window_open) {
 		event_user(0);
 	}
 
+	/*	Flash the line that was just copied. Drawn before the log surface, which is cleared
+		transparent, so it reads as a highlight behind the text instead of a wash over it. */
+	if (console_log_copied_index > -1 && console_log_copied_t > 0) {
+		var _copied_layout	= console_get_log_layout();
+		var _copied_viewport = console_get_log_viewport();
+		
+		if (console_log_copied_index < array_length(_copied_layout) && !is_undefined(_copied_viewport)) {
+			var _copied_line	= _copied_layout[console_log_copied_index];
+			var _copied_top		= max(_copied_line.top, _copied_viewport.y1);
+			var _copied_bottom	= min(_copied_line.bottom, _copied_viewport.y2);
+			var _copied_fade	= console_log_copied_t / max(1, game_get_speed(gamespeed_fps) * ezConsole_prop_log_copy_flash);
+			
+			if (_copied_bottom > _copied_top) {
+				draw_set_alpha(_copied_fade * .45);
+				draw_set_colour(console_bar_color_highlight);
+				draw_rectangle(_copied_viewport.x1, _copied_top, _copied_viewport.x2, _copied_bottom, false);
+				draw_set_alpha(1);
+			}
+		}
+	}
+	
 	draw_surface(console_surf, console_x + console_log_xpad, console_y + console_log_ypad);
 
 	// Draw scrollbar
-	if (console_log_total_h > 0) {
-		var _sidebar_x = console_x + console_width - console_log_xpad - 1;
-		var _sidebar_y = console_y + console_log_ypad;
-		var _sidebar_max_h = ((console_height - console_bar_height - (2 * console_log_ypad)));
-		var _sidebar_cursor_h = max(1, (_sidebar_max_h / 3) * (_sidebar_max_h / console_log_total_h));
+	var _scrollbar = console_get_scrollbar();
+	if (!is_undefined(_scrollbar)) {
+		var _thumb_y	= console_get_scrollbar_thumb_y(_scrollbar, console_surf_yoffset);
+		var _grabbed	= (console_scroll_drag_active || console_scroll_hover);
+		
 		draw_set_alpha(console_bg_alpha);
 		draw_set_color(console_bg_color);
-		draw_roundrect_ext(_sidebar_x - 1,
-					   round(_sidebar_y),
-					   _sidebar_x + 1,
-					   round(_sidebar_y + _sidebar_max_h),
-                       8,
-                       8,
-					   false);
-		draw_set_color(console_text_actual_color);
-		draw_roundrect_ext(_sidebar_x - 2,
-					   round(_sidebar_y + max(0, (console_surf_yoffset/console_log_total_h * (_sidebar_max_h - _sidebar_cursor_h)))),
-					   _sidebar_x + 2,
-					   round(_sidebar_y + min(_sidebar_max_h, (console_surf_yoffset/console_log_total_h * (_sidebar_max_h - _sidebar_cursor_h)) + _sidebar_cursor_h)),
-					   8,
-                       8,
-                       false);
+		draw_roundrect_ext(
+			_scrollbar.x - 1,
+			round(_scrollbar.track_y),
+			_scrollbar.x + 1,
+			round(_scrollbar.track_y + _scrollbar.track_h),
+			8, 8, false
+		);
+		
+		draw_set_color(_grabbed ? console_bar_color_highlight : console_text_actual_color);
+		draw_roundrect_ext(
+			_scrollbar.x - 2,
+			round(_thumb_y),
+			_scrollbar.x + 2,
+			round(_thumb_y + _scrollbar.thumb_h),
+			8, 8, false
+		);
 	}
 
 	// Draw typeahed

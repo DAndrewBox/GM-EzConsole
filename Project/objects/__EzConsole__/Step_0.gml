@@ -189,13 +189,9 @@ if (console_focused && keyboard_check(vk_anykey)) {
 	var _control_is_pressed = keyboard_check(vk_control);
 	
 	if (_control_is_pressed) {
-		// Paste a text
-		if (clipboard_has_text() && keyboard_check_pressed(ord("V"))) {
-			keyboard_string += clipboard_get_text();
-			if (string_pos("\n", keyboard_string)) {
-				keyboard_string = string_split(keyboard_string, "\n")[0];
-				keyboard_string = string_replace_all(keyboard_string, "\t", " ");
-			}
+		// Paste a text, at the text cursor rather than at the end of the line
+		if (keyboard_check_pressed(ord("V"))) {
+			console_paste_from_clipboard();
 		}
 		
 		// Copy a command

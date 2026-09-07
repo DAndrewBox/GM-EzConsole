@@ -574,6 +574,153 @@ function console_get_log_directory() {
 	return working_directory;
 }
 
+/// @func 	console_show_notice(text)
+/// @param	{str}	text
+/// @desc	Shows a short message beside the console title for a few seconds. Used for things
+///			the log itself should not record, such as confirming a copy: writing that to the
+///			log would push the log around and bury the line that was just copied.
+function console_show_notice(_text) {
+	if (!ezConsole) return;
+	
+	with (ezConsole) {
+		console_notice_text	= string(_text);
+		console_notice_t	= game_get_speed(gamespeed_fps) * ezConsole_prop_notice_time;
+	}
+}
+
+/// @func 	console_paste_from_clipboard()
+/// @desc	Inserts the clipboard text into the input bar at the text cursor.
+///			Returns whether anything was pasted.
+function console_paste_from_clipboard() {
+	if (!ezConsole) return false;
+	if (!clipboard_has_text()) return false;
+	
+	var _paste = clipboard_get_text();
+	if (!is_string(_paste) || _paste == "") return false;
+	
+	// The bar holds a single line, so keep the first one and flatten any tabs.
+	_paste = string_replace_all(_paste, "\r", "\n");
+	if (string_pos("\n", _paste)) {
+		_paste = string_split(_paste, "\n")[0];
+	}
+	_paste = string_replace_all(_paste, "\t", " ");
+	
+	if (_paste == "") return false;
+	
+	with (ezConsole) {
+		/*	Paste where the text cursor is, not at the end. console_nav_hor counts back from
+			the end of the line, so leaving it alone keeps the cursor after the pasted text. */
+		var _at = clamp(
+			string_length(console_text_actual) + console_nav_hor,
+			0,
+			string_length(console_text_actual)
+		);
+		
+		console_text_actual	= string_insert(_paste, console_text_actual, _at + 1);
+		keyboard_string		= console_text_actual;
+	}
+	
+	return true;
+}
+
+/// @func 	console_get_log_viewport()
+/// @desc	The GUI rect the log surface occupies, or `undefined` when there is none.
+/// @ignore
+function console_get_log_viewport() {
+	if (!ezConsole) return undefined;
+	
+	with (ezConsole) {
+		return {
+			x1:	console_x + console_log_xpad,
+			y1:	console_y + console_log_ypad,
+			x2:	console_x + console_log_xpad + max(1, console_width - (3 * console_log_xpad)),
+			y2:	console_y + console_log_ypad + max(1, console_height - console_bar_height - (2 * console_log_ypad)),
+		};
+	}
+	
+	return undefined;
+}
+
+/// @func 	console_get_log_layout()
+/// @desc	Vertical bounds in GUI space of every log entry, in list order. This mirrors the
+///			layout user event 0 uses to draw the log, so a click can be mapped back to the
+///			line it landed on and a line can be highlighted in place.
+/// @ignore
+function console_get_log_layout() {
+	if (!ezConsole) return [];
+	
+	with (ezConsole) {
+		if (!ds_exists(console_text_log, ds_type_list)) return [];
+		
+		draw_set_font(console_text_font);
+		
+		var _timestamp_w	= string_width("<MM:MM:MM> ");
+		var _msg_w			= console_width - _timestamp_w - (2 * console_log_xpad);
+		var _origin_y		= console_y + console_log_ypad + console_log_ypad - console_surf_yoffset;
+		var _next_yoff		= 0;
+		var _layout			= [];
+		var _len			= ds_list_size(console_text_log);
+		
+		for (var i = 0; i < _len; i++) {
+			var _entry	= console_text_log[| i];
+			
+			// A user input line is indented past its timestamp, so it wraps narrower.
+			var _wrap_w	= (_entry.type == EZ_CONSOLE_MSG_TYPE.COMMON ? _msg_w : _msg_w + _timestamp_w);
+			var _height	= string_height_ext(_entry.message, -1, _wrap_w);
+			var _top	= _origin_y + _next_yoff;
+			
+			array_push(_layout, { top: _top, bottom: _top + _height });
+			_next_yoff += _height + 3;
+		}
+		
+		return _layout;
+	}
+	
+	return [];
+}
+
+/// @func 	console_get_scrollbar()
+/// @desc	Geometry of the log scrollbar at the current console size, or `undefined` when
+///			there is nothing to scroll. Shared by the drawing and the dragging so the two can
+///			never disagree about where the bar is.
+/// @ignore
+function console_get_scrollbar() {
+	if (!ezConsole) return undefined;
+	
+	with (ezConsole) {
+		if (!console_window_open || console_log_total_h <= 0) return undefined;
+		
+		var _track_h = console_height - console_bar_height - (2 * console_log_ypad);
+		if (_track_h <= 0) return undefined;
+		
+		var _thumb_h = min(_track_h, max(1, (_track_h / 3) * (_track_h / console_log_total_h)));
+		
+		return {
+			x:			console_x + console_width - console_log_xpad - 1,
+			track_y:	console_y + console_log_ypad,
+			track_h:	_track_h,
+			thumb_h:	_thumb_h,
+			travel:		max(1, _track_h - _thumb_h),
+		};
+	}
+	
+	return undefined;
+}
+
+/// @func 	console_get_scrollbar_thumb_y(scrollbar, offset)
+/// @param	{struct}	scrollbar
+/// @param	{real}		offset
+/// @desc	Top of the scrollbar thumb for a given log offset.
+/// @ignore
+function console_get_scrollbar_thumb_y(_scrollbar, _offset) {
+	if (!ezConsole) return _scrollbar.track_y;
+	
+	var _total = ezConsole.console_log_total_h;
+	if (_total <= 0) return _scrollbar.track_y;
+	
+	return _scrollbar.track_y + (clamp(_offset / _total, 0, 1) * _scrollbar.travel);
+}
+
 /// @func 	console_get_log_columns()
 /// @desc	How many characters fit on one line of the log at the current console size.
 ///			Tables size themselves from this so they grow with the console instead of

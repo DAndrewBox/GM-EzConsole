@@ -33,6 +33,9 @@ This is the offline version of the official and up-to-date documentation for **G
 - [Console Window](#console-window)
   - [Focus](#focus)
   - [Resizing](#resizing)
+  - [Scrolling](#scrolling)
+  - [Copying from the log](#copying-from-the-log)
+  - [Pasting](#pasting)
   - [Inspecting variables](#inspecting-variables)
   - [The input bar](#the-input-bar)
 - [Customization](#customization)
@@ -442,6 +445,54 @@ small grip.
 | ezConsole_prop_resize_grip       | Size in pixels of the corner area that grabs a resize.                  | `14`         |
 | ezConsole_prop_resize_grip_outer | Extra pixels outside the console that still count as the resize corner. | `4`          |
 | ezConsole_prop_cursor_default    | The cursor restored when the mouse leaves the corner.                   | `cr_default` |
+
+### Scrolling ![](https://img.shields.io/badge/v1.4.0-ffd200?style=flat)
+
+The log scrolls with the mouse wheel while the console is focused, and the scrollbar on the
+right can be dragged directly. Grabbing the thumb keeps the log still under the cursor;
+clicking the bare track jumps, centring the thumb on the click. The thumb highlights while
+hovered or dragged.
+
+The bar is thin to draw but its grab area is wider than it looks, set by
+`ezConsole_prop_scrollbar_grab` (a half-width in pixels, `6` by default).
+
+### Copying from the log ![](https://img.shields.io/badge/v1.4.0-ffd200?style=flat)
+
+Clicking a line in the log copies that line's text to the clipboard, and the line highlights
+briefly to confirm it. For a user input line only the command is copied, not its timestamp.
+
+Nothing is written to the log to confirm the copy: that would push the log around and bury
+the line that was just copied. Instead the highlight fades over
+`ezConsole_prop_log_copy_flash` seconds (`.60` by default) and a `- Line copied!` notice
+appears next to the console title for `ezConsole_prop_notice_time` seconds (`1.50` by
+default). The whole behaviour can be turned off with `ezConsole_enable_log_copy`.
+
+> [!NOTE]
+> The notice is drawn in the window title bar, so it is only visible when the skin's anchor
+> is `EZ_CONSOLE_ANCHOR.NONE`. A docked console has no title bar to put it in.
+
+Your own code can raise one of those notices with `console_show_notice(text)`, for anything
+that is worth acknowledging but not worth a log entry.
+
+The scrollbar overlaps the right edge of the log area, and it takes the click first, so
+dragging the bar never copies a line by accident.
+
+`Ctrl + C` still copies whatever is currently typed in the input bar, which is a separate
+thing from clicking the log.
+
+### Pasting ![](https://img.shields.io/badge/v1.4.0-ffd200?style=flat)
+
+`Ctrl + V` pastes, and so does clicking the **middle mouse button** anywhere on the console -
+the same gesture an X11 terminal uses. Both go through `console_paste_from_clipboard()`, so
+both behave identically:
+
+- The text is inserted **at the text cursor**, not appended to the end of the line. `Ctrl + V`
+  used to always append, ignoring wherever the cursor was.
+- The bar holds one line, so only the first line of the clipboard is taken and tabs are
+  flattened to spaces.
+- A middle click also focuses the console, and raises a `- Pasted!` notice.
+
+Middle-click pasting can be turned off with `ezConsole_enable_middle_paste`.
 
 ### Inspecting variables ![](https://img.shields.io/badge/v1.4.0-ffd200?style=flat)
 

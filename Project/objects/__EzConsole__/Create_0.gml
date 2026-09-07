@@ -55,6 +55,16 @@ console_surf				= -1;
 console_surf_yoffset		= 0;
 console_surf_yoffset_to		= 0;
 
+console_scroll_drag_active	= false;
+console_scroll_drag_yoff	= 0;
+console_scroll_hover		= false;
+
+console_log_copied_index	= -1;
+console_log_copied_t		= 0;
+
+console_notice_text			= "";
+console_notice_t			= 0;
+
 console_key_hold_last		= -1;
 console_key_hold_char		= "";
 console_key_hold_t			= 0;
