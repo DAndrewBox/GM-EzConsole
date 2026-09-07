@@ -65,6 +65,8 @@ console_log_copied_t		= 0;
 console_notice_text			= "";
 console_notice_t			= 0;
 
+console_header_hover		= "";
+
 console_key_hold_last		= -1;
 console_key_hold_char		= "";
 console_key_hold_t			= 0;

@@ -156,8 +156,45 @@ if (console_anchor == EZ_CONSOLE_ANCHOR.NONE) {
 		draw_set_alpha(1);
 	}
 
-	draw_sprite(s_ezConsole_icon_window_status, console_window_open, console_x + console_log_xpad, console_y - console_bar_height / 2);
-	draw_sprite(s_ezConsole_icon_toggle, 0, console_x + console_width - console_log_xpad, console_y - console_bar_height / 2)
+	#region // Title bar buttons
+	var _header = console_get_header_buttons();
+	if (!is_undefined(_header)) {
+		var _radius = round(_header.size / 2) + 2;
+		
+		/*	The copy and close buttons get a highlight disc behind them while hovered. It is
+			drawn first so the icon stays on top of it. */
+		if (console_header_hover == "copy" || console_header_hover == "close") {
+			var _hovered = (console_header_hover == "copy" ? _header.copy : _header.close);
+			
+			draw_set_alpha(.85);
+			draw_set_colour(console_bar_color_highlight);
+			draw_circle((_hovered.x1 + _hovered.x2) / 2 - 1, _header.cy, _radius, false);
+		}
+		
+		draw_sprite_ext(
+			s_ezConsole_icon_window_status, console_window_open,
+			_header.status.x1, _header.cy,
+			1, 1, 0, c_white,
+			console_header_hover == "status" ? 1. : ezConsole_prop_header_icon_alpha
+		);
+		
+		draw_sprite_ext(
+			s_ezConsole_icon_copy, 0,
+			_header.copy.x2, _header.cy,
+			1, 1, 0, c_white,
+			console_header_hover == "copy" ? 1. : ezConsole_prop_header_icon_alpha
+		);
+		
+		draw_sprite_ext(
+			s_ezConsole_icon_toggle, 0,
+			_header.close.x2, _header.cy,
+			1, 1, 0, c_white,
+			console_header_hover == "close" ? 1. : ezConsole_prop_header_icon_alpha
+		);
+		
+		draw_set_alpha(1);
+	}
+	#endregion
 }
 #endregion
 

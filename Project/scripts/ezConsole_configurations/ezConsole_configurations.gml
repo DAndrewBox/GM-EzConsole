@@ -54,6 +54,7 @@ ezConsole_skin_selected	= "default-ImGui";
 #macro	ezConsole_prop_scrollbar_grab		6		// Half-width (in px) of the area that grabs the log scrollbar
 #macro	ezConsole_prop_log_copy_flash		.60		// Seconds a copied log line stays highlighted
 #macro	ezConsole_prop_notice_time			1.50	// Seconds a notice stays next to the console title
+#macro	ezConsole_prop_header_icon_alpha		.80		// Alpha of the title bar icons while not hovered
 
 // Valid characters that can be typed on console
 #macro	ezConsole_valid_charset_letters		"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"

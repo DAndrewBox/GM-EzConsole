@@ -574,6 +574,62 @@ function console_get_log_directory() {
 	return working_directory;
 }
 
+/// @func 	console_get_header_buttons()
+/// @desc	GUI rects of the buttons in the window title bar, or `undefined` when the console
+///			is docked and has no title bar to hold them. Shared by the drawing and the
+///			clicking so a hit area can never drift away from its icon.
+/// @ignore
+function console_get_header_buttons() {
+	if (!ezConsole) return undefined;
+	
+	with (ezConsole) {
+		if (console_anchor != EZ_CONSOLE_ANCHOR.NONE) return undefined;
+		
+		var _size	= sprite_get_width(s_ezConsole_icon_toggle);
+		var _gap	= console_log_xpad;
+		var _top	= console_y - console_bar_height;
+		var _bottom	= console_y;
+		var _left	= console_x + console_log_xpad;
+		var _right	= console_x + console_width - console_log_xpad;
+		
+		return {
+			// Icons are drawn from their own origin: the status icon from its left edge,
+			// the copy and close icons from their right edge.
+			cy:		console_y - console_bar_height / 2,
+			size:	_size,
+			status:	{ x1: _left,						y1: _top, x2: _left + _size,			y2: _bottom },
+			copy:	{ x1: _right - (_size * 2) - _gap,	y1: _top, x2: _right - _size - _gap,	y2: _bottom },
+			close:	{ x1: _right - _size,				y1: _top, x2: _right,					y2: _bottom },
+		};
+	}
+	
+	return undefined;
+}
+
+/// @func 	console_copy_log_to_clipboard()
+/// @desc	Copies the whole console log to the clipboard, one line per entry with its
+///			timestamp. Returns how many lines were copied.
+function console_copy_log_to_clipboard() {
+	if (!ezConsole) return 0;
+	
+	with (ezConsole) {
+		if (!ds_exists(console_text_log, ds_type_list)) return 0;
+		
+		var _len = ds_list_size(console_text_log);
+		if (_len == 0) return 0;
+		
+		var _out = "";
+		for (var i = 0; i < _len; i++) {
+			_out += console_text_log[| i].timestamp + " " + console_text_log[| i].message + "\n";
+		}
+		
+		clipboard_set_text(_out);
+		return _len;
+	}
+	
+	return 0;
+}
+
 /// @func 	console_show_notice(text)
 /// @param	{str}	text
 /// @desc	Shows a short message beside the console title for a few seconds. Used for things

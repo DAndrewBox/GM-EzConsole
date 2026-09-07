@@ -5,54 +5,57 @@ This is the offline version of the official and up-to-date documentation for **G
 ## Table of Contents
 
 - [Definitions](#definitions)
-  - [Enumerators](#enumerators)
-    - [EZ_CONSOLE_MSG](#ez_console_msg)
-    - [EZ_CONSOLE_MSG_TYPE](#ez_console_msg_type)
-    - [EZ_CONSOLE_ANCHOR](#ez_console_anchor)
-  - [Asset Types](#asset-types)
+  - [Enumerators](#enumerators-)
+    - [EZ\_CONSOLE\_MSG](#ez_console_msg-)
+- [EZ\_CONSOLE\_MSG\_TYPE](#ez_console_msg_type-)
+- [EZ\_CONSOLE\_ANCHOR](#ez_console_anchor-)
+  - [Asset Types](#asset-types-)
 - [Constructors](#constructors)
-  - [EzConsoleCommand](#ezconsolecommand)
-    - [EzConsoleCommandArgument](#ezconsolecommandargument)
-    - [EzConsoleCommandArgumentWithOptions](#ezconsolecommandargumentwithoptions)
-  - [EzConsoleSkin](#ezconsoleskin)
-    - [EzConsoleSkinOwnership](#ezconsoleskinownership)
-    - [EzConsoleSkinSize](#ezconsoleskinsize)
-    - [EzConsoleSkinBackground](#ezconsoleskinbackground)
-    - [EzConsoleSkinText](#ezconsoleskintext)
-    - [EzConsoleSkinBar](#ezconsoleskinbar)
-    - [EzConsoleSkinMisc](#ezconsoleskinmisc)
+  - [EzConsoleCommand](#ezconsolecommand-)
+    - [EzConsoleCommandArgument](#ezconsolecommandargument-)
+    - [EzConsoleCommandArgumentWithOptions](#ezconsolecommandargumentwithoptions-)
+  - [EzConsoleSkin](#ezconsoleskin-)
+    - [EzConsoleSkinOwnership](#ezconsoleskinownership-)
+    - [EzConsoleSkinSize](#ezconsoleskinsize-)
+    - [EzConsoleSkinBackground](#ezconsoleskinbackground-)
+    - [EzConsoleSkinText](#ezconsoleskintext-)
+    - [EzConsoleSkinBar](#ezconsoleskinbar-)
+    - [EzConsoleSkinMisc](#ezconsoleskinmisc-)
 - [User Functions](#user-functions)
-  - [ezConsole_log](#ezconsole_log)
-  - [ezConsole_error](#ezconsole_error)
-  - [ezConsole_warn](#ezconsole_warn)
-  - [ezConsole_info](#ezconsole_info)
-  - [ezConsole_is_open](#ezconsole_is_open)
-  - [ezConsole_is_visible](#ezconsole_is_visible)
-  - [ezConsole_set_visible](#ezconsole_set_visible)
-  - [ezConsole_set_hidden](#ezconsole_set_hidden)
-- [Console Window](#console-window)
-  - [Focus](#focus)
-  - [Resizing](#resizing)
-  - [Scrolling](#scrolling)
-  - [Copying from the log](#copying-from-the-log)
-  - [Pasting](#pasting)
-  - [Inspecting variables](#inspecting-variables)
-  - [The input bar](#the-input-bar)
-- [Customization](#customization)
-  - [Using a theme](#using-a-theme)
-  - [Create your own theme (file)](#create-your-own-theme-using-skin-files)
-  - [Create your own theme (code)](#create-your-own-theme-via-code)
-  - [Change console styles](#change-console-styles-not-recommended-but-possible)
-  - [Change key bindings](#change-key-bindings)
+  - [ezConsole\_log](#ezconsole_log)
+  - [ezConsole\_error](#ezconsole_error)
+  - [ezConsole\_warn](#ezconsole_warn)
+  - [ezConsole\_info](#ezconsole_info)
+  - [ezConsole\_is\_open](#ezconsole_is_open-)
+  - [ezConsole\_is\_visible](#ezconsole_is_visible-)
+  - [ezConsole\_set\_visible](#ezconsole_set_visible-)
+  - [ezConsole\_set\_invisible](#ezconsole_set_invisible-)
+- [Console Window](#console-window-)
+  - [Focus](#focus-)
+  - [Resizing](#resizing-)
+  - [Scrolling](#scrolling-)
+  - [Copying from the log](#copying-from-the-log-)
+  - [The title bar](#the-title-bar-)
+  - [Pasting](#pasting-)
+  - [Inspecting variables](#inspecting-variables-)
+  - [The input bar](#the-input-bar-)
+- [Customization](#customization-)
+- [Using a theme](#using-a-theme)
+  - [Create your own theme (using .skin files)](#create-your-own-theme-using-skin-files-)
+  - [Create your own theme (via code)](#create-your-own-theme-via-code-)
+  - [Change console styles (Not Recommended but possible)](#change-console-styles-not-recommended-but-possible)
+  - [Change key bindings](#change-key-bindings-)
 
 ---
 
 ## Definitions
+
 This section contains all the definitions you will need to understand the constructors and functions of this extension. Some of these definitions are used as parameters for the constructors and functions and are not needed to be created manually or used on your own code.
 
 ### Enumerators ![](https://img.shields.io/badge/v1.3.0-ffd200?style=flat)
 
 #### EZ_CONSOLE_MSG ![](https://img.shields.io/badge/v1.3.0-ffd200?style=flat)
+
 Enumerator for default console messages.
 
 | Name                       | INT | Message                                                                                                |
@@ -69,6 +72,7 @@ Enumerator for default console messages.
 ---
 
 ## EZ_CONSOLE_MSG_TYPE ![](https://img.shields.io/badge/v1.3.0-ffd200?style=flat)
+
 Enumerator for the type of log message.
 
 | Name      | INT | Description            |
@@ -81,6 +85,7 @@ Enumerator for the type of log message.
 ---
 
 ## EZ_CONSOLE_ANCHOR ![](https://img.shields.io/badge/v1.3.0-ffd200?style=flat)
+
 Enumerator for the console anchor.
 
 | Name           | INT | Description                      |
@@ -94,6 +99,7 @@ Enumerator for the console anchor.
 ---
 
 ### Asset Types ![](https://img.shields.io/badge/v1.3.0-ffd200?style=flat)
+>
 > [!NOTE]
 > The `ezConsole_type_option` is used to define the type of the argument for type-ahead suggestions when the argument has pre-defined options to choose. Cannot be set via code, only on the json file. If you want an argument to have pre-defined options, you should use the `EzConsoleCommandArgumentWithOptions` constructor instead of `EzConsoleCommandArgument`.
 
@@ -130,6 +136,7 @@ The asset types are used to define the type of the argument for type-ahead sugge
 ## Constructors
 
 ### EzConsoleCommand ![](https://img.shields.io/badge/v1.3.0-ffd200?style=flat)
+
 Creates a new console command.
 
 ```ts
@@ -147,6 +154,7 @@ new EzConsoleCommand(name: String, [alias: String], [description: String], [call
 ---
 
 #### EzConsoleCommandArgument ![](https://img.shields.io/badge/v1.3.0-ffd200?style=flat)
+
 Use this constructor to define a basic argument for a command. Arguments are used to pass data to the command callback.
 
 ```ts
@@ -163,6 +171,7 @@ new EzConsoleCommandArgument(name: String, [description: String], [required: Boo
 ---
 
 #### EzConsoleCommandArgumentWithOptions ![](https://img.shields.io/badge/v1.3.0-ffd200?style=flat)
+
 Used to define an argument for a command with pre-defined options to choose. Arguments are used to pass data to the command callback. Options should be a `Array<String>`, you should handle the logic in your own scripts.
 
 ```ts
@@ -179,6 +188,7 @@ new EzConsoleCommandArgumentWithOptions(name: String, [description: String], [re
 ---
 
 ### EzConsoleSkin ![](https://img.shields.io/badge/v1.3.0-ffd200?style=flat)
+
 Used to create a new skin for the console. You can use this to create your own skins and load them via code.
 
 ```ts
@@ -197,6 +207,7 @@ new EzConsoleSkin(ownership: EzConsoleSkinOwnership, size: EzConsoleSkinSize, ba
 ---
 
 #### EzConsoleSkinOwnership ![](https://img.shields.io/badge/v1.3.0-ffd200?style=flat)
+
 Used to define the ownership properties and metadata of a skin. Must be as a parameter of `EzConsoleSkin`.
 
 ```ts
@@ -212,6 +223,7 @@ new EzConsoleSkinOwnership(name: String, author: String, version: String, descri
 ---
 
 #### EzConsoleSkinSize ![](https://img.shields.io/badge/v1.3.0-ffd200?style=flat)
+
 Used to define the size properties of a skin. Must be as a parameter of `EzConsoleSkin`.
 
 ```ts
@@ -227,6 +239,7 @@ new EzConsoleSkinSize(width: Number, height: Number, [anchor: Number]) -> EzCons
 ---
 
 #### EzConsoleSkinBackground ![](https://img.shields.io/badge/v1.3.0-ffd200?style=flat)
+
 Used to define the background properties of a skin. Must be as a parameter of `EzConsoleSkin`.
 
 ```ts
@@ -244,6 +257,7 @@ new EzConsoleSkinBackground(bg_color: String, [border_color: String], [bg_alpha:
 ---
 
 #### EzConsoleSkinText ![](https://img.shields.io/badge/v1.3.0-ffd200?style=flat)
+
 Used to define the text properties of a skin. Must be as a parameter of `EzConsoleSkin`.
 
 ```ts
@@ -264,6 +278,7 @@ new EzConsoleSkinText(text_font: Asset.GMFont, text_font_xoff: Number, text_font
 ---
 
 #### EzConsoleSkinBar ![](https://img.shields.io/badge/v1.3.0-ffd200?style=flat)
+
 Used to define the input bar properties of a skin. Must be as a parameter of `EzConsoleSkin`.
 
 ```ts
@@ -282,6 +297,7 @@ new EzConsoleSkinBar(bar_height: Number, bar_color: String, bar_color_highlight:
 ---
 
 #### EzConsoleSkinMisc ![](https://img.shields.io/badge/v1.3.0-ffd200?style=flat)
+
 Used to define the miscellaneous properties of a skin. Must be as a parameter of `EzConsoleSkin`.
 
 ```ts
@@ -301,9 +317,11 @@ new EzConsoleSkinMisc(text_blink_char: String, text_blink_rate: Number, text_sta
 ---
 
 ## User Functions
+
 This section contains all the functions that you can use and call on your own GameMaker code to interact with the console.
 
 ### ezConsole_log
+
 Log a message to the console as if it was an user input (includes current timestamp).
 
 ```ts
@@ -317,6 +335,7 @@ ezConsole_log(message: String) -> None
 ---
 
 ### ezConsole_error
+
 Log an error message to the console.
 
 ```ts
@@ -332,6 +351,7 @@ ezConsole_error(message: String, no_output: Boolean, clear_input: Boolean) -> No
 ---
 
 ### ezConsole_warn
+
 Log a warning message to the console.
 
 ```ts
@@ -347,6 +367,7 @@ ezConsole_warn(message: String, no_output: Boolean, clear_input: Boolean) -> Non
 ---
 
 ### ezConsole_info
+
 Log an informational message to the console.
 
 ```ts
@@ -362,6 +383,7 @@ ezConsole_info(message: String, no_output: Boolean, clear_input: Boolean) -> Non
 ---
 
 ### ezConsole_is_open ![](https://img.shields.io/badge/v1.3.0-ffd200?style=flat)
+>
 > [!IMPORTANT]
 > This function will always return `true` if the console is not in window mode and is visible. If your console is not in window mode, use `ezConsole_is_visible()` instead.
 
@@ -374,6 +396,7 @@ ezConsole_is_open() -> Boolean
 ---
 
 ### ezConsole_is_visible ![](https://img.shields.io/badge/v1.3.0-ffd200?style=flat)
+
 Check if the console is visible. Returns a boolean.
 
 ```ts
@@ -383,6 +406,7 @@ ezConsole_is_visible() -> Boolean
 ---
 
 ### ezConsole_set_visible ![](https://img.shields.io/badge/v1.3.0-ffd200?style=flat)
+
 Set the console to be visible.
 
 ```ts
@@ -392,8 +416,9 @@ ezConsole_set_visible() -> None
 ---
 
 ### ezConsole_set_invisible ![](https://img.shields.io/badge/v1.3.0-ffd200?style=flat)
+>
 > [!IMPORTANT]
->  No console command will not be executed while the console is invisible.
+> No console command will not be executed while the console is invisible.
 
 Set the console to be hidden.
 
@@ -480,6 +505,28 @@ dragging the bar never copies a line by accident.
 `Ctrl + C` still copies whatever is currently typed in the input bar, which is a separate
 thing from clicking the log.
 
+The **copy button** in the window title bar, to the left of the close button, copies the
+_whole_ log at once, every entry with its timestamp, one per line. `console_copy_log_to_clipboard()`
+does the same from your own code and returns how many lines it copied.
+
+### The title bar ![](https://img.shields.io/badge/v1.4.0-ffd200?style=flat)
+
+A console with the `EZ_CONSOLE_ANCHOR.NONE` anchor gets a title bar with three buttons:
+
+| Button              | Position | Action                                        |
+| :------------------ | :------- | :-------------------------------------------- |
+| Collapse / expand   | Left     | Folds the console down to just its title bar. |
+| Copy log            | Right    | Copies the whole log to the clipboard.        |
+| Close               | Right    | Hides the console, same as the toggle key.    |
+
+Icons sit at `ezConsole_prop_header_icon_alpha` (`.90` by default) and go fully opaque while
+hovered. The copy and close buttons also draw a disc behind them in the theme's
+`bar_color_highlight` while hovered. Clicking anywhere else on the title bar drags the
+console instead.
+
+Their hit areas come from `console_get_header_buttons()`, which the drawing reads too, so a
+button's clickable area is always exactly where its icon is, including after a resize.
+
 ### Pasting ![](https://img.shields.io/badge/v1.4.0-ffd200?style=flat)
 
 `Ctrl + V` pastes, and so does clicking the **middle mouse button** anywhere on the console -
@@ -542,6 +589,7 @@ text cursor, including when the text cursor is somewhere in the middle of the li
 ## Customization ![](https://img.shields.io/badge/v1.2.0-d2ff00?style=flat)
 
 ## Using a theme
+>
 > [!NOTE]
 > Since version v1.2.0, the console supports themes. You can use a theme by changing the value of the `ezConsole_skin_selected` variable in the `ezConsole_configurations` script for the name of the theme you want to use (see [Features customization](./Getting-Started#features-customization)).
 
@@ -555,6 +603,7 @@ The following themes are available by default:
 ---
 
 ### Create your own theme (using .skin files) ![](https://img.shields.io/badge/v1.2.0-d2ff00?style=flat)
+>
 > [!NOTE]
 > Since version 1.2.0, you can create your own theme using a `JSON` struct. To do so, you can create a new file in the `GM-EzConsole` folder with the `.skin` extension.
 
@@ -634,21 +683,21 @@ The following table describes the meaning of each field:
 ---
 
 ### Create your own theme (via code) ![](https://img.shields.io/badge/v1.3.0-ffd200?style=flat)
+>
 > [!IMPORTANT]
 > You must create the theme inside the `ezConsole_custom_themes` script.
-
 
 You can also create your own theme using code. To do so, you can use just a few lines of code. The following code is an example on how to recreate the `default-dark.skin` theme using code:
 
 ```js
 new EzConsoleSkin(
-		new EzConsoleSkinOwnership("default-dark-example", "DAndrëwBox", "1.3"),
-		new EzConsoleSkinSize(1, .33, 0),
-		new EzConsoleSkinBackground(#07071e, #000000, .66, .0),
-		new EzConsoleSkinText(fnt_ezConsole_Smooth, 0, 0, #eeeeee, #ff004d, #ffec27, #8396bc, 1.),
-		new EzConsoleSkinBar(16, #0f0f3c, #ffa040, 4, 4),
-		new EzConsoleSkinMisc("_", 1, ">", #07071e, .33, #eeeeee, #0f0f3c),
-	);
+  new EzConsoleSkinOwnership("default-dark-example", "DAndrëwBox", "1.3"),
+  new EzConsoleSkinSize(1, .33, 0),
+  new EzConsoleSkinBackground(#07071e, #000000, .66, .0),
+  new EzConsoleSkinText(fnt_ezConsole_Smooth, 0, 0, #eeeeee, #ff004d, #ffec27, #8396bc, 1.),
+  new EzConsoleSkinBar(16, #0f0f3c, #ffa040, 4, 4),
+  new EzConsoleSkinMisc("_", 1, ">", #07071e, .33, #eeeeee, #0f0f3c),
+ );
 ```
 
 The `EzConsoleSkin` object is a helper object that will create a theme for you. It receives the following parameters:
@@ -667,6 +716,7 @@ The `EzConsoleSkinOwnership`, `EzConsoleSkinSize`, `EzConsoleSkinBackground`, `E
 ---
 
 ### Change console styles (Not Recommended but possible)
+>
 > [!CAUTION]
 > Changing the console styles directly is not recommended because it could break the console. If you want to change the console styles, I recommend creating a new theme using the `.skin` file or using the `EzConsoleSkin` object.
 

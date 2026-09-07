@@ -191,6 +191,8 @@ if (console_log_copied_t > 0) {
 }
 #endregion
 
+console_header_hover = "";
+
 #region // Middle-click paste
 /*	Same gesture as an X11 terminal: the middle button drops the clipboard at the text
 	cursor, with no keyboard involved. */
@@ -225,25 +227,42 @@ if (console_anchor != EZ_CONSOLE_ANCHOR.NONE) exit;
 
 var _mouse_in_area	= point_in_rectangle(_mouse_gui_x, _mouse_gui_y, console_x, console_y - console_bar_height, console_x + console_width, console_y);
 
-if (!console_drag_mouse_active && !console_resize_active && _mouse_press && _mouse_in_area) {
-	console_drag_mouse_active = true;
-	console_drag_mouse_xoff = _mouse_gui_x - console_x;
-	console_drag_mouse_yoff = _mouse_gui_y - console_y;
-	
-	var _mouse_in_window_toggle = point_in_rectangle(_mouse_gui_x, _mouse_gui_y, console_x + console_log_xpad, console_y - console_bar_height, console_x + console_log_xpad + 13, console_y);
-	if (_mouse_in_window_toggle) {
-		console_drag_mouse_active = false;
-		console_drag_mouse_xoff = 0;
-		console_drag_mouse_yoff = 0;
-		console_window_open = !console_window_open;
+#region // Title bar buttons
+var _header = console_get_header_buttons();
+
+if (!is_undefined(_header) && !console_drag_mouse_active) {
+	if (point_in_rectangle(_mouse_gui_x, _mouse_gui_y, _header.status.x1, _header.status.y1, _header.status.x2, _header.status.y2)) {
+		console_header_hover = "status";
+	} else if (point_in_rectangle(_mouse_gui_x, _mouse_gui_y, _header.copy.x1, _header.copy.y1, _header.copy.x2, _header.copy.y2)) {
+		console_header_hover = "copy";
+	} else if (point_in_rectangle(_mouse_gui_x, _mouse_gui_y, _header.close.x1, _header.close.y1, _header.close.x2, _header.close.y2)) {
+		console_header_hover = "close";
 	}
-	
-	var _mouse_in_window_close = point_in_rectangle(_mouse_gui_x, _mouse_gui_y, console_x + console_width - console_log_xpad - 13, console_y - console_bar_height, console_x + console_width, console_y);
-	if (_mouse_in_window_close) {
-		console_drag_mouse_active = false;
-		console_drag_mouse_xoff = 0;
-		console_drag_mouse_yoff = 0;
-		ezConsole_set_invisible();
+}
+#endregion
+
+if (!console_drag_mouse_active && !console_resize_active && _mouse_press && _mouse_in_area) {
+	/*	A button takes the click, anything else on the title bar starts a window drag. This
+		used to start the drag first and then undo it, which is the same thing said backwards. */
+	switch (console_header_hover) {
+		case "status":
+			console_window_open = !console_window_open;
+			break;
+		
+		case "copy":
+			var _copied_lines = console_copy_log_to_clipboard();
+			console_show_notice(_copied_lines > 0 ? $"Log copied! ({_copied_lines} lines)" : "Log is empty.");
+			break;
+		
+		case "close":
+			ezConsole_set_invisible();
+			break;
+		
+		default:
+			console_drag_mouse_active	= true;
+			console_drag_mouse_xoff		= _mouse_gui_x - console_x;
+			console_drag_mouse_yoff		= _mouse_gui_y - console_y;
+			break;
 	}
 }
 
