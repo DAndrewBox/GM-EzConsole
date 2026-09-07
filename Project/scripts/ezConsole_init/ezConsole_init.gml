@@ -47,6 +47,8 @@ enum EZ_CONSOLE_ANCHOR {
 #macro	ezConsole_type_instance		6
 
 #macro	ezConsole_type_options		10
+#macro	ezConsole_type_target_var	11
+#macro	ezConsole_type_command		12
 
 #macro	ezConsole_files				global.__ezConsole_files
 #macro	ezConsole_commands			global.__ezConsole_commands

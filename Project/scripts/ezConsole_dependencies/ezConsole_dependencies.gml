@@ -6,7 +6,9 @@
 function __ezConsole_dep_string_pad(_text, _spaces, _on_right = true) {
 	var _pad = "";
 	if (_on_right) {
-		var _pad_max = _spaces - string_length(_text);
+		/*	A name longer than the column would otherwise run straight into the next one,
+			so always leave at least a single space behind it. */
+		var _pad_max = max(1, _spaces - string_length(_text));
 		for (var i = 0; i < _pad_max; i++) {
 			_pad += " ";
 		}
@@ -113,17 +115,29 @@ function __ezConsole_dep_dec_to_hex(dec) {
 
     return "#" + _hex;
 }
-/// @func	__ezConsole_dep_value_to_string(value)
+/// @func	__ezConsole_dep_value_to_string(value, [recursive], [max_depth])
 ///	@param	{any}	value
+///	@param	{real}	[recursive]
+///	@param	{real}	[max_depth]	How deep arrays and structs may be expanded. At the limit
+///								they are printed as `Array[n]` / `Struct[n]` instead, which
+///								is what a one-line table row wants.
 /// @ignore
-function __ezConsole_dep_value_to_string(_val, _recursive = 0) {
+function __ezConsole_dep_value_to_string(_val, _recursive = 0, _max_depth = infinity) {
     var _len, _out;
     
 	switch(typeof(_val)) {
-		case "string":		return "\"" + _val + "\"";
+		case "string":
+			/*	A newline or tab inside a value would break the row it is printed on, so show
+				them escaped instead of letting them wrap the table. */
+			_out = string_replace_all(_val, "\r", "");
+			_out = string_replace_all(_out, "\n", "\\n");
+			_out = string_replace_all(_out, "\t", "\\t");
+			return "\"" + _out + "\"";
+		
 		case "undefined":	return "undefined";
 		case "null":		return "null";
 		case "bool":		return ( _val ? "true" : "false" );
+		case "method":		return "function";
 		
 		case "number":
 		case "int32":
@@ -132,12 +146,14 @@ function __ezConsole_dep_value_to_string(_val, _recursive = 0) {
 		case "array":
 			_len = array_length(_val);
 			_out = string("Array[{0}]", _len);
+			
+			if (_recursive >= _max_depth) return _out;
             
 			for (var i = 0; i < _len; i++) {
 				_out +=
 					"\n" +
 					__ezConsole_dep_string_pad(
-						string("- [{0}] ", i) + __ezConsole_dep_value_to_string(_val[i], _recursive + 1),
+						string("- [{0}] ", i) + __ezConsole_dep_value_to_string(_val[i], _recursive + 1, _max_depth),
 						32 + 2 * (_recursive - 1),
 						false
 					);
@@ -148,6 +164,9 @@ function __ezConsole_dep_value_to_string(_val, _recursive = 0) {
 			var _keys = variable_struct_get_names(_val);
 			_len = array_length(_keys);
 			_out = string("Struct[{0}]", _len);
+			
+			if (_recursive >= _max_depth) return _out;
+			
 			var _spaces = 32 - 4 * _recursive;
 			
 			for (var i = 0; i < _len; i++) {
@@ -155,27 +174,96 @@ function __ezConsole_dep_value_to_string(_val, _recursive = 0) {
 				_out +=
 					"\n" +
 					__ezConsole_dep_string_pad(string(".{0}", _keys[i]), _spaces) +
-					__ezConsole_dep_value_to_string(_value, _recursive + 1);
+					__ezConsole_dep_value_to_string(_value, _recursive + 1, _max_depth);
 			}
 			
 			return _out;
 			
 		default:
-			return "Unknown type of value.";
+			/*	Asset and instance references, surfaces, data structure handles and any
+				future type all land here. string() renders every one of them, so report
+				that rather than giving up with "unknown". */
+			try {
+				return string(_val);
+			} catch (_e) {
+				return $"<{typeof(_val)}>";
+			}
 	}
+}
+
+/// @func	__ezConsole_dep_datetime_stamp()
+/// @desc	Current date and time as `YYYYMMDD_hhmmss`, safe to use inside a filename.
+/// @ignore
+function __ezConsole_dep_datetime_stamp() {
+	static _pad = function (_value, _len) {
+		return string_replace_all(string_format(_value, _len, 0), " ", "0");
+	};
+	
+	var _t = date_current_datetime();
+	return
+		_pad(date_get_year(_t), 4) + _pad(date_get_month(_t), 2) + _pad(date_get_day(_t), 2) +
+		"_" +
+		_pad(date_get_hour(_t), 2) + _pad(date_get_minute(_t), 2) + _pad(date_get_second(_t), 2);
+}
+
+/// @func	__ezConsole_dep_get_os_name()
+/// @desc	Readable name for the platform the game is running on.
+/// @ignore
+function __ezConsole_dep_get_os_name() {
+	if (os_browser != browser_not_a_browser) return "HTML5";
+	
+	switch (os_type) {
+		case os_windows:	return "Windows";
+		case os_macosx:		return "macOS";
+		case os_linux:		return "Linux";
+		case os_ios:		return "iOS";
+		case os_tvos:		return "tvOS";
+		case os_android:	return "Android";
+		case os_ps4:		return "PlayStation 4";
+		case os_ps5:		return "PlayStation 5";
+		case os_switch:		return "Nintendo Switch";
+		case os_xboxone:	return "Xbox One";
+		case os_uwp:		return "UWP";
+		/*	Only long-standing os_type constants are listed. A newer or more obscure target
+			falls through and reports its raw os_type, which is still enough for a bug
+			report, and referencing a constant the runtime does not define would not
+			compile at all. */
+		default:			return $"Unknown (os_type {os_type})";
+	}
+}
+
+/// @func	__ezConsole_dep_get_builtin_variable_names()
+/// @desc	Built-in instance variables worth showing in the console.
+///			`variable_instance_get_names()` only reports variables the project declared, so
+///			the built-ins have to be listed by hand. Physics (`phy_*`) variables are left out
+///			on purpose: reading them on a non-physics instance is noisy and rarely useful.
+/// @ignore
+function __ezConsole_dep_get_builtin_variable_names() {
+	static _names = [
+		"id", "object_index", "persistent", "solid", "visible", "depth", "layer",
+		"x", "y", "xprevious", "yprevious", "xstart", "ystart",
+		"hspeed", "vspeed", "direction", "speed", "friction", "gravity", "gravity_direction",
+		"sprite_index", "sprite_width", "sprite_height", "sprite_xoffset", "sprite_yoffset",
+		"image_index", "image_number", "image_speed", "image_alpha", "image_angle",
+		"image_blend", "image_xscale", "image_yscale",
+		"mask_index", "bbox_left", "bbox_right", "bbox_top", "bbox_bottom",
+		"alarm",
+	];
+	
+	return _names;
 }
 
 /// @func	__ezConsole_dep_get_asset_names(asset_type)
 /// @ignore
 function __ezConsole_dep_get_asset_names(_asset_type) {
-	var _cb;
+	var _cb, _exists;
 	switch (_asset_type) {
-		case asset_sprite:	_cb = sprite_get_name;	break;
-		case asset_object:	_cb = object_get_name;	break;
-		case asset_sound:	_cb = audio_get_name;	break;
-		case asset_font:	_cb = font_get_name;	break;
-		case asset_room:	_cb = room_get_name;	break;
-		case asset_script:	_cb = script_get_name;	break;
+		case asset_sprite:	_cb = sprite_get_name;	_exists = sprite_exists;	break;
+		case asset_object:	_cb = object_get_name;	_exists = object_exists;	break;
+		case asset_sound:	_cb = audio_get_name;	_exists = audio_exists;		break;
+		case asset_font:	_cb = font_get_name;	_exists = font_exists;		break;
+		case asset_room:	_cb = room_get_name;	_exists = room_exists;		break;
+		case asset_script:	_cb = script_get_name;	_exists = script_exists;	break;
 		default:			return [];
 	}
 	
@@ -184,10 +272,27 @@ function __ezConsole_dep_get_asset_names(_asset_type) {
 	var _names = [];
 	
 	for (var i = 0; i < _ids_len; i++) {
+		/*	[Bugfix EZC-7]
+			asset_get_ids() can hand back an id with nothing behind it, and passing one of
+			those to a *_get_name() or tag function makes the runtime log
+			"A given parameter was nullptr". Skip them before touching them. */
+		if (!_exists(_ids[@ i])) continue;
+		
 		var _name = _cb(_ids[@ i]);
+		if (!is_string(_name) || _name == "") continue;
 		if (string_pos("@", _name) || string_pos("___struct___", _name)) continue;
-		if (_asset_type == asset_script && (string_pos("ezConsole_", _name) || string_pos("console_", _name))) continue;
-		if (_asset_type == asset_script && __ezConsole_dep_is_constructor(_ids[@ i]) && (string_pos("EzConsole", _name))) continue;
+            
+        // Logic for scripts, functions and constructors
+        if (_asset_type == asset_script) {
+            // Skip if it's an internal/private function (starts with "__")
+            if (string_starts_with(_name, "__")) continue;
+                
+            // Skip if it's a EzConsole native function
+            if (string_pos("console_", _name) || string_pos("ezconsole", string_lower(_name))) continue;
+                
+            // Skip if it's a constructor (We don't support executing constructors)
+            if (__ezConsole_dep_is_constructor(_ids[@ i])) continue;
+        }
 		
 		array_push(_names, _name);
 	}
@@ -200,17 +305,12 @@ function __ezConsole_dep_get_asset_names(_asset_type) {
 /// @param	{any}	function
 /// @ignore
 function __ezConsole_dep_is_constructor(_func){
-	try {
-		var _temp = new _func();
-		delete _temp;
-		
-		return true;
-	}
-	catch (err) {
-		if (string_pos("constructor", err.message))
-		|| (string_pos("'new'", err.message)) {
-			return false;
-		}
-		return true;
-	}
+	/*	[Bugfix EZC-7]
+		asset_has_tags() warns "A given parameter was nullptr" for the script ids that are
+		not tagged assets, and asset_get_ids(asset_script) returns plenty of those. Reading
+		the tagged set once and testing membership never hands it a bad id. Scripts cannot
+		be created at runtime, so caching it is safe. */
+	static _constructors = tag_get_asset_ids("@@constructor", asset_script);
+	
+	return array_contains(_constructors, _func);
 }

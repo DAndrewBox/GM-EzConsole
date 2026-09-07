@@ -64,20 +64,64 @@ The commands are imported automatically when the extension is imported into your
 
 The following table shows the list of base commands included on the `default_commands.json` file:
 
-| Command    | Description                                                    | Arguments                                | Required arguments          |
-| ---------- | -------------------------------------------------------------- | ---------------------------------------- | --------------------------- |
-| help       | Show the list of commands.                                     | [command]                                | [false]                     |
-| message    | Shows a message on screen and pauses the game.                 | [message]                                | [true]                      |
-| fullscreen | Toggles fullscreen mode.                                       | [false/true]                             | [true]                      |
-| game       | Choose to end or restart the game.                             | [end/reset]                              | [true]                      |
-| create     | Create an object.                                              | [object_name, x, y, depth]               | [true, false, false, false] |
-| instances  | Show the list of active instances.                             | [object_name]                            | [true]                      |
-| clear      | Clear the console.                                             |                                          |                             |
-| set        | Set a variable on an instance.                                 | [instance_id, variable_name, value]      | [true, true]                |
-| get        | Gets a variable or all variables from an instance or `global`. | [instance_id or `global`, variable_name] | [false]                     |
-| delete     | Delete an instance.                                            | [instance_id]                            | [true]                      |
-| fps        | Shows or toggles the current FPS.                              | [false/true]                             | [false]                     |
-| debug_view | Shows or hides the debug views.                                | [false/true]                             | [false]                     |
+| Command    | Alias | Description                                                                | Arguments                                | Required arguments          |
+| ---------- | ----- | -------------------------------------------------------------------------- | ---------------------------------------- | --------------------------- |
+| help       |       | Show the list of commands, or the details of one.                          | [command]                                | [false]                     |
+| message    | msg   | Shows a message on screen and pauses the game.                             | [message]                                | [true]                      |
+| fullscreen | fs    | Toggles fullscreen mode.                                                   | [false/true]                             | [true]                      |
+| game       | gm    | Choose to end or restart the game.                                         | [end/reset]                              | [true]                      |
+| create     |       | Create an object.                                                          | [object_name, x, y, depth]               | [true, false, false, false] |
+| instances  | inst  | Show the list of active instances.                                         | [object_name]                            | [true]                      |
+| clear      | cls   | Clear the console.                                                         |                                          |                             |
+| set        |       | Set a variable on an instance or on `global`, creating it if missing.      | [instance_id or `global`, variable, value] | [true, true, true]      |
+| get        |       | Get one variable, or every variable, from an instance or `global`.         | [instance_id or `global`, include_builtin, variable] | [true, false, false] |
+| delete     | del   | Delete an instance.                                                        | [instance_id]                            | [true]                      |
+| fps        |       | Shows or toggles the current FPS.                                          | [false/true]                             | [false]                     |
+| debug_view |       | Shows or hides the debug views.                                            | [false/true]                             | [false]                     |
+| goto        |       | Go to a new room.                                                          | [room]                                   | [true]                      |
+| play       |       | Play a sound once.                                                         | [sound, volume, pitch]                   | [true, false, false]        |
+| log        |       | Save the console log to a file, or read a saved one back in.               | [save/load, filename]                    | [true, false]               |
+| version    | ver   | Show the console, runtime and platform versions.                           |                                          |                             |
+
+> [!NOTE]
+> `set` and `get` accept the literal `global` in place of an instance, which reads and
+> writes global variables instead. The type-ahead suggests instances for that argument, so
+> `global` has to be typed out.
+
+> [!NOTE]
+> `get` covers both single lookups and full dumps:
+>
+> | Input                          | Result                                                     |
+> | ------------------------------ | ---------------------------------------------------------- |
+> | `get oPlayer:100042 hp`        | Just `hp`, expanded in full.                               |
+> | `get oPlayer:100042`           | Every variable declared on the instance.                   |
+> | `get oPlayer:100042 true`      | The same, with the built-in instance variables as well.    |
+> | `get oPlayer:100042 true x`    | Just `x`, a built-in.                                      |
+> | `get global`                   | Every global variable.                                     |
+>
+> Both optional arguments are `include_builtin` first, then `variable`. Empty arguments are
+> stripped before a command runs, so there is no placeholder to skip the flag with: when only
+> one optional is given, a `true`/`false` is read as the flag and anything else as a variable
+> name. A variable that really is called `true` still wins, since that is checked first.
+
+> [!NOTE]
+> `set` creates the variable when it does not exist yet, which is how a new global, or a new
+> variable on an instance, gets added from the console. An existing variable keeps its
+> current type (`set inst visible false` stores a boolean, not the string `"false"`); a new
+> one takes whatever type the argument looks like - `true`/`false` become a boolean, digits
+> become a number, everything else stays a string.
+
+> [!NOTE]
+> The type-ahead suggests the names of your global variables on the `variable` argument, but
+> only when the target is `global` - so after `set global`, or after `get global <flag>`.
+> Instance variables are deliberately **not** suggested: the list is long, changes every
+> frame, and is rarely worth scrolling.
+
+> [!NOTE]
+> `log save` writes into the platform's sandboxed save area (`game_save_id` on desktop, the
+> browser's local storage on HTML5) and reports the location it used. Any directory part in
+> the filename is dropped, so a log can never be written outside that area. `log load` reads
+> from the same place.
 
 ---
 

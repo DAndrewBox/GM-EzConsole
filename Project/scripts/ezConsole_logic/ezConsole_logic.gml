@@ -221,6 +221,48 @@ function console_get_typeahead(_msg) {
 				return _names;
 			}
 			
+			if (_arg_type == ezConsole_type_command) {
+				// An argument that names another command, the way `help <command>` does.
+				_names = [];
+				for (var i = 0; i < _commands_len; i++) {
+					if (is_string(_commands[i].name)) {
+						array_push(_names, _commands[i].name);
+					}
+				}
+				array_sort(_names, true);
+				
+				var _names_len = array_length(_names);
+				for (var i = 0; i < _names_len; i++) {
+					var _command_name = _names[i];
+					if (_arg == string_copy(_command_name, 1, _arg_len) && _arg != _command_name) {
+						array_push(_suggestions, _command_name);
+					}
+				}
+				
+				return (array_length(_suggestions) == 0 && _arg_len < 1 ? _names : _suggestions);
+			}
+			
+			if (_arg_type == ezConsole_type_target_var) {
+				/*	Variable-name suggestions are offered for `global` only. An instance's
+					variable list is long, changes constantly, and is rarely worth
+					scrolling, so the first argument decides whether to suggest at all. */
+				if (_msg_trimmed_len < 3 || string_lower(_msg_trimmed[1]) != "global") {
+					return _suggestions;
+				}
+				
+				_names = console_target_variable_names(console_get_target("global"));
+				
+				var _globals_len = array_length(_names);
+				for (var i = 0; i < _globals_len; i++) {
+					var _global_name = _names[i];
+					if (_arg == string_copy(_global_name, 1, _arg_len) && _arg != _global_name) {
+						array_push(_suggestions, _global_name);
+					}
+				}
+				
+				return (array_length(_suggestions) == 0 && _arg_len < 1 ? _names : _suggestions);
+			}
+			
 			_names = console_typeahead_get_names(_arg_type);
 			var _len = array_length(_names);
 		
@@ -446,21 +488,281 @@ function console_check_params_count(_command, _params_len, _min_params, _max_par
 	return true;
 }
 	
-/// @func 	console_save_log_to_file()
-/// @desc	Saves the console log to a file.
-/// @ignore
-function console_save_log_to_file() {
-	var _logs = console_text_log;
-	var _msg, _time, _file;	
-	_file = file_text_open_write(string("ezConsole_logs_{0}.txt", current_time));
-	var _logs_len = ds_list_size(_logs);
-	for (var i = 0; i < _logs_len; i++) {
-		_time = _logs[| i].timestamp;
-		_msg = _logs[| i].message;
-		file_text_write_string(_file, _time + " " + _msg + "\n");
+/// @func 	console_save_log_to_file([filename])
+/// @param	{str}	[filename]
+/// @desc	Saves the console log to a text file in the platform's save area.
+///			Returns the filename that was written, or `undefined` on failure.
+function console_save_log_to_file(_filename = undefined) {
+	if (!ezConsole) return undefined;
+	
+	if (is_undefined(_filename) || _filename == "") {
+		_filename = $"ezConsole_log_{__ezConsole_dep_datetime_stamp()}.txt";
+	}
+	
+	_filename = console_get_log_filename(_filename);
+	
+	var _file = file_text_open_write(_filename);
+	if (_file == -1) return undefined;
+	
+	with (ezConsole) {
+		var _logs = console_text_log;
+		var _logs_len = ds_list_size(_logs);
+		for (var i = 0; i < _logs_len; i++) {
+			file_text_write_string(_file, _logs[| i].timestamp + " " + _logs[| i].message + "\n");
+		}
 	}
 	
 	file_text_close(_file);
+	return _filename;
+}
+
+/// @func 	console_load_log_from_file(filename)
+/// @param	{str}	filename
+/// @desc	Reads a saved log file back into the console. Returns how many lines were read,
+///			or -1 if the file could not be opened.
+function console_load_log_from_file(_filename) {
+	_filename = console_get_log_filename(_filename);
+	
+	if (!file_exists(_filename)) return -1;
+	
+	var _file = file_text_open_read(_filename);
+	if (_file == -1) return -1;
+	
+	var _lines = 0;
+	while (!file_text_eof(_file)) {
+		var _line = file_text_read_string(_file);
+		file_text_readln(_file);
+		
+		if (_line != "") {
+			console_write_log(_line, EZ_CONSOLE_MSG_TYPE.INFO, false);
+			_lines++;
+		}
+	}
+	
+	file_text_close(_file);
+	return _lines;
+}
+
+/// @func 	console_get_log_filename(filename)
+/// @param	{str}	filename
+/// @desc	Normalises a log filename: drops any directory part so the file always stays in
+///			the sandboxed save area, and defaults the extension to `.txt`.
+/// @ignore
+function console_get_log_filename(_filename) {
+	_filename = filename_name(string(_filename));
+	
+	if (filename_ext(_filename) == "") {
+		_filename += ".txt";
+	}
+	
+	return _filename;
+}
+
+/// @func 	console_get_log_directory()
+/// @desc	Readable location of the sandboxed save area that log files are written to.
+///			A relative filename given to `file_text_open_write` already lands there on every
+///			platform, so only the label shown to the user changes.
+function console_get_log_directory() {
+	if (os_browser != browser_not_a_browser) {
+		return "the browser's local storage";
+	}
+	
+	if (is_string(game_save_id) && game_save_id != "") {
+		return game_save_id;
+	}
+	
+	return working_directory;
+}
+
+/// @func 	console_get_log_columns()
+/// @desc	How many characters fit on one line of the log at the current console size.
+///			Tables size themselves from this so they grow with the console instead of
+///			assuming a fixed 80 columns. Assumes the skin font is monospaced, which the
+///			bundled fonts are.
+/// @ignore
+function console_get_log_columns() {
+	static _fallback = 80;
+	if (!ezConsole) return _fallback;
+	
+	var _columns = _fallback;
+	
+	with (ezConsole) {
+		draw_set_font(console_text_font);
+		var _char_w = string_width("M");
+		
+		if (_char_w > 0) {
+			// Log messages wrap at the console width minus the padding on both sides.
+			_columns = floor((console_width - (2 * console_log_xpad)) / _char_w);
+		}
+	}
+	
+	return max(24, _columns);
+}
+
+/// @func 	console_get_column_width(values, [minimum])
+/// @param	{array}	values
+/// @param	{real}	[minimum]
+/// @desc	Width of a column that fits every value in `values`, never narrower than
+///			`minimum`, plus two characters of gutter.
+/// @ignore
+function console_get_column_width(_values, _minimum = 0) {
+	var _len = array_length(_values);
+	var _widest = _minimum;
+	
+	for (var i = 0; i < _len; i++) {
+		_widest = max(_widest, string_length(string(_values[i])));
+	}
+	
+	return _widest + 2;
+}
+
+/// @func 	console_write_table_header(headers, widths)
+/// @param	{array}	headers
+/// @param	{array}	widths
+/// @desc	Writes a table header row followed by a divider spanning the console width.
+///			The last header needs no width, it runs to the end of the line.
+/// @ignore
+function console_write_table_header(_headers, _widths) {
+	var _len = array_length(_headers);
+	var _row = "";
+	
+	for (var i = 0; i < _len; i++) {
+		_row += (
+			i >= array_length(_widths)
+			? _headers[i]
+			: __ezConsole_dep_string_pad(_headers[i], _widths[i])
+		);
+	}
+	
+	ezConsole_info(_row, true, false);
+	ezConsole_info(string_repeat("-", console_get_log_columns()), true, false);
+}
+
+/// @func 	console_write_table_separator()
+/// @desc	Writes a heavier divider, used between two tables in the same output.
+/// @ignore
+function console_write_table_separator() {
+	ezConsole_info(string_repeat("=", console_get_log_columns()), true, false);
+}
+
+/// @func 	console_get_target(target)
+/// @param	{str}	target
+/// @desc	Resolves a command argument into something whose variables can be read or written.
+///			Accepts an instance id, an object name, an `object_name:ref` type-ahead entry, or
+///			the literal `global`. Returns a struct with `valid`, `is_global`, `ref` and `name`.
+/// @ignore
+function console_get_target(_target) {
+	var _result = {
+		valid:		false,
+		is_global:	false,
+		ref:		noone,
+		name:		string(_target),
+	};
+	
+	/*	console_check_command() already converts an argument declared as
+		`ezConsole_type_instance` into a real instance reference whenever it contains a
+		`:`, so the callback can receive it pre-resolved instead of as a string. */
+	if (!is_string(_target)) {
+		if (instance_exists(_target)) {
+			_result.valid	= true;
+			_result.ref		= _target;
+			_result.name	= $"{object_get_name(_target.object_index)}:{_target.id}";
+		}
+		
+		return _result;
+	}
+	
+	if (string_lower(_target) == "global") {
+		_result.valid		= true;
+		_result.is_global	= true;
+		_result.name		= "global";
+		return _result;
+	}
+	
+	// The type-ahead writes instance references as `object_name:ref`, so keep the ref only.
+	var _id = array_last(string_split(_target, ":"));
+	if (_id == "") return _result;
+	
+	var _ref = (string_digits(_id) == _id ? real(_id) : asset_get_index(_id));
+	if (_ref == -1 || !instance_exists(_ref)) return _result;
+	
+	_result.valid	= true;
+	_result.ref		= _ref;
+	return _result;
+}
+
+/// @func 	console_target_variable_names(target)
+/// @param	{struct}	target
+/// @desc	Sorted names of the variables declared on a resolved target.
+/// @ignore
+function console_target_variable_names(_target) {
+	if (!_target.is_global) {
+		var _instance_names = variable_instance_get_names(_target.ref);
+		array_sort(_instance_names, true);
+		return _instance_names;
+	}
+	
+	/*	There is no `variable_global_get_names()` in GML: globals are listed by handing the
+		`global` scope to variable_instance_get_names(). That scope also holds every script
+		function in the project plus a few runtime internals, none of which are global
+		variables anyone set, so they are filtered out here. */
+	var _all		= variable_instance_get_names(global);
+	var _all_len	= array_length(_all);
+	var _names		= [];
+	
+	for (var i = 0; i < _all_len; i++) {
+		var _name = _all[i];
+		
+		// Runtime internals, and EzConsole's own globals.
+		if (string_pos("@@", _name) || string_pos("___struct___", _name)) continue;
+		if (string_pos("__ezConsole_", _name) == 1) continue;
+		
+		// Script functions live in global scope, but they are not variables.
+		if (is_method(variable_global_get(_name))) continue;
+		
+		array_push(_names, _name);
+	}
+	
+	array_sort(_names, true);
+	return _names;
+}
+
+/// @func 	console_target_variable_exists(target, variable)
+/// @param	{struct}	target
+/// @param	{str}		variable
+/// @ignore
+function console_target_variable_exists(_target, _variable) {
+	return (
+		_target.is_global
+		? variable_global_exists(_variable)
+		: variable_instance_exists(_target.ref, _variable)
+	);
+}
+
+/// @func 	console_target_variable_get(target, variable)
+/// @param	{struct}	target
+/// @param	{str}		variable
+/// @ignore
+function console_target_variable_get(_target, _variable) {
+	return (
+		_target.is_global
+		? variable_global_get(_variable)
+		: variable_instance_get(_target.ref, _variable)
+	);
+}
+
+/// @func 	console_target_variable_set(target, variable, value)
+/// @param	{struct}	target
+/// @param	{str}		variable
+/// @param	{any}		value
+/// @ignore
+function console_target_variable_set(_target, _variable, _value) {
+	if (_target.is_global) {
+		variable_global_set(_variable, _value);
+		return;
+	}
+	
+	variable_instance_set(_target.ref, _variable, _value);
 }
 
 /// @func 	console_release_cursor()
@@ -605,6 +907,9 @@ function console_get_type_from_string(_name) {
 		case "script":		return ezConsole_type_script;
 		case "inst":
 		case "instance":	return ezConsole_type_instance;
+		case "variable":
+		case "target_var":	return ezConsole_type_target_var;
+		case "command":		return ezConsole_type_command;
 		default:	return noone;
 	}
 }

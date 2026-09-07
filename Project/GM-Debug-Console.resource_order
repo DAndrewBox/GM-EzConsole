@@ -24,6 +24,7 @@
   ],
   "ResourceOrderSettings":[
     {"name":"fnt_ezConsole_Pixel","order":1,"path":"fonts/fnt_ezConsole_Pixel/fnt_ezConsole_Pixel.yy",},
+    {"name":"__ezConsole_test_object__","order":1,"path":"objects/__ezConsole_test_object__/__ezConsole_test_object__.yy",},
     {"name":"ezConsole_base_commands_setup","order":1,"path":"scripts/ezConsole_base_commands_setup/ezConsole_base_commands_setup.yy",},
     {"name":"ezConsole_custom_commands","order":1,"path":"scripts/ezConsole_custom_commands/ezConsole_custom_commands.yy",},
     {"name":"ezConsole_custom_themes","order":2,"path":"scripts/ezConsole_custom_themes/ezConsole_custom_themes.yy",},

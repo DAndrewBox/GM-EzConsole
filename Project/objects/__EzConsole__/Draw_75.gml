@@ -83,8 +83,11 @@ if (console_window_open) {
 	var _bar_inset = console_bar_inset;
 	draw_rectangle(console_x, console_y, console_x + console_width, _bar_y + ((_bar_inset > 0) * console_bar_height), false);
 	
-	draw_set_colour(console_bar_color);
-	draw_rectangle(console_x + _bar_inset, _bar_y + _bar_inset, console_x + console_width - _bar_inset - (ezConsole_enable_resize ? ezConsole_prop_resize_grip + 2 : 0), _bar_y + console_bar_height - _bar_inset, false);
+    draw_set_alpha(console_focused ? console_bg_alpha : console_bg_alpha * .66)
+    draw_set_colour(console_bar_color); 
+    draw_rectangle(console_x + _bar_inset, _bar_y + _bar_inset, console_x + console_width - _bar_inset - (ezConsole_enable_resize ? ezConsole_prop_resize_grip + 2 : 0), _bar_y + console_bar_height - _bar_inset, false);
+    
+    draw_set_alpha(console_bg_alpha);
 }
 
 if (console_border_alpha > .0) {
@@ -94,6 +97,8 @@ if (console_border_alpha > .0) {
 	
 	if (console_window_open) {
 		draw_rectangle(console_x, console_y - (_no_anchor * console_bar_height), console_x + console_width, _bar_y + console_bar_height, true);
+        
+        draw_set_colour(console_border_color);
 		draw_line(console_x + console_log_xpad, _bar_y - 1, console_x + console_width - console_log_xpad, _bar_y - 1);
 	} else {
 		draw_rectangle(console_x, console_y - (_no_anchor * console_bar_height), console_x + console_width, console_y, true);
@@ -175,7 +180,7 @@ if (console_window_open) {
 	console_bar_xscroll = clamp(console_bar_xscroll, 0, max(0, _console_total_w - _bar_text_w + 2));
 
 	var _console_blink_char =
-		( console_focused && console_text_blink_t < game_get_speed(gamespeed_fps) * .66
+		( console_focused && (console_text_blink_t < game_get_speed(gamespeed_fps) * .66 || keyboard_key)
 		? console_text_blink_char
 		: "" );
 
@@ -189,7 +194,7 @@ if (console_window_open) {
 		lets the text cursor sit on top of a character instead of punching a hole in it. */
 	gpu_set_blendmode_ext_sepalpha(bm_src_alpha, bm_inv_src_alpha, bm_one, bm_inv_src_alpha);
 
-	draw_set_alpha(console_text_alpha);
+	draw_set_alpha(console_focused ? console_text_alpha : console_text_alpha * .50);
 	draw_set_colour(console_text_actual_color);
 	draw_set_halign(fa_left);
 	draw_set_valign(fa_center);

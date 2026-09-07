@@ -33,6 +33,7 @@ This is the offline version of the official and up-to-date documentation for **G
 - [Console Window](#console-window)
   - [Focus](#focus)
   - [Resizing](#resizing)
+  - [Inspecting variables](#inspecting-variables)
   - [The input bar](#the-input-bar)
 - [Customization](#customization)
   - [Using a theme](#using-a-theme)
@@ -106,6 +107,20 @@ The asset types are used to define the type of the argument for type-ahead sugge
 | `ezConsole_type_room`     | "room"              |
 | `ezConsole_type_instance` | "instance"          |
 | `ezConsole_type_option`   | "option"            |
+| `ezConsole_type_target_var` ![](https://img.shields.io/badge/v1.4.0-ffd200?style=flat) | "variable" |
+| `ezConsole_type_command` ![](https://img.shields.io/badge/v1.4.0-ffd200?style=flat) | "command" |
+
+> [!NOTE]
+> `ezConsole_type_command` suggests the names of the registered console commands. The base
+> `help` command uses it, and so can any command of your own that takes another command's
+> name as an argument. Aliases are not suggested, to keep the list to one entry per command.
+
+> [!NOTE]
+> `ezConsole_type_target_var` suggests the names of the **global variables** in your project,
+> and only when the argument before it is the literal `global`. It is meant for a command
+> shaped like `<command> <instance or global> <variable>`, which is how the base `get` and
+> `set` commands are built. Instance variables are deliberately not suggested: that list is
+> long, changes every frame, and is rarely worth scrolling.
 
 ---
 
@@ -427,6 +442,34 @@ small grip.
 | ezConsole_prop_resize_grip       | Size in pixels of the corner area that grabs a resize.                  | `14`         |
 | ezConsole_prop_resize_grip_outer | Extra pixels outside the console that still count as the resize corner. | `4`          |
 | ezConsole_prop_cursor_default    | The cursor restored when the mouse leaves the corner.                   | `cr_default` |
+
+### Inspecting variables ![](https://img.shields.io/badge/v1.4.0-ffd200?style=flat)
+
+`get` and `set` both take an instance **or** the literal `global` as their first argument,
+so global variables are reachable without a separate command:
+
+```
+get oPlayer:100042 hp        one variable, expanded in full
+get oPlayer:100042           every variable declared on the instance
+get oPlayer:100042 true      the same, plus the built-in instance variables
+get oPlayer:100042 true x    one built-in variable
+get global                   every global variable
+set global score 500         write a global, creating it if it is not there yet
+```
+
+`get` takes its optional arguments as `include_builtin` first, then `variable`. Empty
+arguments are stripped before a command runs, so there is no placeholder to skip the flag
+with: when only one optional is given, a `true`/`false` is read as the flag and anything else
+as a variable name.
+
+`set` creates the variable when it does not exist. An existing variable keeps its current
+type, so `set inst visible false` stores a boolean rather than the string `"false"`. A new
+variable takes the type its argument looks like: `true`/`false` become a boolean, digits
+become a number, anything else stays a string.
+
+Built-in instance variables are opt-in because `variable_instance_get_names()` does not
+report them, so EzConsole carries its own list. Physics (`phy_*`) variables are left out:
+reading them on a non-physics instance is noise.
 
 ### The input bar ![](https://img.shields.io/badge/v1.4.0-ffd200?style=flat)
 

@@ -46,7 +46,14 @@ function EzConsoleCommand(_name, _alias = "", _desc = "", _cb = -1, _args = []) 
 		}
 	}
 	
-	console_add_command(self);
+	/*	[Bugfix EZC-6]
+		A command with no name shows up as an undefined entry in `help`. Refuse to
+		register it instead, so a stray `new EzConsoleCommand()` cannot corrupt the list. */
+	if (is_string(name) && name != "") {
+		console_add_command(self);
+	} else {
+		show_debug_message("(EzConsole) ERROR! - Skipped a command that was created without a name.");
+	}
 }
 
 /// @func	EzConsoleCommandArgument(name, description, required, ezConsole_type)

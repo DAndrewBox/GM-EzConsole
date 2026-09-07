@@ -88,7 +88,7 @@ console_typeahead_selected		= -1;
 console_typeahead_elements_max	= ezConsole_prop_typeahead_elements;
 console_typeahead_selected_yoff	= 0;
 console_typeahead_nav_t			= 0;
-console_typeahead_filter		= function (e) {return is_string(e);};
+console_typeahead_filter		= is_string;
 
 console_instance_highlight_index = 0;
 

@@ -47,7 +47,8 @@ call_later(1, time_source_units_frames, function () {
 			new EzConsoleCommandArgument(
 				"command",
 				"Command to search help for.",
-				false
+				false,
+				ezConsole_type_command
 			),
 		]
 	);
@@ -98,19 +99,20 @@ call_later(1, time_source_units_frames, function () {
 	
 	new EzConsoleCommand(
 		"set", "",
-		"Set a new value to a variable on an instance",
+		"Set a variable on an instance or on \"global\", creating it if it does not exist.",
 		console_command_base_instance_set,
 		[
 			new EzConsoleCommandArgument(
 				"instance_id",
-				"Instance to modify.",
+				"Instance to modify. Accepts \"global\" to modify a global variable instead.",
 				true,
 				ezConsole_type_instance
 			),
 			new EzConsoleCommandArgument(
 				"variable",
-				"Variable to modify.",
-				true
+				"Variable to modify. It is created when it does not exist yet.",
+				true,
+				ezConsole_type_target_var
 			),
 			new EzConsoleCommandArgument(
 				"value",
@@ -122,19 +124,26 @@ call_later(1, time_source_units_frames, function () {
 	
 	new EzConsoleCommand(
 		"get", "",
-		"Get the value of a variable on an instance",
+		"Get one variable, or every variable, from an instance or from \"global\".",
 		console_command_base_instance_get,
 		[
 			new EzConsoleCommandArgument(
 				"instance_id",
-				"Instance to get the value from.",
+				"Instance to read from. Accepts \"global\" to read global variables instead.",
 				true,
 				ezConsole_type_instance
 			),
+			new EzConsoleCommandArgumentWithOptions(
+				"include_builtin",
+				"Also list the built-in instance variables. (\"false\" as default)",
+				false,
+				["true", "false"]
+			),
 			new EzConsoleCommandArgument(
 				"variable",
-				"Variable to get the value from.",
-				true
+				"Variable to read. Every variable is listed when this is left out.",
+				false,
+				ezConsole_type_target_var
 			),
 		]
 	);
@@ -195,6 +204,56 @@ call_later(1, time_source_units_frames, function () {
 		console_command_base_goto,
 		[
 			new EzConsoleCommandArgument("room", "Room Name", true, ezConsole_type_room),
+		]
+	);
+	
+	new EzConsoleCommand(
+		"version",
+		"ver",
+		"Show the console, runtime and platform versions.",
+		console_command_base_version
+	);
+	
+	new EzConsoleCommand(
+		"log", "",
+		"Save the console log to a file, or read a saved one back in.",
+		console_command_base_log,
+		[
+			new EzConsoleCommandArgumentWithOptions(
+				"action",
+				"Can take values \"save\" or \"load\".",
+				true,
+				["save", "load"]
+			),
+			new EzConsoleCommandArgument(
+				"filename",
+				"Name of the log file. Generated from the current date and time when saving without one.",
+				false
+			),
+		]
+	);
+	
+	new EzConsoleCommand(
+		"play", "",
+		"Play a sound once.",
+		console_command_base_play,
+		[
+			new EzConsoleCommandArgument(
+				"sound",
+				"Name of the sound asset.",
+				true,
+				ezConsole_type_sound
+			),
+			new EzConsoleCommandArgument(
+				"volume",
+				"Volume between 0 and 1. (1 as default)",
+				false
+			),
+			new EzConsoleCommandArgument(
+				"pitch",
+				"Pitch between 0.25 and 4. (1 as default)",
+				false
+			),
 		]
 	);
 });

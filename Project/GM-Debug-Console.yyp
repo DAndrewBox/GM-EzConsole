@@ -51,6 +51,7 @@
     {"id":{"name":"fnt_ezConsole_Pixel","path":"fonts/fnt_ezConsole_Pixel/fnt_ezConsole_Pixel.yy",},},
     {"id":{"name":"fnt_ezConsole_Smooth","path":"fonts/fnt_ezConsole_Smooth/fnt_ezConsole_Smooth.yy",},},
     {"id":{"name":"__EzConsole__","path":"objects/__EzConsole__/__EzConsole__.yy",},},
+    {"id":{"name":"__ezConsole_test_object__","path":"objects/__ezConsole_test_object__/__ezConsole_test_object__.yy",},},
     {"id":{"name":"r_ezConsole_demo","path":"rooms/r_ezConsole_demo/r_ezConsole_demo.yy",},},
     {"id":{"name":"ezConsole_base_commands_logic","path":"scripts/ezConsole_base_commands_logic/ezConsole_base_commands_logic.yy",},},
     {"id":{"name":"ezConsole_base_commands_setup","path":"scripts/ezConsole_base_commands_setup/ezConsole_base_commands_setup.yy",},},
