@@ -120,7 +120,7 @@ The following table shows the available configurations and their default values:
 | `ezConsole_prop_scrollbar_grab`       | Half-width in pixels of the area that grabs the log scrollbar.                              | `6`                        |
 | `ezConsole_prop_log_copy_flash`       | Seconds a copied log line stays highlighted.                                                | `.60`                      |
 | `ezConsole_prop_notice_time`          | Seconds a notice stays next to the console title.                                           | `1.50`                     |
-| `ezConsole_prop_header_icon_alpha`    | Alpha of the title bar icons while not hovered.                                             | `.90`                      |
+| `ezConsole_prop_header_icon_alpha`    | Alpha of the title bar icons while not hovered.                                             | `.80`                      |
 | `ezConsole_autocreate`                | If `true`, the console will be created automatically when the game starts.                  | `true`                     |
 | `ezConsole_key_toggle`                | The key to toggle the console.                                                              | `vk_f1`                    |
 | `ezConsole_key_nav_up`                | The key to navigate up in the console.                                                      | `vk_up`                    |

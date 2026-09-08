@@ -492,6 +492,7 @@ function console_check_params_count(_command, _params_len, _min_params, _max_par
 /// @param	{str}	[filename]
 /// @desc	Saves the console log to a text file in the platform's save area.
 ///			Returns the filename that was written, or `undefined` on failure.
+/// @ignore
 function console_save_log_to_file(_filename = undefined) {
 	if (!ezConsole) return undefined;
 	
@@ -520,6 +521,7 @@ function console_save_log_to_file(_filename = undefined) {
 /// @param	{str}	filename
 /// @desc	Reads a saved log file back into the console. Returns how many lines were read,
 ///			or -1 if the file could not be opened.
+/// @ignore
 function console_load_log_from_file(_filename) {
 	_filename = console_get_log_filename(_filename);
 	
@@ -562,6 +564,7 @@ function console_get_log_filename(_filename) {
 /// @desc	Readable location of the sandboxed save area that log files are written to.
 ///			A relative filename given to `file_text_open_write` already lands there on every
 ///			platform, so only the label shown to the user changes.
+/// @ignore
 function console_get_log_directory() {
 	if (os_browser != browser_not_a_browser) {
 		return "the browser's local storage";
@@ -609,6 +612,7 @@ function console_get_header_buttons() {
 /// @func 	console_copy_log_to_clipboard()
 /// @desc	Copies the whole console log to the clipboard, one line per entry with its
 ///			timestamp. Returns how many lines were copied.
+/// @ignore
 function console_copy_log_to_clipboard() {
 	if (!ezConsole) return 0;
 	
@@ -635,6 +639,7 @@ function console_copy_log_to_clipboard() {
 /// @desc	Shows a short message beside the console title for a few seconds. Used for things
 ///			the log itself should not record, such as confirming a copy: writing that to the
 ///			log would push the log around and bury the line that was just copied.
+/// @ignore
 function console_show_notice(_text) {
 	if (!ezConsole) return;
 	
@@ -647,6 +652,7 @@ function console_show_notice(_text) {
 /// @func 	console_paste_from_clipboard()
 /// @desc	Inserts the clipboard text into the input bar at the text cursor.
 ///			Returns whether anything was pasted.
+/// @ignore
 function console_paste_from_clipboard() {
 	if (!ezConsole) return false;
 	if (!clipboard_has_text()) return false;

@@ -531,8 +531,6 @@ default). The whole behaviour can be turned off with `ezConsole_enable_log_copy`
 > The notice is drawn in the window title bar, so it is only visible when the skin's anchor
 > is `EZ_CONSOLE_ANCHOR.NONE`. A docked console has no title bar to put it in.
 
-Your own code can raise one of those notices with `console_show_notice(text)`, for anything
-that is worth acknowledging but not worth a log entry.
 
 The scrollbar overlaps the right edge of the log area, and it takes the click first, so
 dragging the bar never copies a line by accident.
@@ -541,8 +539,7 @@ dragging the bar never copies a line by accident.
 thing from clicking the log.
 
 The **copy button** in the window title bar, to the left of the close button, copies the
-_whole_ log at once, every entry with its timestamp, one per line. `console_copy_log_to_clipboard()`
-does the same from your own code and returns how many lines it copied.
+_whole_ log at once, every entry with its timestamp, one per line.
 
 ### The title bar ![](https://img.shields.io/badge/v1.4.0-ffd200?style=flat)
 
@@ -554,19 +551,18 @@ A console with the `EZ_CONSOLE_ANCHOR.NONE` anchor gets a title bar with three b
 | Copy log            | Right    | Copies the whole log to the clipboard.        |
 | Close               | Right    | Hides the console, same as the toggle key.    |
 
-Icons sit at `ezConsole_prop_header_icon_alpha` (`.90` by default) and go fully opaque while
+Icons sit at `ezConsole_prop_header_icon_alpha` (`.80` by default) and go fully opaque while
 hovered. The copy and close buttons also draw a disc behind them in the theme's
 `bar_color_highlight` while hovered. Clicking anywhere else on the title bar drags the
 console instead.
 
-Their hit areas come from `console_get_header_buttons()`, which the drawing reads too, so a
-button's clickable area is always exactly where its icon is, including after a resize.
+A button's clickable area is derived from the same geometry that positions its icon, so the
+two can never drift apart, including after a resize.
 
 ### Pasting ![](https://img.shields.io/badge/v1.4.0-ffd200?style=flat)
 
 `Ctrl + V` pastes, and so does clicking the **middle mouse button** anywhere on the console -
-the same gesture an X11 terminal uses. Both go through `console_paste_from_clipboard()`, so
-both behave identically:
+the same gesture an X11 terminal uses. Both share one code path, so both behave identically:
 
 - The text is inserted **at the text cursor**, not appended to the end of the line. `Ctrl + V`
   used to always append, ignoring wherever the cursor was.
@@ -773,7 +769,6 @@ The following table shows the available style variables:
 | console_bar_height                     | The height in pixels of the bar that shows the current command.                                |
 | console_bar_color                      | The color of the bar that shows the current command.                                           |
 | console_bar_color_highlight            | The color of the bar that shows the current command when the user selects a typeahead command. |
-| console_bar_max_chars                  | The maximum number of characters that can be shown in the bar.                                 |
 | console_log_xpad                       | The horizontal padding of the log.                                                             |
 | console_log_ypad                       | The vertical padding of the log.                                                               |
 | console_blur_amount                    | The amount of blur that will be applied to the game behind the console.                        |

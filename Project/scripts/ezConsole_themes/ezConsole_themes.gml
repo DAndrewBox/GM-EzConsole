@@ -1,5 +1,6 @@
 /// @func	console_skin_load_all()
 /// @desc	Loads all console skins from folder
+/// @ignore
 function console_skin_load_all() {
 	var _folder_path = working_directory + "GM-EzConsole/";
 	var _skins = {};
@@ -20,12 +21,14 @@ function console_skin_load_all() {
 
 /// @func	console_add_skin(skin_struct)
 /// @param	{struct}	skin_struct
+/// @ignore
 function console_add_skin(_skin) {
 	ezConsole_skin_list[$ _skin.name] = _skin;
 }
 
 /// @func	console_skin_get_width(width)
 /// @param	{real}	width
+/// @ignore
 function console_skin_get_width(_w) {
 	_w = real(_w);
 	return round( _w <= 1 ? (_w * window_get_width()) : _w );
@@ -33,12 +36,14 @@ function console_skin_get_width(_w) {
 
 /// @func	console_skin_get_height(height)
 /// @param	{real}	height
+/// @ignore
 function console_skin_get_height(_h) {
 	_h = real(_h);
 	return round( _h <= 1 ? (_h * window_get_height()) : _h );
 }
 
 /// @func	console_get_skin_prop_names()
+/// @ignore
 function console_get_skin_prop_names() {
 	static _prop_names = [
 		"name",
@@ -79,6 +84,7 @@ function console_get_skin_prop_names() {
 /// @func	console_skin_set_prop(prop, value)
 /// @param	{str}	prop
 /// @param	{any}	value
+/// @ignore
 function console_skin_set_prop(_prop, _val) {
 	var _fixed_val;
 	

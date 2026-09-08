@@ -211,10 +211,10 @@ To create your first command with arguments with options, you can do so by follo
 For the logic of the callback function, you can use the following code:
 
 ```js
-/// @func	console_command_base_game(args)
+/// @func	console_command_game(args)
 /// @param	{Array}	args
 /// @desc	Execute game actions
-function console_command_base_game(_args) {
+function console_command_game(_args) {
   switch (_args[0]) {
     case "reset":
       game_restart();
@@ -233,31 +233,20 @@ function console_command_base_game(_args) {
 
 On this code, we are using a `switch` statement to check the first argument of the command. If the argument is `reset`, we will restart the game. If the argument is `end`, we will end the game. If the argument is anything else, we will show an error message. You can use this logic as a base for your command.
 
-To show an error message, we need to check for an invalid parameter or argument. For this we will use one of the default messages from the `EZ_CONSOLE_MSG` enumerator. You can see the list of default messages on the [enumerators page](./Enumerators).
-
-Using the `console_get_message` function, we can get the message and add the argument that caused the error. The first argument of the function is the message from the `EZ_CONSOLE_MSG` enumerator, the second argument is the name of the command, the third argument is the number of arguments received, the fourth argument is the minimum number of arguments required, and the fifth argument is the maximum number of arguments required.
-
-Then we add the argument that caused the error. The following code shows how to use the `console_get_message` function to get the message for an invalid parameter:
+To show an error message, use `ezConsole_error()` with whatever text explains the problem. The
+argument that caused it is in `_args`, so include it to make the message useful:
 
 ```js
-var _invalid_param =
-  console_get_message(
-    EZ_CONSOLE_MSG.INVALID_PARAM,
-    "game",
-    array_length(_args),
-    1,
-    1
-  ) + _args[0];
-ezConsole_error(_invalid_param);
+ezConsole_error($"Command \"game\" has no param \"{_args[0]}\".");
 ```
 
 The logic for the callback function is now complete and will look like this:
 
 ```js
-/// @func	console_command_base_game(args)
+/// @func	console_command_game(args)
 /// @param	{Array}	args
 /// @desc	Execute game actions
-function console_command_base_game(_args) {
+function console_command_game(_args) {
   switch (_args[0]) {
     case "reset":
       game_restart();
@@ -268,15 +257,7 @@ function console_command_base_game(_args) {
       break;
 
     default:
-      var _invalid_param =
-        console_get_message(
-          EZ_CONSOLE_MSG.INVALID_PARAM,
-          "game",
-          array_length(_args),
-          1,
-          1
-        ) + _args[0];
-      ezConsole_error(_invalid_param);
+      ezConsole_error($"Command \"game\" has no param \"{_args[0]}\".");
       break;
   }
 }
@@ -291,7 +272,7 @@ new EzConsoleCommand(
   "game",
   "",
   "Choose to end or restart the game.",
-  console_command_base_game,
+  console_command_game,
   [
     new EzConsoleArgumentWithOptions("action", "Action to execute", [
       "reset",
@@ -323,10 +304,10 @@ To create your first command with asset-typed arguments, you can do so by follow
 This will be the end result of the callback function, we will explain the logic behind it:
 
 ```js
-/// @func	console_command_base_create(args)
+/// @func	console_command_create(args)
 /// @param	{Array}	args
 /// @desc	Creates an instance
-function console_command_base_create(_args) {
+function console_command_create(_args) {
   var _asset = asset_get_index(_args[0]);
   var _params_len = array_length(_args);
 
@@ -363,7 +344,7 @@ new EzConsoleCommand(
   "create",
   "",
   "Create an object on position.",
-  console_command_base_create,
+  console_command_create,
   [
     new EzConsoleArgument(
       "object_name",

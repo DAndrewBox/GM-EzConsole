@@ -60,7 +60,7 @@ ezConsole_skin_selected	= "default-ImGui";
 // Valid characters that can be typed on console
 #macro	ezConsole_valid_charset_letters		"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 #macro	ezConsole_valid_charset_numbers		"0123456789"
-#macro	ezConsole_valid_charset_symbols		" _\":.#<>"
+#macro	ezConsole_valid_charset_symbols		" -_\":.#<>"
 
 // Console would be created a few frames after start game.
 #macro	ezConsole_autocreate				true

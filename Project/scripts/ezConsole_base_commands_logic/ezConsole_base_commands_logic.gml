@@ -2,6 +2,7 @@
 /// @func	console_command_base_message(args)
 /// @param	{array}	args
 /// @desc	Hide debug overlay
+/// @ignore
 function console_command_base_message(_args) {		
 	show_message_async(_args[0]);
 }
@@ -9,6 +10,7 @@ function console_command_base_message(_args) {
 /// @func	console_command_base_game(args)
 /// @param	{array}	args
 /// @desc	Execute game actions
+/// @ignore
 function console_command_base_game(_args) {
 	switch (_args[0]) {
 		case "reset":
@@ -29,6 +31,7 @@ function console_command_base_game(_args) {
 /// @func	console_command_base_fullscreen(args)
 /// @param	{array}	args
 /// @desc	Hide debug overlay
+/// @ignore
 function console_command_base_fullscreen(_args) {
 	var _params_len = array_length(_args);
 	if (_params_len == 0) {
@@ -80,6 +83,7 @@ function console_command_base_fullscreen(_args) {
 /// @func	console_command_base_help(args)
 /// @param	{array}	args
 /// @desc	Show help about commands
+/// @ignore
 function console_command_base_help(_args) {
 	static _command	= "help";
 	var _params_len = array_length(_args);
@@ -219,6 +223,7 @@ function console_command_base_help(_args) {
 /// @func	console_command_base_create(args)
 /// @param	{array}	args
 /// @desc	Creates an instance
+/// @ignore
 function console_command_base_create(_args) {
 	var _asset = asset_get_index(_args[0]);
 	var _params_len = array_length(_args);
@@ -245,6 +250,7 @@ function console_command_base_create(_args) {
 /// @func	console_command_base_instances(args)
 /// @param	{array}	args
 /// @desc	Get all instances
+/// @ignore
 function console_command_base_instances(_args) {
 	var _command	= "instances";
 	var _params_len = array_length(_args);
@@ -328,6 +334,7 @@ function console_write_instance_table(_rows) {
 /// @func	console_command_base_instance_set(args)
 /// @param	{array}	args
 /// @desc	Sets a variable on an instance or on `global`
+/// @ignore
 function console_command_base_instance_set(_args) {
 	var _target_name	= _args[0];
 	var _variable_name	= string(_args[1]);
@@ -380,6 +387,7 @@ function console_command_base_instance_set(_args) {
 /// @func	console_command_base_instance_get(args)
 /// @param	{array}	args
 /// @desc	Gets a variable, or every variable, from an instance or from `global`
+/// @ignore
 function console_command_base_instance_get(_args) {
 	var _args_len		= array_length(_args);
 	var _target_name	= _args[0];
@@ -550,6 +558,7 @@ function console_write_variable_table(_target, _names, _header) {
 /// @func	console_command_base_instance_delete(args)
 /// @param	{array}	args
 /// @desc	Delete an instance
+/// @ignore
 function console_command_base_instance_delete(_args) {
 	var _instance_id	= _args[0];
 	var _exec_ev		= ( array_length(_args) > 1 ? _args[1] : "1" );
@@ -583,6 +592,7 @@ function console_command_base_instance_delete(_args) {
 /// @func	console_command_base_clear(args)
 /// @param	{array}	args
 /// @desc	Clears console log
+/// @ignore
 function console_command_base_clear(_args) {
 	with (ezConsole) {
 		ds_list_clear(console_text_log);
@@ -601,6 +611,7 @@ function console_command_base_clear(_args) {
 /// @func	console_command_base_fps(args)
 /// @param	{array}	args
 /// @desc	Toggle or set and set FPS on screen
+/// @ignore
 function console_command_base_fps(_args) {
 	var _args_len = array_length(_args);
 	if (_args_len == 0) {
@@ -633,6 +644,7 @@ function console_command_base_fps(_args) {
 /// @func	console_command_base_debug_overlay(args)
 /// @param	{array}	args
 /// @desc	Toggle or set and set debug overlay on screen
+/// @ignore
 function console_command_base_debug_overlay(_args) {
 	if (array_length(_args) == 0) {
 		ezConsole.console_debug_overlay_show = !ezConsole.console_debug_overlay_show;
@@ -662,6 +674,7 @@ function console_command_base_debug_overlay(_args) {
 /// @func	console_command_base_goto(args)
 /// @param	{array}	args
 /// @desc	Toggle or set and set debug overlay on screen
+/// @ignore
 function console_command_base_goto(_args) {
     var _room = asset_get_index(_args[0]);
     
@@ -676,6 +689,7 @@ function console_command_base_goto(_args) {
 /// @func	console_command_base_skin(args)
 /// @param	{array}	args
 /// @desc	Toggle or set and set debug overlay on screen
+/// @ignore
 function console_command_base_skin(_args) {
 	var _args_len = array_length(_args);
 	var _current_skin;
@@ -732,6 +746,7 @@ function console_command_base_skin(_args) {
 /// @func	console_command_base_version(args)
 /// @param	{array}	args
 /// @desc	Shows the console, runtime and platform versions
+/// @ignore
 function console_command_base_version(_args) {
     ezConsole_info(__ezConsole_dep_string_pad("EzConsole Version", 16) + string(ezConsole_version), false, false);
 	ezConsole_info(__ezConsole_dep_string_pad("Game Version", 16) + string(GM_version), false, false);
@@ -749,6 +764,7 @@ function console_command_base_version(_args) {
 /// @func	console_command_base_log(args)
 /// @param	{array}	args
 /// @desc	Saves the console log to a file, or reads a saved one back in
+/// @ignore
 function console_command_base_log(_args) {
 	static _command = "log";
 	var _args_len	= array_length(_args);
@@ -795,6 +811,7 @@ function console_command_base_log(_args) {
 /// @func	console_command_base_play(args)
 /// @param	{array}	args
 /// @desc	Plays a sound asset once
+/// @ignore
 function console_command_base_play(_args) {
 	var _args_len	= array_length(_args);
 	var _sound_name	= _args[0];

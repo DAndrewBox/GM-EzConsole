@@ -2,7 +2,7 @@ call_later(2, time_source_units_frames, function () {
 	#region // Add your custom skins here
 	new EzConsoleSkin(
 		new EzConsoleSkinOwnership("default-dark-pixel", "DAndrëwBox"),
-		new EzConsoleSkinSize(1, .33, EZ_CONSOLE_ANCHOR.BOTTOM_LEFT),
+		new EzConsoleSkinSize(0.50, .33, EZ_CONSOLE_ANCHOR.TOP_RIGHT),
 		new EzConsoleSkinBackground(#07071e, #07071e, .66, .33, .20),
 		new EzConsoleSkinText(fnt_ezConsole_Smooth, 0, 0, #eeeeee, #ff004d, #ffec27, #8396bc, 1.),
 		new EzConsoleSkinBar(16, #0f0f3c, #ffa040, 4, 4),
